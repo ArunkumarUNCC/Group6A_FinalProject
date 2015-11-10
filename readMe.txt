@@ -1,0 +1,1 @@
+Minimum API:14 - Android 4.0(IceCreamSandwich)
