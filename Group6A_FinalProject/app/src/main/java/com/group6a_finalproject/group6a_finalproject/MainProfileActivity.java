@@ -11,9 +11,14 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.parse.LogOutCallback;
+import com.parse.ParseException;
+import com.parse.ParseUser;
+
 public class MainProfileActivity extends AppCompatActivity {
 
     final String fGOTO_EDIT_PROFILE = "android.intent.action.EDIT_PROFILE";
+    final String fGOTO_CRTEATE_ALBUM = "android.intent.action.CREATE_ALBUM";
 
     ImageView fProfilePic;
     TextView fName, fEmail, fGender;
@@ -58,6 +63,11 @@ public class MainProfileActivity extends AppCompatActivity {
         fProfilePic = (ImageView) findViewById(R.id.imageViewProfilePicture);
     }
 
+    public void toActivity(){
+        Intent lIntent = new Intent(MainProfileActivity.this, MainActivity.class);
+        startActivity(lIntent);
+    }
+
     public void toActivity(String aIntent){
         Intent lIntent = new Intent(aIntent);
         startActivity(lIntent);
@@ -78,12 +88,8 @@ public class MainProfileActivity extends AppCompatActivity {
         toActivity(fGOTO_EDIT_PROFILE, "Some Extra");
     }
 
-    public void cancelOnClick (View aView){
-        finish();
-    }
-
     public void createAlbumOnClick (MenuItem aItem){
-
+        toActivity(fGOTO_CRTEATE_ALBUM);
     }
 
     public void viewAlbumOnClick (MenuItem aItem){
@@ -92,5 +98,17 @@ public class MainProfileActivity extends AppCompatActivity {
 
     public void viewUserDirectoryOnClick (MenuItem aItem){
 
+    }
+
+    public void logoutOnClick (MenuItem aItem){
+        ParseUser.logOutInBackground(new LogOutCallback() {
+            @Override
+            public void done(ParseException e) {
+                if (e == null) {
+                    toActivity();
+                    finish();
+                }
+            }
+        });
     }
 }

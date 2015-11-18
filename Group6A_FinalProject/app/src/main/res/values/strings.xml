@@ -13,4 +13,8 @@
     <string name="signUpOnClick">signUpOnClick</string>
     <string name="cancelOnClick">cancelOnClick</string>
     <string name="editAvatarOnClick">editAvatarOnClick</string>
+    <string name="title_activity_create_album">Create Album</string>
+    <string name="title_activity_album">Album</string>
+    <string name="addAlbumThumbOnClick">addAlbumThumbOnClick</string>
+    <string name="createAlbumOnClick">createAlbumOnClick</string>
 </resources>

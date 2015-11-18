@@ -8,4 +8,6 @@
         android:orderInCategory="100" app:showAsAction="never" />
     <item android:id="@+id/viewUserDirectory" android:title="View User Directory" android:onClick="viewUserDirectoryOnClick"
         android:orderInCategory="100" app:showAsAction="never" />
+    <item android:id="@+id/logout" android:title="Logout" android:onClick="logoutOnClick"
+        android:orderInCategory="100" app:showAsAction="never" />
 </menu>

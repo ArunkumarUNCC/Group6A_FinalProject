@@ -47,6 +47,24 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".CreateAlbumActivity"
+            android:label="@string/title_activity_create_album" >
+            <intent-filter>
+                <action android:name="android.intent.action.CREATE_ALBUM" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".AlbumActivity"
+            android:label="@string/title_activity_album" >
+            <intent-filter>
+                <action android:name="android.intent.action.ALBUM_VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
     </application>
 
 </manifest>
