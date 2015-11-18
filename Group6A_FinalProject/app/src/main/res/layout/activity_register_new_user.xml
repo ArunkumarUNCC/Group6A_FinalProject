@@ -16,7 +16,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/editTextRegisterName"
-            android:hint="First, Last Name" />
+            android:hint="FirstName LastName" />
 
         <EditText
             android:layout_width="match_parent"

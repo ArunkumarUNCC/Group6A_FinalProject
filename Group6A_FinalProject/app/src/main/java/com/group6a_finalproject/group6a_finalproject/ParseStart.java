@@ -11,7 +11,9 @@ public class ParseStart extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        //TODO Update the initialize
-        Parse.initialize(this, "VhuCw5tx7kT9ziE2iZGtvdhdbQsglap3rpu4Oozk", "QwWyqBVc4HK54AHAy1w367aFDUWDSzWLtDPsT4kn");
+        
+        Parse.enableLocalDatastore(this);
+
+        Parse.initialize(this, "YtE1gtFuBgmjXkjR4kQhlb7Jfu8TJxysKecc0dyL", "BKUis8Z2F2OqwfrEZg8D5xMtYZMjS3LAmlJQ68qb");
     }
 }

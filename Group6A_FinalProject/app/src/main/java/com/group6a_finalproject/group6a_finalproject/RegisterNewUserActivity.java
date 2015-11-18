@@ -10,6 +10,13 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.parse.ParseException;
+import com.parse.ParseUser;
+import com.parse.SignUpCallback;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 public class RegisterNewUserActivity extends AppCompatActivity {
 
     TextView fName, fEmail, fPassword, fConfirmPassword;
@@ -59,9 +66,62 @@ public class RegisterNewUserActivity extends AppCompatActivity {
     }
 
     public void signUpOnClick (View aView){
-        //TODO: implement signUp (don't forget to get gender flag -- save as male or female text)
-        makeToast("Successfully registered!");
-        finish();
+
+        final String lName,lEmail,lPassword,lConfirmPassword,lGender;
+        lName = fName.getText().toString();
+        lEmail = fEmail.getText().toString();
+        lPassword = fPassword.getText().toString();
+        lConfirmPassword = fConfirmPassword.getText().toString();
+        lGender = fGenderSwitch.isChecked()==true?"Female":"Male";
+
+        //Validations
+        Pattern lCheckSpace = Pattern.compile("\\s");
+        Matcher lSpaceMatcher = lCheckSpace.matcher(lName);
+        boolean lIsSpace = lSpaceMatcher.find();
+
+        if(lName.isEmpty()){
+            fName.setError("Enter Name");
+        }
+        else if(!lIsSpace){
+            fName.setText("");
+            fName.setError("Invalid Name");
+        }
+        if(lEmail.isEmpty()){
+            fEmail.setError("Enter Email");
+        }
+        if (lPassword.isEmpty()){
+            fPassword.setError("Empty Password");
+        }
+        if (lConfirmPassword.isEmpty()){
+            fConfirmPassword.setError("Re Enter Password");
+        }
+        if(!lPassword.equals(lConfirmPassword)){
+            fPassword.setText("");
+            fConfirmPassword.setText("");
+            makeToast("Passwords Mismatch");
+
+            return;
+        }
+
+        //Signing up in Parse
+        ParseUser lSignupUser = new ParseUser();
+        lSignupUser.setEmail(lEmail);
+        lSignupUser.setPassword(lPassword);
+        lSignupUser.setUsername(lEmail);
+        lSignupUser.put("name", lName);
+        lSignupUser.put("gender", lGender);
+        lSignupUser.signUpInBackground(new SignUpCallback() {
+            @Override
+            public void done(ParseException e) {
+                if(e==null){
+                    makeToast("Registration Successful");
+                    finish();
+                }
+                else{
+                    fEmail.setError("Email already exists");
+                }
+            }
+        });
     }
 
     public void cancelOnClick (View aView){
