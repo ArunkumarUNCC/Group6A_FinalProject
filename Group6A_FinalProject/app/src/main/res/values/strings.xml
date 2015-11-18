@@ -3,4 +3,14 @@
 
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
+    <string name="title_activity_register_new_user">Register New User</string>
+    <string name="loginOnClick">loginOnClick</string>
+    <string name="registerOnClick">registerOnClick</string>
+    <string name="title_activity_main_profile">Profile</string>
+    <string name="title_activity_edit_profile">Edit Profile</string>
+    <string name="editProfileOnClick">editProfileOnClick</string>
+    <string name="saveProfileOnClick">saveProfileOnClick</string>
+    <string name="signUpOnClick">signUpOnClick</string>
+    <string name="cancelOnClick">cancelOnClick</string>
+    <string name="editAvatarOnClick">editAvatarOnClick</string>
 </resources>

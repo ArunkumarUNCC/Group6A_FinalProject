@@ -1,0 +1,77 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent" android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    tools:context="com.group6a_finalproject.group6a_finalproject.EditProfileActivity">
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/imageViewEditProfilePicture"
+        android:maxWidth="400px"
+        android:maxHeight="400px"
+        android:minWidth="400px"
+        android:minHeight="400px"
+        android:src="@android:drawable/ic_menu_myplaces"
+        android:layout_centerHorizontal="true"
+        android:onClick="@string/editAvatarOnClick" />
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/imageViewEditProfilePicture">
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="Current User Name"
+            android:id="@+id/editTextEditProfileName"/>
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="Current Email"
+            android:id="@+id/editTextEditProfileEmail"
+            android:paddingTop="20dp"/>
+
+        <Switch
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Gender: "
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:id="@+id/switchEdiptProfileGender"
+            android:layout_gravity="left"
+            android:enabled="true"
+            android:textOn="F"
+            android:textOff="M"
+            android:showText="true"
+            android:paddingTop="20dp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:gravity="center">
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Save"
+            android:id="@+id/buttonProfileSave"
+            android:onClick="@string/saveProfileOnClick" />
+
+    </LinearLayout>
+
+</RelativeLayout>
