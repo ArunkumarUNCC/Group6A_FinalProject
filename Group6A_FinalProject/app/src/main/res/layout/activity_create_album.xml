@@ -27,23 +27,25 @@
         android:minWidth="400px"
         android:minHeight="400px"
         android:src="@android:drawable/ic_menu_myplaces"
+        android:onClick="@string/addAlbumThumbOnClick"
+        android:layout_marginTop="41dp"
         android:layout_below="@+id/editTextCreateAlbumName"
-        android:layout_centerHorizontal="true"
-        android:onClick="@string/addAlbumThumbOnClick" />
+        android:layout_centerHorizontal="true" />
 
     <Switch
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Private: "
         android:id="@+id/switchAlbumPrivacy"
-        android:layout_below="@+id/imageViewCreateAlbumThumb"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
         android:enabled="true"
         android:textOn="No"
         android:textOff="Yes"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:showText="true"/>
+        android:showText="true"
+        android:layout_below="@+id/imageViewCreateAlbumThumb"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="41dp" />
 
     <LinearLayout
         android:orientation="horizontal"
