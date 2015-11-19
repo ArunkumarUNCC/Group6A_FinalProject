@@ -27,6 +27,12 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         getItems();
+
+        ParseUser lCheckUser = ParseUser.getCurrentUser();
+        if(lCheckUser!=null){
+            toActivity(fGOTO_MAIN_PROFILE);
+            finish();
+        }
     }
 
     @Override
@@ -84,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void done(ParseUser user, ParseException e) {
                     if (user != null) {
-                        makeToast("Login Successful");
+//                        makeToast("Login Successful");
                         toActivity(fGOTO_MAIN_PROFILE);
                         finish();
                     } else

@@ -1,8 +1,11 @@
 package com.group6a_finalproject.group6a_finalproject;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -11,26 +14,33 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.parse.GetDataCallback;
 import com.parse.LogOutCallback;
 import com.parse.ParseException;
+import com.parse.ParseFile;
 import com.parse.ParseUser;
+
+import java.io.ByteArrayOutputStream;
 
 public class MainProfileActivity extends AppCompatActivity {
 
     final String fGOTO_EDIT_PROFILE = "android.intent.action.EDIT_PROFILE";
     final String fGOTO_CRTEATE_ALBUM = "android.intent.action.CREATE_ALBUM";
+    final int fEDIT_PROFILE_REQCODE = 1001;
 
     ImageView fProfilePic;
     TextView fName, fEmail, fGender;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_profile);
 
+        //setValues();
         getItems();
-
-        //TODO Load profile information
+        setItems();
     }
 
     @Override
@@ -63,14 +73,36 @@ public class MainProfileActivity extends AppCompatActivity {
         fProfilePic = (ImageView) findViewById(R.id.imageViewProfilePicture);
     }
 
+    public void setItems(){
+        ParseUser user = ParseUser.getCurrentUser();
+        fName.setText(fName.getText().toString()+"  "+user.getString("name"));
+        fEmail.setText(fEmail.getText().toString()+" "+user.getEmail());
+        fGender.setText(fGender.getText().toString()+" "+user.getString("gender"));
+
+
+        ParseFile file = user.getParseFile("profilePicture");
+        if (file!=null) {
+            file.getDataInBackground(new GetDataCallback() {
+                @Override
+                public void done(byte[] data, ParseException e) {
+                    Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
+                    ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+                    fProfilePic.setImageBitmap(bitmap);
+                }
+            });
+        }
+    }
+
     public void toActivity(){
         Intent lIntent = new Intent(MainProfileActivity.this, MainActivity.class);
         startActivity(lIntent);
     }
 
+    //Starting activity for result
     public void toActivity(String aIntent){
         Intent lIntent = new Intent(aIntent);
-        startActivity(lIntent);
+        startActivityForResult(lIntent,fEDIT_PROFILE_REQCODE);
     }
 
     public void toActivity(String aIntent, String aExtra){
@@ -79,13 +111,23 @@ public class MainProfileActivity extends AppCompatActivity {
         startActivity(lIntent);
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == fEDIT_PROFILE_REQCODE){
+            if (resultCode == RESULT_OK){
+                setItems();
+            }
+        }
+    }
+
     public void makeToast(String aString){
         Toast.makeText(getApplicationContext(), aString, Toast.LENGTH_SHORT).show();
     }
 
     public void editProfileOnClick (View aView){
-        //TODO send current user information
-        toActivity(fGOTO_EDIT_PROFILE, "Some Extra");
+        toActivity(fGOTO_EDIT_PROFILE);
     }
 
     public void createAlbumOnClick (MenuItem aItem){

@@ -1,10 +1,17 @@
 package com.group6a_finalproject.group6a_finalproject;
 
+import android.graphics.Bitmap;
+import android.os.Parcel;
+import android.os.Parcelable;
+
+import java.io.Serializable;
+
 /**
  * Created by Michael.
  */
-public class UserInformation {
+public class UserInformation{
     String userName, userEmail, userGender;
+    Bitmap userPic;
 
     public String getUserName() {
         return userName;
@@ -30,6 +37,14 @@ public class UserInformation {
         this.userGender = userGender;
     }
 
+    public Bitmap getUserPic() {
+        return userPic;
+    }
+
+    public void setUserPic(Bitmap userPic) {
+        this.userPic = userPic;
+    }
+
     @Override
     public String toString() {
         return "UserInformation{" +
@@ -38,4 +53,5 @@ public class UserInformation {
                 ", userGender='" + userGender + '\'' +
                 '}';
     }
+
 }
