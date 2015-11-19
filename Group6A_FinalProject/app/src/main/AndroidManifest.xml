@@ -65,6 +65,15 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".AddPhoto"
+            android:label="@string/title_activity_add_photo" >
+            <intent-filter>
+                <action android:name="android.intent.action.ADD_PHOTO" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
     </application>
 
 </manifest>

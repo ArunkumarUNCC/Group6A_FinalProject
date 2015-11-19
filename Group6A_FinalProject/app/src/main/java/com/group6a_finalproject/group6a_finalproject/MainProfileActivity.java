@@ -94,7 +94,8 @@ public class MainProfileActivity extends AppCompatActivity {
         }
     }
 
-    public void toActivity(){
+
+    public void logout(){
         Intent lIntent = new Intent(MainProfileActivity.this, MainActivity.class);
         startActivity(lIntent);
     }
@@ -147,7 +148,7 @@ public class MainProfileActivity extends AppCompatActivity {
             @Override
             public void done(ParseException e) {
                 if (e == null) {
-                    toActivity();
+                    logout();
                     finish();
                 }
             }
