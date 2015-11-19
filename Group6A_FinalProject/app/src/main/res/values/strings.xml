@@ -17,4 +17,9 @@
     <string name="title_activity_album">Album</string>
     <string name="addAlbumThumbOnClick">addAlbumThumbOnClick</string>
     <string name="createAlbumOnClick">createAlbumOnClick</string>
+    <string name="addPhotoOnClick">addPhotoOnClick</string>
+    <string name="title_activity_add_photo">Add Photo</string>
+    <string name="insertPhotoOnClick">insertPhotoOnClick</string>
+    <string name="savePictureOnClick">savePictureOnClick</string>
+    <string name="addPhotoCancelOnClick">addPhotoCancelOnClick</string>
 </resources>

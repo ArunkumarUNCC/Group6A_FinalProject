@@ -1,35 +1,32 @@
 package com.group6a_finalproject.group6a_finalproject;
 
-import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.Switch;
+import android.widget.Toast;
 
-public class AlbumActivity extends AppCompatActivity {
+public class AddPhoto extends AppCompatActivity {
 
-    final String fGOTO_ADD_PHOTO = "android.intent.action.ADD_PHOTO";
-    RecyclerView fPhotoRecycler;
-    Button fAddPhotoButton;
+    ImageView fPhotoThumb;
+    EditText fPhotoName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_album);
-        //TODO load photos (if any) -- won't be any for new album but check anways
+        setContentView(R.layout.activity_add_photo);
+
         getItems();
-        if(false){//TODO add flag if have permission
-            fAddPhotoButton.setVisibility(View.INVISIBLE);
-        }
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_album, menu);
+        getMenuInflater().inflate(R.menu.menu_add_photo, menu);
         return true;
     }
 
@@ -48,17 +45,22 @@ public class AlbumActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    public void savePictureOnClick (View aView){
+        //TODO save photo to Parse.com
+        makeToast("Photo saveed!");
+        finish();
+    }
+
     public void getItems (){
-        fPhotoRecycler = (RecyclerView) findViewById(R.id.RecyclerViewPhoto);
-        fAddPhotoButton = (Button) findViewById(R.id.buttonAddPhoto);
+        fPhotoName = (EditText) findViewById(R.id.editTextAddPictureName);
+        fPhotoThumb = (ImageView) findViewById(R.id.imageViewAddPhotoThumb);
     }
 
-    public void toActivity(String aIntent){
-        Intent lIntent = new Intent(aIntent);
-        startActivity(lIntent);
+    public void addPhotoCancelOnClick (View aView){
+        finish();
     }
 
-    public void addPhotoOnClick (View aView){
-        toActivity(fGOTO_ADD_PHOTO);
+    public void makeToast(String aString){
+        Toast.makeText(getApplicationContext(), aString, Toast.LENGTH_SHORT).show();
     }
 }
