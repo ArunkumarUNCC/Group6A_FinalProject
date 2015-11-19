@@ -16,7 +16,8 @@
         android:minHeight="400px"
         android:src="@android:drawable/ic_menu_myplaces"
         android:layout_centerHorizontal="true"
-        android:onClick="@string/insertPhotoOnClick" />
+        android:onClick="@string/insertPhotoOnClick"
+        android:clickable="true" />
 
     <EditText
         android:layout_width="match_parent"

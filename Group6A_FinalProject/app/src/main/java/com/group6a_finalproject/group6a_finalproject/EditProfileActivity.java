@@ -113,7 +113,6 @@ public class EditProfileActivity extends AppCompatActivity {
 
     public void sendActivityResult(){
         Intent lIntent = new Intent();
-        //lIntent.putExtra("editedProfile",fCurrentUser);
         setResult(RESULT_OK,lIntent);
         finish();
     }

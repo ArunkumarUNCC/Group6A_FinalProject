@@ -3,6 +3,7 @@ package com.group6a_finalproject.group6a_finalproject;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -51,13 +52,13 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Photos
         Bitmap lPhotoBitmap = fPhotosForDisplay.get(position).getPhotoBitmap();
         String lPhotoString = fPhotosForDisplay.get(position).getPhotoName();
 
-//        Picasso.with(fContext).load(lPhotoBitmap)
-//                .resize(40, 40).into(holder.lPhoto);
+        holder.lPhotoName.setText(lPhotoString);
+        holder.lPhoto.setImageBitmap(lPhotoBitmap);
     }
 
     @Override
     public int getItemCount() {
-        return 0;
+        return fPhotosForDisplay.size();
     }
 
     @Override

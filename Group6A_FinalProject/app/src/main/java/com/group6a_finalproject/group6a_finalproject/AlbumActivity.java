@@ -1,6 +1,8 @@
 package com.group6a_finalproject.group6a_finalproject;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -14,21 +16,31 @@ import android.view.View;
 import android.widget.Button;
 
 import com.parse.FindCallback;
+import com.parse.GetDataCallback;
 import com.parse.ParseException;
+import com.parse.ParseFile;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
+import java.io.ByteArrayOutputStream;
+import java.util.ArrayList;
 import java.util.List;
 
-public class AlbumActivity extends AppCompatActivity {
+public class AlbumActivity extends AppCompatActivity implements GetPhotosAsync.IGetPhotos{
 
     final String fGOTO_ADD_PHOTO = "android.intent.action.ADD_PHOTO";
+    final  String fALBUM_NAME_EXTRA = "ALBUM_NAME";
+    final int fNEW_PHOTO_REQCODE = 1002;
+
     RecyclerView fPhotoRecycler;
+    RecyclerAdapter fAdapter;
     LinearLayoutManager fRecyclerLayout;
     Button fAddPhotoButton;
 
     String fAlbumName;
+
+    ArrayList<Photo> fAlbumPhotos;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,15 +48,17 @@ public class AlbumActivity extends AppCompatActivity {
         setContentView(R.layout.activity_album);
 
         fAlbumName = getIntent().getExtras().getString("ALBUM_TITLE");
+        fAlbumPhotos = new ArrayList<Photo>();
 
         //Display Album name
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayShowHomeEnabled(true);
         actionBar.setTitle(fAlbumName);
 
-        //TODO load photos (if any) -- won't be any for new album but check anways
         getItems();
+        checkPrivacy();
 
+        new GetPhotosAsync(this).execute(fAlbumName);
     }
 
     @Override
@@ -79,25 +93,95 @@ public class AlbumActivity extends AppCompatActivity {
         startActivity(lIntent);
     }
 
-    public void addPhotoOnClick (View aView){
-        toActivity(fGOTO_ADD_PHOTO);
+    public void toActivityForResult(String aIntent,String aExtra){
+        Intent lIntent = new Intent(aIntent);
+        lIntent.putExtra(fALBUM_NAME_EXTRA,aExtra);
+        startActivityForResult(lIntent, fNEW_PHOTO_REQCODE);
     }
 
-    public void setRecyclerView(){
-        fRecyclerLayout = new GridLayoutManager(this,2);
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (resultCode == RESULT_OK){
+            switch (requestCode){
+                case fNEW_PHOTO_REQCODE:
+                    String lPhotoId = data.getExtras().getString("NEW_PHOTO");
+                    ParseQuery<ParseObject> lGetPhoto = ParseQuery.getQuery("Photos");
+                    lGetPhoto.whereEqualTo("objectId", lPhotoId);
+                    lGetPhoto.findInBackground(new FindCallback<ParseObject>() {
+                        @Override
+                        public void done(List<ParseObject> objects, ParseException e) {
+                            if (e == null) {
+                                final Photo lNewPhoto = new Photo();
+                                lNewPhoto.setPhotoName(objects.get(0).getString("name"));
+
+                                ParseFile lImageFromParse = objects.get(0).getParseFile("photo");
+                                lImageFromParse.getDataInBackground(new GetDataCallback() {
+                                    @Override
+                                    public void done(byte[] data, ParseException e) {
+                                        Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
+                                        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                                        bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+                                        lNewPhoto.setPhotoBitmap(bitmap);
+
+                                        fAlbumPhotos.add(lNewPhoto);
+                                        fAdapter.notifyDataSetChanged();
+                                    }
+                                });
+
+
+                            }
+                        }
+                    });
+            }
+        }
+    }
+
+    public void addPhotoOnClick (View aView){
+        toActivityForResult(fGOTO_ADD_PHOTO, fAlbumName);
+    }
+
+    public void setRecyclerView(ArrayList<Photo> photos){
+        fRecyclerLayout = new GridLayoutManager(AlbumActivity.this,2);
         fPhotoRecycler.setLayoutManager(fRecyclerLayout);
+
+        if (photos!=null)
+            fAlbumPhotos = photos;
+
+        fAdapter = new RecyclerAdapter(fAlbumPhotos,AlbumActivity.this);
+        fPhotoRecycler.setAdapter(fAdapter);
     }
 
     public void checkPrivacy(){
-        ParseQuery<ParseObject> checkPrivacy = ParseQuery.getQuery("Album");
-        checkPrivacy.whereEqualTo("name",fAlbumName);
-        checkPrivacy.findInBackground(new FindCallback<ParseObject>() {
+        ParseQuery<ParseObject> lGetAllPublic = ParseQuery.getQuery("Album");
+        lGetAllPublic.whereEqualTo("name",fAlbumName);
+        lGetAllPublic.whereEqualTo("privacy", "Public");
+
+        ParseQuery<ParseObject> lGetMyPrivate = ParseQuery.getQuery("Album");
+        lGetMyPrivate.whereEqualTo("owner", ParseUser.getCurrentUser());
+        lGetMyPrivate.whereEqualTo("name",fAlbumName);
+        lGetMyPrivate.whereEqualTo("privacy","Private");
+
+        ArrayList<ParseQuery<ParseObject>> lQueries = new ArrayList<ParseQuery<ParseObject>>();
+        lQueries.add(lGetAllPublic);
+        lQueries.add(lGetMyPrivate);
+
+        ParseQuery<ParseObject> lCheckPrivacy = ParseQuery.or(lQueries);
+        lCheckPrivacy.findInBackground(new FindCallback<ParseObject>() {
             @Override
             public void done(List<ParseObject> objects, ParseException e) {
 
-                if(objects.get(0).getString("privacy").equals("Private"))
+                if (objects.isEmpty())
                     fAddPhotoButton.setVisibility(View.INVISIBLE);
             }
         });
     }
+
+    @Override
+    public void putPhotos(ArrayList<Photo> photos) {
+        setRecyclerView(photos);
+    }
+
+
 }
