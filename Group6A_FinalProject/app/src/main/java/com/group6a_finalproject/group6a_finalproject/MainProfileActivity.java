@@ -26,6 +26,9 @@ public class MainProfileActivity extends AppCompatActivity {
 
     final String fGOTO_EDIT_PROFILE = "android.intent.action.EDIT_PROFILE";
     final String fGOTO_CRTEATE_ALBUM = "android.intent.action.CREATE_ALBUM";
+    final String fGOTO_ALBUM_VIEW = "android.intent.action.ALBUM_VIEW";
+    final String fGOTO_USER_DIRECTORY ="android.intent.action.USER_DIRECTORY";
+    final String fGOTO_USER_INBOX = "android.intent.action.USER_INBOX";
     final int fEDIT_PROFILE_REQCODE = 1001;
 
     ImageView fProfilePic;
@@ -103,7 +106,7 @@ public class MainProfileActivity extends AppCompatActivity {
     //Starting activity for result
     public void toActivity(String aIntent){
         Intent lIntent = new Intent(aIntent);
-        startActivityForResult(lIntent,fEDIT_PROFILE_REQCODE);
+        startActivityForResult(lIntent, fEDIT_PROFILE_REQCODE);
     }
 
     public void toActivity(String aIntent, String aExtra){
@@ -131,16 +134,20 @@ public class MainProfileActivity extends AppCompatActivity {
         toActivity(fGOTO_EDIT_PROFILE);
     }
 
+    public void viewInboxOnClick (MenuItem aItem){
+        toActivity(fGOTO_USER_INBOX);
+    }
+
     public void createAlbumOnClick (MenuItem aItem){
         toActivity(fGOTO_CRTEATE_ALBUM);
     }
 
     public void viewAlbumOnClick (MenuItem aItem){
-
+        toActivity(fGOTO_ALBUM_VIEW);
     }
 
     public void viewUserDirectoryOnClick (MenuItem aItem){
-
+        toActivity(fGOTO_USER_DIRECTORY);
     }
 
     public void logoutOnClick (MenuItem aItem){

@@ -74,6 +74,33 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".UserDirectory"
+            android:label="@string/title_activity_user_directory" >
+            <intent-filter>
+                <action android:name="android.intent.action.USER_DIRECTORY" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".UserInbox"
+            android:label="@string/title_activity_user_inbox" >
+            <intent-filter>
+                <action android:name="android.intent.action.USER_INBOX" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".ComposeMessage"
+            android:label="@string/title_activity_compose_message" >
+            <intent-filter>
+                <action android:name="android.intent.action.COMPOSE_MESSAGE" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
     </application>
 
 </manifest>

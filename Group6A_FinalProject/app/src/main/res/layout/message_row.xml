@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/textViewInboxThumb"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:src="@android:drawable/ic_menu_myplaces"
+        android:maxWidth="150px"
+        android:maxHeight="150px"
+        android:minWidth="150px"
+        android:minHeight="150px"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="First, Last Name"
+        android:id="@+id/textViewInboxName"
+        android:layout_toRightOf="@+id/textViewInboxThumb"
+        android:layout_toEndOf="@+id/textViewInboxThumb" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="Message Preview ..."
+        android:maxLines="2"
+        android:id="@+id/textViewDirectoryInboxMessagePreview"
+        android:layout_toRightOf="@+id/textViewInboxThumb"
+        android:layout_toEndOf="@+id/textViewInboxThumb"
+        android:layout_below="@+id/textViewInboxName"/>
+
+</RelativeLayout>
