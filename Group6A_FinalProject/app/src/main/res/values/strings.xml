@@ -22,4 +22,9 @@
     <string name="insertPhotoOnClick">insertPhotoOnClick</string>
     <string name="savePictureOnClick">savePictureOnClick</string>
     <string name="addPhotoCancelOnClick">addPhotoCancelOnClick</string>
+    <string name="title_activity_user_directory">User Directory</string>
+    <string name="title_activity_user_inbox">Inbox</string>
+    <string name="composeMessageOnClick">composeMessageOnClick</string>
+    <string name="title_activity_compose_message">Compose Message</string>
+    <string name="composeMessageSendOnClick">composeMessageSendOnClick</string>
 </resources>
