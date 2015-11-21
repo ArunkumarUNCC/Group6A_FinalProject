@@ -143,7 +143,7 @@ public class CreateAlbumActivity extends AppCompatActivity {
 
     }
 
-    private void cancelOnClick (View aView){
+    public void cancelOnClick (View aView){
         finish();
     }
 
