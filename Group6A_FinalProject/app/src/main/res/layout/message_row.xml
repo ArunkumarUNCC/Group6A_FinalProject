@@ -6,7 +6,7 @@
     <ImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/textViewInboxThumb"
+        android:id="@+id/imageViewInboxThumb"
         android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
@@ -20,10 +20,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="First, Last Name"
+        android:text="From: First, Last Name"
         android:id="@+id/textViewInboxName"
-        android:layout_toRightOf="@+id/textViewInboxThumb"
-        android:layout_toEndOf="@+id/textViewInboxThumb" />
+        android:layout_toRightOf="@+id/imageViewInboxThumb"
+        android:layout_toEndOf="@+id/imageViewInboxThumb" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -32,8 +32,8 @@
         android:text="Message Preview ..."
         android:maxLines="2"
         android:id="@+id/textViewDirectoryInboxMessagePreview"
-        android:layout_toRightOf="@+id/textViewInboxThumb"
-        android:layout_toEndOf="@+id/textViewInboxThumb"
+        android:layout_toRightOf="@+id/imageViewInboxThumb"
+        android:layout_toEndOf="@+id/imageViewInboxThumb"
         android:layout_below="@+id/textViewInboxName"/>
 
 </RelativeLayout>
