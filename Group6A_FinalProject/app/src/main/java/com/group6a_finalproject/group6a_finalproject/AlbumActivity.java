@@ -149,7 +149,7 @@ public class AlbumActivity extends AppCompatActivity implements GetPhotosAsync.I
         if (photos!=null)
             fAlbumPhotos = photos;
 
-        fAdapter = new RecyclerAdapter(fAlbumPhotos,AlbumActivity.this);
+        fAdapter = new RecyclerAdapter(fAlbumPhotos,AlbumActivity.this,2);
         fPhotoRecycler.setAdapter(fAdapter);
     }
 
