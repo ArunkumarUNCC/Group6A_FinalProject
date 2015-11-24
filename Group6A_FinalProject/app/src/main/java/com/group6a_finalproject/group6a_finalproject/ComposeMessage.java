@@ -1,5 +1,6 @@
 package com.group6a_finalproject.group6a_finalproject;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -20,6 +21,7 @@ public class ComposeMessage extends AppCompatActivity {
     final String fCREATED_BY = "userFrom";
     final String fMESSAGE = "Message";
     final String fTO_Field = "userTo";
+    final int fTO_USER_DIRECTORY = 1002;
 
     EditText fMessageBody;
     TextView fToField;
@@ -91,5 +93,24 @@ public class ComposeMessage extends AppCompatActivity {
                 }
             });
         }else makeToast("Cannot send empty message.");
+    }
+
+    public void toFieldOnClick(View aView){
+        toActivity(fTO_USER_DIRECTORY);
+    }
+
+    //Starting activity for result
+    public void toActivity(int aCode){
+        Intent lIntent = new Intent(this, UserDirectory.class);
+        lIntent.putExtra("fromCompose", true);
+        startActivityForResult(lIntent, aCode);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(resultCode == RESULT_OK){
+            fToField.setText("TO: " + data.getStringExtra("toField"));
+        }
     }
 }
