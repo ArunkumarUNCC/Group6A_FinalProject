@@ -101,6 +101,15 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".AlbumsList"
+            android:label="@string/title_activity_albums_list" >
+            <intent-filter>
+                <action android:name="android.intent.action.ALBUM_LIST" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
     </application>
 
 </manifest>

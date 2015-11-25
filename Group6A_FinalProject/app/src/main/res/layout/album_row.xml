@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:paddingTop="10dp">
 
     <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/textViewRecyclerAlbumName"
+        android:layout_width="@dimen/photoWidth"
+        android:layout_height="@dimen/photoHeight"
+        android:id="@+id/imageViewRecyclerAlbumImage"
         android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
@@ -17,13 +18,13 @@
         android:minHeight="150px"/>
 
     <TextView
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:text="Album Nme"
         android:id="@+id/textViewRecylclerAlbumName"
-        android:layout_toRightOf="@+id/textViewRecyclerAlbumName"
-        android:layout_toEndOf="@+id/textViewRecyclerAlbumName"
+        android:layout_toRightOf="@+id/imageViewRecyclerAlbumImage"
+        android:layout_toEndOf="@+id/imageViewRecyclerAlbumImage"
         android:layout_marginTop="25dp"
         android:layout_marginLeft="5dp"/>
 

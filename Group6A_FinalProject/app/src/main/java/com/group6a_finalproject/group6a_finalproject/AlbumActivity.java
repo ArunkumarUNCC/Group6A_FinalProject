@@ -58,7 +58,7 @@ public class AlbumActivity extends AppCompatActivity implements GetPhotosAsync.I
         getItems();
         checkPrivacy();
 
-        new GetPhotosAsync(this).execute(fAlbumName);
+        new GetPhotosAsync(this,2).execute(fAlbumName);
     }
 
     @Override
