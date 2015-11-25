@@ -27,6 +27,7 @@ public class MainProfileActivity extends AppCompatActivity {
     final String fGOTO_EDIT_PROFILE = "android.intent.action.EDIT_PROFILE";
     final String fGOTO_CRTEATE_ALBUM = "android.intent.action.CREATE_ALBUM";
     final String fGOTO_ALBUM_VIEW = "android.intent.action.ALBUM_VIEW";
+    final String fGOTO_ALBUM_LIST = "android.intent.action.ALBUM_LIST";
     final String fGOTO_USER_DIRECTORY ="android.intent.action.USER_DIRECTORY";
     final String fGOTO_USER_INBOX = "android.intent.action.USER_INBOX";
     final int fEDIT_PROFILE_REQCODE = 1001;
@@ -143,7 +144,7 @@ public class MainProfileActivity extends AppCompatActivity {
     }
 
     public void viewAlbumOnClick (MenuItem aItem){
-        toActivity(fGOTO_ALBUM_VIEW);
+        toActivity(fGOTO_ALBUM_LIST);
     }
 
     public void viewUserDirectoryOnClick (MenuItem aItem){

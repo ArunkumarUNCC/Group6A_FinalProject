@@ -4,7 +4,7 @@
     tools:context="com.group6a_finalproject.group6a_finalproject.MainProfileActivity">
     <item android:id="@+id/viewInbox" android:title="Inbox" android:onClick="viewInboxOnClick"
         android:orderInCategory="100" app:showAsAction="never" />
-    <item android:id="@+id/viewAlbum" android:title="View Album" android:onClick="viewAlbumOnClick"
+    <item android:id="@+id/viewAlbum" android:title="View Albums" android:onClick="viewAlbumOnClick"
         android:orderInCategory="100" app:showAsAction="never" />
     <item android:id="@+id/createAlbum" android:title="Create Album" android:onClick="createAlbumOnClick"
         android:orderInCategory="100" app:showAsAction="never" />

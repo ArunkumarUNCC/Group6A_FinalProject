@@ -28,4 +28,5 @@
     <string name="title_activity_compose_message">Compose Message</string>
     <string name="composeMessageSendOnClick">composeMessageSendOnClick</string>
     <string name="toFieldOnClick">toFieldOnClick</string>
+    <string name="title_activity_albums_list">Albums</string>
 </resources>

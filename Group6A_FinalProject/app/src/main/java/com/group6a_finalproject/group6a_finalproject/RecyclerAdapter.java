@@ -3,14 +3,11 @@ package com.group6a_finalproject.group6a_finalproject;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-
-import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
@@ -71,7 +68,7 @@ import java.util.ArrayList;
 public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
 
     ArrayList<Photo> fPhotosForDisplay;
-    Context fContext;
+    static Context fContext;
     int whichRecycler;
 
     public RecyclerAdapter(ArrayList<Photo> fPhotosForDisplay, Context fContext, int which) {
@@ -80,6 +77,20 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         this.whichRecycler = which;
     }
 
+    //To display a list of albums
+    public static class AlbumsLinearViewHolder extends RecyclerView.ViewHolder{
+        TextView lAlbumName;
+        ImageView lAlbumImage;
+
+        public AlbumsLinearViewHolder(View itemView) {
+            super(itemView);
+
+            lAlbumImage = (ImageView) itemView.findViewById(R.id.imageViewRecyclerAlbumImage);
+            lAlbumName = (TextView) itemView.findViewById(R.id.textViewRecylclerAlbumName);
+        }
+    }
+
+    //To display photos of a particular album
     public static class PhotosGridViewHolder extends RecyclerView.ViewHolder{
 
         TextView lPhotoName;
@@ -100,9 +111,14 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         LayoutInflater lInflater = LayoutInflater.from(parent.getContext());
 
         switch (whichRecycler){
+            case 1:
+                View lView1 = lInflater.inflate(R.layout.album_row, parent, false);
+                lViewHolder = new AlbumsLinearViewHolder(lView1);
+                break;
+
             case 2:
-                View lView1 = lInflater.inflate(R.layout.photo_grid, parent, false);
-                lViewHolder = new PhotosGridViewHolder(lView1);
+                View lView2 = lInflater.inflate(R.layout.photo_grid, parent, false);
+                lViewHolder = new PhotosGridViewHolder(lView2);
                 break;
 
         }
@@ -113,9 +129,14 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         switch (whichRecycler){
+            case 1:
+                AlbumsLinearViewHolder lAlbums = (AlbumsLinearViewHolder) holder;
+                configureAlbumViewHolder(lAlbums, position);
+                break;
+
             case 2:
                 PhotosGridViewHolder lPhotos = (PhotosGridViewHolder) holder;
-                configureViewHolder1(lPhotos,position);
+                configurePhotoViewHolder(lPhotos, position);
                 break;
         }
     }
@@ -123,6 +144,8 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     @Override
     public int getItemCount() {
         switch (whichRecycler){
+            case 1:
+                return fPhotosForDisplay.size();
             case 2:
                 return fPhotosForDisplay.size();
 
@@ -130,7 +153,18 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         return 0;
     }
 
-    private void configureViewHolder1(PhotosGridViewHolder lPhotos, int position) {
+    private void configureAlbumViewHolder(AlbumsLinearViewHolder lAlbums, int position) {
+        Bitmap lAlbumBitmap = fPhotosForDisplay.get(position).getPhotoBitmap();
+        String lAlbumString = fPhotosForDisplay.get(position).getPhotoName();
+
+        lAlbums.lAlbumName.setText(lAlbumString);
+        if (lAlbumBitmap==null) {
+            lAlbums.lAlbumImage.setImageResource(R.drawable.no_mage);
+        }
+        else lAlbums.lAlbumImage.setImageBitmap(lAlbumBitmap);
+    }
+
+    private void configurePhotoViewHolder(PhotosGridViewHolder lPhotos, int position) {
         Bitmap lPhotoBitmap = fPhotosForDisplay.get(position).getPhotoBitmap();
         String lPhotoString = fPhotosForDisplay.get(position).getPhotoName();
 
