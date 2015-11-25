@@ -2,17 +2,32 @@ package com.group6a_finalproject.group6a_finalproject;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuItem;
 
-public class UserDirectory extends AppCompatActivity {
+import java.util.ArrayList;
+
+public class UserDirectory extends AppCompatActivity implements GetUsersAsync.IGetUsers{
+
+    RecyclerView fUserRecycler;
+    RecyclerAdapter fAdapter;
+    LinearLayoutManager fRecyclerLayout;
+
+    ArrayList<User> fUsers;
+
+    int fWhich;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_directory);
-        //TODO load data
-        //TODO Recycler row adapter
+
+        fUsers = new ArrayList<>();
+        getItems();
+
+        new GetUsersAsync(this).execute();
     }
 
     @Override
@@ -35,5 +50,26 @@ public class UserDirectory extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private void getItems() {
+        fWhich = getIntent().getExtras().getInt("user_dir_flag");
+        fUserRecycler = (RecyclerView) findViewById(R.id.RecyclerViewUserDirectory);
+    }
+
+    @Override
+    public void putUsers(ArrayList<User> users) {
+        setRecyclerView(users);
+    }
+
+    private void setRecyclerView(ArrayList<User> photos) {
+        fRecyclerLayout = new LinearLayoutManager(UserDirectory.this);
+        fUserRecycler.setLayoutManager(fRecyclerLayout);
+
+        if (photos!=null)
+            fUsers = photos;
+
+        fAdapter = new RecyclerAdapter(fUsers,UserDirectory.this,3,fWhich);
+        fUserRecycler.setAdapter(fAdapter);
     }
 }

@@ -2,11 +2,12 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="5dp">
+    android:paddingTop="10dp"
+    android:id="@+id/relativeLayoutUserRecycler">
 
     <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="@dimen/photoWidth"
+        android:layout_height="@dimen/photoHeight"
         android:id="@+id/imageViewDirectoryThumb"
         android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true"
@@ -18,22 +19,25 @@
         android:minHeight="150px"/>
 
     <TextView
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:text="First, Last Name"
         android:id="@+id/textViewDirectoryUserName"
         android:layout_toRightOf="@+id/imageViewDirectoryThumb"
-        android:layout_toEndOf="@+id/imageViewDirectoryThumb" />
+        android:layout_toEndOf="@+id/imageViewDirectoryThumb"
+        android:layout_marginLeft="5dp" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:text="Gender"
-        android:id="@+id/textViewDirectoryUserGender"
+        android:id="@+id/textViewDirectoryUserEmail"
         android:layout_toRightOf="@+id/imageViewDirectoryThumb"
         android:layout_toEndOf="@+id/imageViewDirectoryThumb"
-        android:layout_below="@+id/textViewDirectoryUserName"/>
+        android:layout_below="@+id/textViewDirectoryUserName"
+        android:layout_marginLeft="5dp"
+        android:layout_marginTop="5dp" />
 
 </RelativeLayout>
