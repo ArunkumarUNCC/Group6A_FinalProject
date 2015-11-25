@@ -10,10 +10,22 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.parse.ParseException;
+import com.parse.ParseObject;
+import com.parse.ParseUser;
+import com.parse.SaveCallback;
+
 public class ComposeMessage extends AppCompatActivity {
+
+    final String fCREATED_BY = "userFrom";
+    final String fMESSAGE = "Message";
+    final String fTO_Field = "userTo";
 
     EditText fMessageBody;
     TextView fToField;
+    
+    String fCurrentUser;
+    ParseObject fParseObj = new ParseObject("MessageTable");//String is table name
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,6 +60,7 @@ public class ComposeMessage extends AppCompatActivity {
     public void getItems (){
         fMessageBody = (EditText) findViewById(R.id.editTextComposeMessageBody);
         fToField = (TextView) findViewById(R.id.textViewToMessageField);
+        fCurrentUser = ParseUser.getCurrentUser().getEmail();
     }
 
     public void makeToast(String aString){
@@ -60,7 +73,23 @@ public class ComposeMessage extends AppCompatActivity {
 
     public void composeMessageSendOnClick (View aView){
         //TODO Implement send message
-        makeToast("Message sent!");
-        finish();
+        //TODO startActivityForResult (to user directory) get object ID of user on return
+        if(fMessageBody.length() > 0){
+            fParseObj.put(fCREATED_BY, fCurrentUser);
+//            fParseObj.put(fTO_Field, object ID);
+            fParseObj.put(fMESSAGE, fMessageBody.getText().toString());
+
+            fParseObj.saveInBackground(new SaveCallback() {
+                @Override
+                public void done(ParseException e) {
+                    if (e == null) {
+                        UserInbox.fUserMessages.add(fParseObj);
+                        UserInbox.fAdapter.notifyDataSetChanged();
+                        makeToast("Message sent!");
+                        finish();
+                    }else makeToast("Message not sent!");
+                }
+            });
+        }else makeToast("Cannot send empty message.");
     }
 }
