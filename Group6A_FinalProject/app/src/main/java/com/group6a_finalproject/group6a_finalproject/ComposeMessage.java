@@ -66,7 +66,7 @@ public class ComposeMessage extends AppCompatActivity {
     public void getItems (){
         fMessageBody = (EditText) findViewById(R.id.editTextComposeMessageBody);
         fToField = (TextView) findViewById(R.id.textViewToMessageField);
-        fCurrentUser = ParseUser.getCurrentUser().getEmail();
+        fCurrentUser = ParseUser.getCurrentUser().getObjectId();
     }
 
     public void makeToast(String aString){
@@ -80,15 +80,15 @@ public class ComposeMessage extends AppCompatActivity {
     public void composeMessageSendOnClick (View aView){
 
         if(fMessageBody.length() > 0){
-            ParseQuery<ParseUser> lQuery = ParseQuery.getQuery("_User");
+            final ParseQuery<ParseUser> lQuery = ParseQuery.getQuery("_User");
             lQuery.whereEqualTo("username", fTo_User_Email);
             lQuery.findInBackground(new FindCallback<ParseUser>() {
                 @Override
                 public void done(List<ParseUser> objects, ParseException e) {
-                    if(e == null){
-                        for(ParseObject user : objects){
-                            fParseObj.put(fUSER_FROM, fCurrentUser);
-                            fParseObj.put(fUSER_TO, user.getObjectId());
+                    if (e == null) {
+                        for (ParseObject user : objects) {
+                            fParseObj.put(fUSER_FROM, fCurrentUser);//current user objectID
+                            fParseObj.put(fUSER_TO, user.getObjectId());//to user objectID
                             fParseObj.put(fMESSAGE, fMessageBody.getText().toString());
                         }
                     }
