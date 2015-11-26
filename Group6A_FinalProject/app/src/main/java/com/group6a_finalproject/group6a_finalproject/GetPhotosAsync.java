@@ -74,11 +74,25 @@ public class GetPhotosAsync extends AsyncTask<String,Void,ArrayList<Photo>> {
 
         switch (which){
             case 1:
-                ParseQuery<ParseObject> lGetAlbums = ParseQuery.getQuery("Album");
-                lGetAlbums.include("owner");
-                lGetAlbums.whereEqualTo("owner", fCurrentUser);
+                ParseQuery<ParseObject> lGetPublicAlbums = ParseQuery.getQuery("Album");
+                lGetPublicAlbums.whereEqualTo("privacy","Public");
                 try {
-                    List<ParseObject> lObjects = lGetAlbums.find();
+                    List<ParseObject> lObjects = lGetPublicAlbums.find();
+
+                    for (ParseObject album : lObjects) {
+                        addToList(album);
+                    }
+
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+
+                ParseQuery<ParseObject> lGetMyPrivateAlbums = ParseQuery.getQuery("Album");
+                lGetMyPrivateAlbums.include("owner");
+                lGetMyPrivateAlbums.whereEqualTo("owner", fCurrentUser);
+                lGetMyPrivateAlbums.whereEqualTo("privacy","Private");
+                try {
+                    List<ParseObject> lObjects = lGetMyPrivateAlbums.find();
 
                     for (ParseObject album : lObjects) {
                         addToList(album);
