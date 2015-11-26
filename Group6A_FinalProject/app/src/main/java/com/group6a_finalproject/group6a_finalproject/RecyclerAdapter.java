@@ -1,5 +1,6 @@
 package com.group6a_finalproject.group6a_finalproject;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -183,8 +184,8 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             public void onClick(View v) {
                 if (fwhichActivity == 2){
                     Intent lIntent = new Intent();
-                    lIntent.putExtra("username",fUsersForDisplay.get(position).getUserName());
-                    ((UserDirectory) fContext).setResult(3001, lIntent);
+                    lIntent.putExtra("toField",fUsersForDisplay.get(position).getUserMail());
+                    ((UserDirectory) fContext).setResult(Activity.RESULT_OK, lIntent);
                     ((UserDirectory) fContext).finish();
 
                 }else{

@@ -53,7 +53,7 @@ public class UserDirectory extends AppCompatActivity implements GetUsersAsync.IG
     }
 
     private void getItems() {
-        fWhich = getIntent().getExtras().getInt("user_dir_flag");
+        fWhich = getIntent().getExtras().getInt("fromCompose");
         fUserRecycler = (RecyclerView) findViewById(R.id.RecyclerViewUserDirectory);
     }
 
