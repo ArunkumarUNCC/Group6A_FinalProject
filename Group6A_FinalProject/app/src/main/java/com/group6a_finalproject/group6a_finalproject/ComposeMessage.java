@@ -102,6 +102,7 @@ public class ComposeMessage extends AppCompatActivity {
     //Starting activity for result
     public void toActivity(int aCode){
         Intent lIntent = new Intent(this, UserDirectory.class);
+        //test
         lIntent.putExtra("fromCompose", true);
         startActivityForResult(lIntent, aCode);
     }
