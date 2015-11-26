@@ -2,30 +2,103 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingTop="10dp">
+    android:paddingTop="10dp"
+    android:id="@+id/relativeLayoutAlbumList">
 
-    <ImageView
-        android:layout_width="@dimen/photoWidth"
-        android:layout_height="@dimen/photoHeight"
-        android:id="@+id/imageViewRecyclerAlbumImage"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:src="@android:drawable/ic_menu_myplaces"
-        android:maxWidth="150px"
-        android:maxHeight="150px"
-        android:minWidth="150px"
-        android:minHeight="150px"/>
-
-    <TextView
+    <LinearLayout
+        android:orientation="horizontal"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="Album Nme"
-        android:id="@+id/textViewRecylclerAlbumName"
-        android:layout_toRightOf="@+id/imageViewRecyclerAlbumImage"
-        android:layout_toEndOf="@+id/imageViewRecyclerAlbumImage"
-        android:layout_marginTop="25dp"
-        android:layout_marginLeft="5dp"/>
+        android:layout_height="@dimen/photoHeight"
+        android:id="@+id/linearLayout2">
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:layout_width="@dimen/photoWidth"
+                android:layout_height="@dimen/photoHeight"
+                android:id="@+id/imageViewRecyclerAlbumImage"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:src="@android:drawable/ic_menu_myplaces"
+                android:maxWidth="150px"
+                android:maxHeight="150px"
+                android:minWidth="150px"
+                android:minHeight="150px"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="180dp"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="5dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/recyclerAlbumNameHeight"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="Album Nme"
+                android:id="@+id/textViewRecylclerAlbumName"
+                android:layout_toRightOf="@+id/imageViewRecyclerAlbumImage"
+                android:layout_toEndOf="@+id/imageViewRecyclerAlbumImage"
+                android:layout_marginTop="5dp"
+                android:textColor="#000000" />
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignBottom="@+id/linearLayout2"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentEnd="true"
+                android:layout_gravity="bottom">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:text="@string/ownerTitle"
+                    android:id="@+id/textView"
+                    android:textColor="#000000" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:text="Small Text"
+                    android:id="@+id/textViewRecyclerOwnerName"
+                    android:layout_alignParentTop="true"
+                    android:layout_toRightOf="@+id/textView"
+                    android:layout_toEndOf="@+id/textView"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginStart="24dp" />
+            </RelativeLayout>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/recyclerAlbumDelete"
+                android:id="@+id/imageViewRecyclerDelete"
+                android:src="@android:drawable/ic_delete"
+                android:layout_gravity="center_horizontal" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:text="Small Text"
+                android:id="@+id/textViewRecyclerPrivacy"
+                android:layout_gravity="center_horizontal" />
+        </LinearLayout>
+
+    </LinearLayout>
 
 </RelativeLayout>

@@ -65,74 +65,32 @@ public class GetPhotosAsync extends AsyncTask<String,Void,ArrayList<Photo>> {
 
                 }
             });
-        } else lCurrentAlbum.setPhotoBitmap(null);
+        } else{
+            lCurrentAlbum.setPhotoBitmap(null);
+        }
         fAlbumPhotos.add(lCurrentAlbum);
     }
 
     @Override
     protected ArrayList<Photo> doInBackground(String... params) {
 
-        switch (which){
-            case 1:
-                ParseQuery<ParseObject> lGetPublicAlbums = ParseQuery.getQuery("Album");
-                lGetPublicAlbums.whereEqualTo("privacy","Public");
-                try {
-                    List<ParseObject> lObjects = lGetPublicAlbums.find();
+        ParseQuery<ParseObject> lGetAlbumID = ParseQuery.getQuery("Album");
+        lGetAlbumID.whereEqualTo("name", params[0]);
+        try {
+            List<ParseObject> objects = lGetAlbumID.find();
 
-                    for (ParseObject album : lObjects) {
-                        addToList(album);
-                    }
+            if (!objects.isEmpty()) {
+                ParseQuery<ParseObject> lGetPhotos = ParseQuery.getQuery("Photos");
+                lGetPhotos.whereEqualTo("album", objects.get(0));
 
-                } catch (ParseException e) {
-                    e.printStackTrace();
+                List<ParseObject> photos = lGetPhotos.find();
+                for (ParseObject object : photos) {
+                    addToList(object);
                 }
 
-                ParseQuery<ParseObject> lGetMyPrivateAlbums = ParseQuery.getQuery("Album");
-                lGetMyPrivateAlbums.include("owner");
-                lGetMyPrivateAlbums.whereEqualTo("owner", fCurrentUser);
-                lGetMyPrivateAlbums.whereEqualTo("privacy","Private");
-                try {
-                    List<ParseObject> lObjects = lGetMyPrivateAlbums.find();
-
-                    for (ParseObject album : lObjects) {
-                        addToList(album);
-                    }
-
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                }
-
-                return fAlbumPhotos;
-
-            case 2:
-                ParseQuery<ParseObject> lGetAlbumID = ParseQuery.getQuery("Album");
-                lGetAlbumID.whereEqualTo("name", params[0]);
-                lGetAlbumID.findInBackground(new FindCallback<ParseObject>() {
-                    @Override
-                    public void done(List<ParseObject> objects, ParseException e) {
-                        if (e == null) {
-                            if (!objects.isEmpty()) {
-                                ParseQuery<ParseObject> lGetPhotos = ParseQuery.getQuery("Photos");
-                                lGetPhotos.whereEqualTo("album", objects.get(0));
-                                lGetPhotos.findInBackground(new FindCallback<ParseObject>() {
-                                    @Override
-                                    public void done(List<ParseObject> photos, ParseException e) {
-                                        if (e == null) {
-
-                                            for (ParseObject object : photos) {
-                                                addToList(object);
-                                            }
-                                        } else e.printStackTrace();
-
-                                    }
-                                });
-                            }
-                        }
-
-                    }
-                });
-                return fAlbumPhotos;
-
+            }
+        } catch (ParseException e) {
+            e.printStackTrace();
         }
 
         return fAlbumPhotos;

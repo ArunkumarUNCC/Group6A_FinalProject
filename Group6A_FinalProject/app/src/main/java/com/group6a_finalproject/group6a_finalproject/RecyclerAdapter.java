@@ -9,12 +9,16 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+
+import com.parse.ParseUser;
 
 import java.util.ArrayList;
 
 import static com.group6a_finalproject.group6a_finalproject.R.id.textViewDirectoryUserEmail;
+import static com.group6a_finalproject.group6a_finalproject.R.id.textViewRecyclerPrivacy;
 
 
 /**
@@ -23,12 +27,19 @@ import static com.group6a_finalproject.group6a_finalproject.R.id.textViewDirecto
 
 public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
 
+    final String fGOTO_ALBUM_VIEW = "android.intent.action.ALBUM_VIEW";
+
     ArrayList<Photo> fPhotosForDisplay;
     ArrayList<User> fUsersForDisplay;
+    ArrayList<Album> fAlbumsForDisplay;
     Context fContext;
     int whichRecycler;
     int fwhichActivity;
 
+    public RecyclerAdapter(Context fContext, int which) {
+        this.fContext = fContext;
+        this.whichRecycler = which;
+    }
 
     public RecyclerAdapter(ArrayList<Photo> albumPhotoList, Context fContext, int which) {
         this.fPhotosForDisplay = albumPhotoList;
@@ -43,17 +54,27 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         this.fwhichActivity = aWhichActivity;
     }
 
+    public void setAlbumsList(ArrayList<Album> aAlbumsList){
+        this.fAlbumsForDisplay = aAlbumsList;
+    }
+
 
     //To display a list of albums
     public static class AlbumsLinearViewHolder extends RecyclerView.ViewHolder{
-        TextView lAlbumName;
-        ImageView lAlbumImage;
+
+        RelativeLayout lAlbumRelativeLayout;
+        TextView lAlbumName,lAlbumOwnerText,lAlbumPrivacyText;
+        ImageView lAlbumImage,lAlbumDelete;
 
         public AlbumsLinearViewHolder(View itemView) {
             super(itemView);
 
+            lAlbumRelativeLayout = (RelativeLayout) itemView.findViewById(R.id.relativeLayoutAlbumList);
             lAlbumImage = (ImageView) itemView.findViewById(R.id.imageViewRecyclerAlbumImage);
             lAlbumName = (TextView) itemView.findViewById(R.id.textViewRecylclerAlbumName);
+            lAlbumOwnerText = (TextView) itemView.findViewById(R.id.textViewRecyclerOwnerName);
+            lAlbumPrivacyText = (TextView) itemView.findViewById(textViewRecyclerPrivacy);
+            lAlbumDelete = (ImageView) itemView.findViewById(R.id.imageViewRecyclerDelete);
         }
     }
 
@@ -139,6 +160,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     public int getItemCount() {
         switch (whichRecycler){
             case 1:
+                return fAlbumsForDisplay.size();
             case 2:
                 return fPhotosForDisplay.size();
             case 3:
@@ -149,14 +171,29 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     }
 
     private void configureAlbumViewHolder(AlbumsLinearViewHolder lAlbums, int position) {
-        Bitmap lAlbumBitmap = fPhotosForDisplay.get(position).getPhotoBitmap();
-        String lAlbumString = fPhotosForDisplay.get(position).getPhotoName();
+        Bitmap lAlbumBitmap = fAlbumsForDisplay.get(position).getAlbumImage();
+        final String lAlbumString = fAlbumsForDisplay.get(position).getAlbumName();
+        String lAlbumOwner = fAlbumsForDisplay.get(position).getOwnerName();
+        String lAlbumPrivacy = fAlbumsForDisplay.get(position).getPrivacy();
 
         lAlbums.lAlbumName.setText(lAlbumString);
+        lAlbums.lAlbumOwnerText.setText(lAlbumOwner);
+        lAlbums.lAlbumPrivacyText.setText(lAlbumPrivacy);
+
+        if (!ParseUser.getCurrentUser().getString("name").equals(lAlbumOwner))
+            lAlbums.lAlbumDelete.setImageBitmap(null);
+
         if (lAlbumBitmap==null) {
             lAlbums.lAlbumImage.setImageResource(R.drawable.no_mage);
         }
         else lAlbums.lAlbumImage.setImageBitmap(lAlbumBitmap);
+
+        lAlbums.lAlbumRelativeLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                toActivityFromAlbumList(fGOTO_ALBUM_VIEW, lAlbumString);
+            }
+        });
     }
 
     private void configurePhotoViewHolder(PhotosGridViewHolder lPhotos, int position) {
@@ -182,16 +219,22 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         lUsers.lUserRelativeLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (fwhichActivity == 2){
+                if (fwhichActivity == 2) {
                     Intent lIntent = new Intent();
-                    lIntent.putExtra("toField",fUsersForDisplay.get(position).getUserMail());
+                    lIntent.putExtra("toField", fUsersForDisplay.get(position).getUserMail());
                     ((UserDirectory) fContext).setResult(Activity.RESULT_OK, lIntent);
                     ((UserDirectory) fContext).finish();
 
-                }else{
+                } else {
                     //TODO goto other users profile and their albums
                 }
             }
         });
+    }
+
+    public void toActivityFromAlbumList(String aIntent, String aExtra){
+        Intent lIntent = new Intent(aIntent);
+        lIntent.putExtra("ALBUM_TITLE", aExtra);
+        ((AlbumsList)fContext ).startActivity(lIntent);
     }
 }
