@@ -23,7 +23,7 @@ public class GetUsersAsync extends AsyncTask<Void,Void,ArrayList<User>>{
 
     IGetUsers fActivity;
     ProgressDialog fProgress;
-    String fPROGRESSMESSAGE = "Loading Users";
+    String fPROGRESS_MESSAGE = "Loading Users";
 
     ArrayList<User> fUsers;
 
@@ -37,7 +37,7 @@ public class GetUsersAsync extends AsyncTask<Void,Void,ArrayList<User>>{
         super.onPreExecute();
 
         fProgress = new ProgressDialog((Context) fActivity);
-        fProgress.setMessage(fPROGRESSMESSAGE);
+        fProgress.setMessage(fPROGRESS_MESSAGE);
         fProgress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         fProgress.show();
     }

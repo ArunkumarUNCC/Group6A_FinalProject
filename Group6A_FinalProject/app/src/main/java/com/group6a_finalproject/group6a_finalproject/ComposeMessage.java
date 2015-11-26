@@ -7,21 +7,25 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
+import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
+import java.util.List;
+
 public class ComposeMessage extends AppCompatActivity {
 
-    final String fCREATED_BY = "userFrom";
+    final String fUSER_FROM = "userFrom";
     final String fMESSAGE = "Message";
-    final String fTO_Field = "userTo";
+    final String fUSER_TO = "userTo";
     final int fTO_USER_DIRECTORY = 1002;
+    String fTo_User_Email;
 
     EditText fMessageBody;
     TextView fToField;
@@ -74,12 +78,22 @@ public class ComposeMessage extends AppCompatActivity {
     }
 
     public void composeMessageSendOnClick (View aView){
-        //TODO Implement send message
-        //TODO startActivityForResult (to user directory) get object ID of user on return
+
         if(fMessageBody.length() > 0){
-            fParseObj.put(fCREATED_BY, fCurrentUser);
-//            fParseObj.put(fTO_Field, object ID);
-            fParseObj.put(fMESSAGE, fMessageBody.getText().toString());
+            ParseQuery<ParseUser> lQuery = ParseQuery.getQuery("_User");
+            lQuery.whereEqualTo("username", fTo_User_Email);
+            lQuery.findInBackground(new FindCallback<ParseUser>() {
+                @Override
+                public void done(List<ParseUser> objects, ParseException e) {
+                    if(e == null){
+                        for(ParseObject user : objects){
+                            fParseObj.put(fUSER_FROM, fCurrentUser);
+                            fParseObj.put(fUSER_TO, user.getObjectId());
+                            fParseObj.put(fMESSAGE, fMessageBody.getText().toString());
+                        }
+                    }
+                }
+            });
 
             fParseObj.saveInBackground(new SaveCallback() {
                 @Override
@@ -89,7 +103,7 @@ public class ComposeMessage extends AppCompatActivity {
                         UserInbox.fAdapter.notifyDataSetChanged();
                         makeToast("Message sent!");
                         finish();
-                    }else makeToast("Message not sent!");
+                    } else makeToast("Message not sent!");
                 }
             });
         }else makeToast("Cannot send empty message.");
@@ -102,7 +116,6 @@ public class ComposeMessage extends AppCompatActivity {
     //Starting activity for result
     public void toActivity(int aCode){
         Intent lIntent = new Intent(this, UserDirectory.class);
-        //test
         lIntent.putExtra("fromCompose", 2);
         startActivityForResult(lIntent, aCode);
     }
@@ -111,7 +124,8 @@ public class ComposeMessage extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if(resultCode == RESULT_OK){
-            fToField.setText("TO: " + data.getStringExtra("toField"));
+            fTo_User_Email = data.getStringExtra("toField");
+            fToField.setText("TO: " + fTo_User_Email);
         }
     }
 }

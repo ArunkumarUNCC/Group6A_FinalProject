@@ -34,8 +34,6 @@ public class UserInbox extends AppCompatActivity implements GetMessagesAsync.IGe
         setContentView(R.layout.activity_user_inbox);
 
         getItems();
-        //TODO use this to check if coming from compose message ->  lIntent.putExtra("fromCompose", true);
-        //TODO if it is you need to setResult to email and object id of the user that is clicked on rather than going to their profile, then finish
         new GetMessagesAsync(this).execute();
 
     }
