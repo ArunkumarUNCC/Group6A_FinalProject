@@ -14,6 +14,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 
 import com.parse.FindCallback;
 import com.parse.GetDataCallback;
@@ -37,6 +38,7 @@ public class AlbumActivity extends AppCompatActivity implements GetPhotosAsync.I
     RecyclerAdapter fAdapter;
     LinearLayoutManager fRecyclerLayout;
     Button fAddPhotoButton;
+    TextView fAlbumNameText;
 
     String fAlbumName;
 
@@ -48,7 +50,6 @@ public class AlbumActivity extends AppCompatActivity implements GetPhotosAsync.I
         setContentView(R.layout.activity_album);
 
         fAlbumPhotos = new ArrayList<Photo>();
-
         //Display Album name
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayShowHomeEnabled(true);
@@ -86,6 +87,8 @@ public class AlbumActivity extends AppCompatActivity implements GetPhotosAsync.I
         fAlbumName = getIntent().getExtras().getString("ALBUM_TITLE");
         fPhotoRecycler = (RecyclerView) findViewById(R.id.RecyclerViewPhoto);
         fAddPhotoButton = (Button) findViewById(R.id.buttonAddPhoto);
+        fAlbumNameText = (TextView) findViewById(R.id.textViewPhotoAlbumName);
+        fAlbumNameText.setText(fAlbumName);
     }
 
     public void toActivity(String aIntent){
@@ -116,7 +119,7 @@ public class AlbumActivity extends AppCompatActivity implements GetPhotosAsync.I
                                 final Photo lNewPhoto = new Photo();
                                 lNewPhoto.setPhotoName(objects.get(0).getString("name"));
 
-                                ParseFile lImageFromParse = objects.get(0).getParseFile("photo");
+                                ParseFile lImageFromParse = objects.get(0).getParseFile("thumbnail");
                                 lImageFromParse.getDataInBackground(new GetDataCallback() {
                                     @Override
                                     public void done(byte[] data, ParseException e) {

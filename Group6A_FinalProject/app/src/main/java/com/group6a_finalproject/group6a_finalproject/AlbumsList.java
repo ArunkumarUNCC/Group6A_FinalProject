@@ -12,13 +12,13 @@ import android.view.MenuItem;
 
 import java.util.ArrayList;
 
-public class AlbumsList extends AppCompatActivity implements GetPhotosAsync.IGetPhotos{
+public class AlbumsList extends AppCompatActivity implements GetAlbumsAsync.IGetAlbums{
 
     RecyclerView fAlbumsListRecycler;
     RecyclerAdapter fAlbumsAdapter;
     LinearLayoutManager fAlbumsLayoutManager;
 
-    ArrayList<Photo> fAlbumsList;
+    ArrayList<Album> fAlbumsList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,7 +27,7 @@ public class AlbumsList extends AppCompatActivity implements GetPhotosAsync.IGet
 
         fAlbumsListRecycler = (RecyclerView) findViewById(R.id.recyclerViewAlbums);
 
-        new GetPhotosAsync(this,1).execute("");
+        new GetAlbumsAsync(this).execute("");
     }
 
     @Override
@@ -52,20 +52,20 @@ public class AlbumsList extends AppCompatActivity implements GetPhotosAsync.IGet
         return super.onOptionsItemSelected(item);
     }
 
-    private void setRecyclerView(ArrayList<Photo> albums) {
+    private void setRecyclerView(ArrayList<Album> albums) {
         fAlbumsLayoutManager=  new LinearLayoutManager(this);
         fAlbumsListRecycler.setLayoutManager(fAlbumsLayoutManager);
 
         if (albums!=null)
             fAlbumsList = albums;
 
-        fAlbumsAdapter = new RecyclerAdapter(fAlbumsList,AlbumsList.this,1);
+        fAlbumsAdapter = new RecyclerAdapter(AlbumsList.this,1);
+        fAlbumsAdapter.setAlbumsList(fAlbumsList);
         fAlbumsListRecycler.setAdapter(fAlbumsAdapter);
     }
 
     @Override
-    public void putPhotos(ArrayList<Photo> photos) {
-//        Log.d("Check albums", String.valueOf(photos.size()));
-        setRecyclerView(photos);
+    public void putAlbums(ArrayList<Album> albums) {
+        setRecyclerView(albums);
     }
 }

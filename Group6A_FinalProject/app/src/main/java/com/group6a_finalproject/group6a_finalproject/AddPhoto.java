@@ -101,7 +101,7 @@ public class AddPhoto extends AppCompatActivity {
 
                         final ParseFile lImageFile = new ParseFile("default.png", lImageToUpload);
                         lImageFile.saveInBackground();
-                        lNewPhoto.put("photo", lImageFile);
+                        lNewPhoto.put("thumbnail", lImageFile);
                         lNewPhoto.saveInBackground(new SaveCallback() {
                             @Override
                             public void done(ParseException e) {
