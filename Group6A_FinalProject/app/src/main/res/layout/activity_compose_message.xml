@@ -37,7 +37,9 @@
         android:text="TO: "
         android:id="@+id/textViewToMessageField"
         android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true" />
+        android:layout_centerHorizontal="true"
+        android:clickable="true"
+        android:onClick="@string/toFieldOnClick" />
 
     <EditText
         android:layout_width="match_parent"
