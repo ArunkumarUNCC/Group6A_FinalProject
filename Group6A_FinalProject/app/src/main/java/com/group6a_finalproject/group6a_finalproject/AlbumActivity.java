@@ -47,7 +47,6 @@ public class AlbumActivity extends AppCompatActivity implements GetPhotosAsync.I
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_album);
 
-        fAlbumName = getIntent().getExtras().getString("ALBUM_TITLE");
         fAlbumPhotos = new ArrayList<Photo>();
 
         //Display Album name
@@ -84,6 +83,7 @@ public class AlbumActivity extends AppCompatActivity implements GetPhotosAsync.I
     }
 
     public void getItems (){
+        fAlbumName = getIntent().getExtras().getString("ALBUM_TITLE");
         fPhotoRecycler = (RecyclerView) findViewById(R.id.RecyclerViewPhoto);
         fAddPhotoButton = (Button) findViewById(R.id.buttonAddPhoto);
     }

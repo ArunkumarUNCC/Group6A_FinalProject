@@ -30,6 +30,8 @@ public class GetPhotosAsync extends AsyncTask<String,Void,ArrayList<Photo>> {
 
     ArrayList<Photo> fAlbumPhotos;
 
+    ParseUser fCurrentUser = ParseUser.getCurrentUser();
+
     public GetPhotosAsync(IGetPhotos fActivity,int aWhichTable) {
         this.fActivity = fActivity;
         fAlbumPhotos = new ArrayList<Photo>();
@@ -74,10 +76,9 @@ public class GetPhotosAsync extends AsyncTask<String,Void,ArrayList<Photo>> {
             case 1:
                 ParseQuery<ParseObject> lGetAlbums = ParseQuery.getQuery("Album");
                 lGetAlbums.include("owner");
-                lGetAlbums.whereEqualTo("owner", ParseUser.getCurrentUser());
+                lGetAlbums.whereEqualTo("owner", fCurrentUser);
                 try {
                     List<ParseObject> lObjects = lGetAlbums.find();
-                    ArrayList<Photo> lPhotosList = new ArrayList<Photo>();
 
                     for (ParseObject album : lObjects) {
                         addToList(album);
@@ -103,12 +104,10 @@ public class GetPhotosAsync extends AsyncTask<String,Void,ArrayList<Photo>> {
                                     @Override
                                     public void done(List<ParseObject> photos, ParseException e) {
                                         if (e == null) {
-                                            ArrayList<Photo> lPhotosList = new ArrayList<Photo>();
 
                                             for (ParseObject object : photos) {
                                                 addToList(object);
                                             }
-                                            fAlbumPhotos = lPhotosList;
                                         } else e.printStackTrace();
 
                                     }
@@ -119,14 +118,9 @@ public class GetPhotosAsync extends AsyncTask<String,Void,ArrayList<Photo>> {
                     }
                 });
                 return fAlbumPhotos;
+
         }
 
-//        if(which == 1){
-//
-//        }
-//        else{
-//
-//        }
         return fAlbumPhotos;
 
     }

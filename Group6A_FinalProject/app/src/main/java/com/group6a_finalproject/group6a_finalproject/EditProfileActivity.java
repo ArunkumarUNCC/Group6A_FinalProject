@@ -91,7 +91,7 @@ public class EditProfileActivity extends AppCompatActivity {
             fGender.setChecked(false);
         else fGender.setChecked(true);
 
-        ParseFile file = user.getParseFile("profilePicture");
+        ParseFile file = user.getParseFile("thumbnail");
         if (file!=null) {
             file.getDataInBackground(new GetDataCallback() {
                 @Override
@@ -154,7 +154,7 @@ public class EditProfileActivity extends AppCompatActivity {
 
                 final ParseFile lImageFile = new ParseFile("default.png", lImageToUpload);
                 lImageFile.saveInBackground();
-                lSaveUser.put("profilePicture", lImageFile);
+                lSaveUser.put("thumbnail", lImageFile);
             }
 
             lSaveUser.saveInBackground(new SaveCallback() {

@@ -84,7 +84,7 @@ public class MainProfileActivity extends AppCompatActivity {
         fGender.setText(fGender.getText().toString()+" "+user.getString("gender"));
 
 
-        ParseFile file = user.getParseFile("profilePicture");
+        ParseFile file = user.getParseFile("thumbnail");
         if (file!=null) {
             file.getDataInBackground(new GetDataCallback() {
                 @Override
@@ -110,9 +110,9 @@ public class MainProfileActivity extends AppCompatActivity {
         startActivityForResult(lIntent, fEDIT_PROFILE_REQCODE);
     }
 
-    public void toActivity(String aIntent, String aExtra){
+    public void toActivity(String aIntent, int aExtra){
         Intent lIntent = new Intent(aIntent);
-        lIntent.putExtra("Some Extra", aExtra);
+        lIntent.putExtra("user_dir_flag", aExtra);
         startActivity(lIntent);
     }
 
@@ -148,7 +148,7 @@ public class MainProfileActivity extends AppCompatActivity {
     }
 
     public void viewUserDirectoryOnClick (MenuItem aItem){
-        toActivity(fGOTO_USER_DIRECTORY);
+        toActivity(fGOTO_USER_DIRECTORY,1);
     }
 
     public void logoutOnClick (MenuItem aItem){
