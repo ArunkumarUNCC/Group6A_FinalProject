@@ -85,7 +85,7 @@ public class ComposeMessage extends AppCompatActivity {
             lQuery.findInBackground(new FindCallback<ParseUser>() {
                 @Override
                 public void done(List<ParseUser> objects, ParseException e) {
-                    if (e == null) {
+                    if (e == null) {//t
                         for (ParseObject user : objects) {
                             fParseObj.put(fUSER_FROM, fCurrentUser);//current user objectID
                             fParseObj.put(fUSER_TO, user.getObjectId());//to user objectID
