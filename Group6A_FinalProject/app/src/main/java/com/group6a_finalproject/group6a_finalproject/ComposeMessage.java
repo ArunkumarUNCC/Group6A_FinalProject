@@ -3,6 +3,7 @@ package com.group6a_finalproject.group6a_finalproject;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -30,7 +31,7 @@ public class ComposeMessage extends AppCompatActivity {
     EditText fMessageBody;
     TextView fToField;
     
-    String fCurrentUser;
+    ParseUser fCurrentUser;
     ParseObject fParseObj = new ParseObject("MessageTable");//String is table name
 
     @Override
@@ -66,7 +67,7 @@ public class ComposeMessage extends AppCompatActivity {
     public void getItems (){
         fMessageBody = (EditText) findViewById(R.id.editTextComposeMessageBody);
         fToField = (TextView) findViewById(R.id.textViewToMessageField);
-        fCurrentUser = ParseUser.getCurrentUser().getObjectId();
+        fCurrentUser = ParseUser.getCurrentUser();
     }
 
     public void makeToast(String aString){
@@ -82,30 +83,62 @@ public class ComposeMessage extends AppCompatActivity {
         if(fMessageBody.length() > 0){
             final ParseQuery<ParseUser> lQuery = ParseQuery.getQuery("_User");
             lQuery.whereEqualTo("username", fTo_User_Email);
-            lQuery.findInBackground(new FindCallback<ParseUser>() {
-                @Override
-                public void done(List<ParseUser> objects, ParseException e) {
-                    if (e == null) {//t
-                        for (ParseObject user : objects) {
-                            fParseObj.put(fUSER_FROM, fCurrentUser);//current user objectID
-                            fParseObj.put(fUSER_TO, user.getObjectId());//to user objectID
-                            fParseObj.put(fMESSAGE, fMessageBody.getText().toString());
+
+            try {
+                List<ParseUser> objects = lQuery.find();
+
+                for (ParseUser user : objects) {
+                    fParseObj.put(fUSER_FROM, fCurrentUser);//current user objectID
+                    fParseObj.put(fUSER_TO, user);//to user objectID
+                    fParseObj.put(fMESSAGE, fMessageBody.getText().toString());
+                }
+
+                fParseObj.saveInBackground(new SaveCallback() {
+                    @Override
+                    public void done(ParseException e) {
+                        if (e == null) {
+                            UserInbox.fUserMessages.add(fParseObj);
+                            UserInbox.fAdapter.notifyDataSetChanged();
+                            makeToast("Message sent!");
+                            finish();
+                        } else {
+                            e.printStackTrace();
+                            makeToast("Message not sent!");
                         }
                     }
-                }
-            });
+                });
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+//            lQuery.findInBackground(new FindCallback<ParseUser>() {
+//                @Override
+//                public void done(List<ParseUser> objects, ParseException e) {
+//                    if (e == null) {//t
+//
+//                        for (ParseUser user : objects) {
+//                            fParseObj.put(fUSER_FROM, fCurrentUser);//current user objectID
+//                            fParseObj.put(fUSER_TO, user.getObjectId());//to user objectID
+//                            fParseObj.put(fMESSAGE, fMessageBody.getText().toString());
+//                        }
+//
+//                        fParseObj.saveInBackground(new SaveCallback() {
+//                            @Override
+//                            public void done(ParseException e) {
+//                                if (e == null) {
+//                                    UserInbox.fUserMessages.add(fParseObj);
+//                                    UserInbox.fAdapter.notifyDataSetChanged();
+//                                    makeToast("Message sent!");
+//                                    finish();
+//                                } else {
+//                                    e.printStackTrace();
+//                                    makeToast("Message not sent!");
+//                                }
+//                            }
+//                        });
+//                    }
+//                }
+//            });
 
-            fParseObj.saveInBackground(new SaveCallback() {
-                @Override
-                public void done(ParseException e) {
-                    if (e == null) {
-                        UserInbox.fUserMessages.add(fParseObj);
-                        UserInbox.fAdapter.notifyDataSetChanged();
-                        makeToast("Message sent!");
-                        finish();
-                    } else makeToast("Message not sent!");
-                }
-            });
         }else makeToast("Cannot send empty message.");
     }
 
