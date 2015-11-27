@@ -6,8 +6,6 @@
         android:orderInCategory="100" app:showAsAction="never" />
     <item android:id="@+id/viewAlbum" android:title="View Albums" android:onClick="viewAlbumOnClick"
         android:orderInCategory="100" app:showAsAction="never" />
-    <item android:id="@+id/createAlbum" android:title="Create Album" android:onClick="createAlbumOnClick"
-        android:orderInCategory="100" app:showAsAction="never" />
     <item android:id="@+id/viewUserDirectory" android:title="View User Directory" android:onClick="viewUserDirectoryOnClick"
         android:orderInCategory="100" app:showAsAction="never" />
     <item android:id="@+id/logout" android:title="Logout" android:onClick="logoutOnClick"
