@@ -2,9 +2,12 @@ package com.group6a_finalproject.group6a_finalproject;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,9 +16,14 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.parse.FindCallback;
+import com.parse.ParseException;
+import com.parse.ParseObject;
+import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import static com.group6a_finalproject.group6a_finalproject.R.id.textViewDirectoryUserEmail;
 import static com.group6a_finalproject.group6a_finalproject.R.id.textViewRecyclerPrivacy;
@@ -28,6 +36,7 @@ import static com.group6a_finalproject.group6a_finalproject.R.id.textViewRecycle
 public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
 
     final String fGOTO_ALBUM_VIEW = "android.intent.action.ALBUM_VIEW";
+    final ParseUser fCURRENT_USER = ParseUser.getCurrentUser();
 
     ArrayList<Photo> fPhotosForDisplay;
     ArrayList<User> fUsersForDisplay;
@@ -170,7 +179,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         return 0;
     }
 
-    private void configureAlbumViewHolder(AlbumsLinearViewHolder lAlbums, int position) {
+    private void configureAlbumViewHolder(AlbumsLinearViewHolder lAlbums, final int position) {
         Bitmap lAlbumBitmap = fAlbumsForDisplay.get(position).getAlbumImage();
         final String lAlbumString = fAlbumsForDisplay.get(position).getAlbumName();
         String lAlbumOwner = fAlbumsForDisplay.get(position).getOwnerName();
@@ -182,11 +191,49 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
         if (!ParseUser.getCurrentUser().getString("name").equals(lAlbumOwner))
             lAlbums.lAlbumDelete.setImageBitmap(null);
+        else{
+            lAlbums.lAlbumDelete.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    AlertDialog.Builder lConfirmDelete = new AlertDialog.Builder(fContext);
+                    lConfirmDelete.setMessage("Are you sure to delete this album?");
+                    lConfirmDelete.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            ParseQuery<ParseObject> lFindRows = ParseQuery.getQuery("Album");
+                            lFindRows.include("owner");
+                            lFindRows.whereEqualTo("owner", fCURRENT_USER);
+                            lFindRows.whereEqualTo("name", lAlbumString);
+
+                            lFindRows.findInBackground(new FindCallback<ParseObject>() {
+                                @Override
+                                public void done(List<ParseObject> objects, ParseException e) {
+                                    ParseObject.createWithoutData("Album",objects.get(0).getObjectId()).deleteEventually();
+                                    fAlbumsForDisplay.remove(position);
+                                    notifyDataSetChanged();
+                                }
+                            });
+                        }
+                    });
+                    lConfirmDelete.setNegativeButton("No", null);
+                    AlertDialog lDeleteAlbum = lConfirmDelete.create();
+                    lDeleteAlbum.show();
+                }
+            });
+        }
 
         if (lAlbumBitmap==null) {
             lAlbums.lAlbumImage.setImageResource(R.drawable.no_mage);
         }
         else lAlbums.lAlbumImage.setImageBitmap(lAlbumBitmap);
+
+        lAlbums.lAlbumRelativeLayout.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                Log.d("say hello","Hello");
+                return true;
+            }
+        });
 
         lAlbums.lAlbumRelativeLayout.setOnClickListener(new View.OnClickListener() {
             @Override
