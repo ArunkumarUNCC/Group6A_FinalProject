@@ -39,26 +39,28 @@ public class GetMessagesAsync extends AsyncTask<Void, Void, ArrayList<Messages>>
         fProgress.show();
     }
 
+    public void addToList(ParseObject aMessage){
+        final Messages lMessage = new Messages();
+        lMessage.setFromField(aMessage.getString("userFrom"));
+        lMessage.setToField(aMessage.getString("userTo"));
+        lMessage.setMessageBody(aMessage.getString("Message"));
+        //add icon
+        fMessageList.add(lMessage);
+    }
+
     @Override
     protected ArrayList<Messages> doInBackground(Void... params) {
         ParseQuery<ParseObject> lMessages = ParseQuery.getQuery(fMESSAGE_TABLE);
         lMessages.include("userTo");//column names!
         lMessages.whereEqualTo("userTo", ParseUser.getCurrentUser());
-        lMessages.findInBackground(new FindCallback<ParseObject>() {
-            @Override
-            public void done(List<ParseObject> objects, ParseException e) {
-                if(e == null){
-                    for (ParseObject message : objects) {
-                        Messages lMessage = new Messages();
-                        lMessage.setFromField(message.getParseUser("userFrom").getString("name"));
-
-                        lMessage.setMessageBody(message.getString("Message").toString());
-//                        lMessage.setUserIcon(message.get("user_icon"));
-                        fMessageList.add(lMessage);
-                    }
-                }
+        try {
+            List<ParseObject> lMessageList = lMessages.find();
+            for(ParseObject message : lMessageList){
+                addToList(message);
             }
-        });
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
         return fMessageList;
     }
 

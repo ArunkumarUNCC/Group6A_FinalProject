@@ -110,34 +110,6 @@ public class ComposeMessage extends AppCompatActivity {
             } catch (ParseException e) {
                 e.printStackTrace();
             }
-//            lQuery.findInBackground(new FindCallback<ParseUser>() {
-//                @Override
-//                public void done(List<ParseUser> objects, ParseException e) {
-//                    if (e == null) {//t
-//
-//                        for (ParseUser user : objects) {
-//                            fParseObj.put(fUSER_FROM, fCurrentUser);//current user objectID
-//                            fParseObj.put(fUSER_TO, user.getObjectId());//to user objectID
-//                            fParseObj.put(fMESSAGE, fMessageBody.getText().toString());
-//                        }
-//
-//                        fParseObj.saveInBackground(new SaveCallback() {
-//                            @Override
-//                            public void done(ParseException e) {
-//                                if (e == null) {
-//                                    UserInbox.fUserMessages.add(fParseObj);
-//                                    UserInbox.fAdapter.notifyDataSetChanged();
-//                                    makeToast("Message sent!");
-//                                    finish();
-//                                } else {
-//                                    e.printStackTrace();
-//                                    makeToast("Message not sent!");
-//                                }
-//                            }
-//                        });
-//                    }
-//                }
-//            });
 
         }else makeToast("Cannot send empty message.");
     }
