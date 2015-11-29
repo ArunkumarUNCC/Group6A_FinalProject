@@ -125,7 +125,7 @@ public class ComposeMessage extends AppCompatActivity {
                     if(fFromMessageView)//if replying to a message
                         fParseObj.put(fUSER_TO, fReturnUser);//to user objectID
                     else
-                        fParseObj.put(fUSER_TO, user);//to user objectID
+                        fParseObj.put(fUSER_TO, user);//to user objectIDa
                     fParseObj.put(fMESSAGE, fMessageBody.getText().toString());
                 }
 
