@@ -25,7 +25,6 @@ import java.io.ByteArrayOutputStream;
 public class MainProfileActivity extends AppCompatActivity {
 
     final String fGOTO_EDIT_PROFILE = "android.intent.action.EDIT_PROFILE";
-    final String fGOTO_CRTEATE_ALBUM = "android.intent.action.CREATE_ALBUM";
     final String fGOTO_ALBUM_VIEW = "android.intent.action.ALBUM_VIEW";
     final String fGOTO_ALBUM_LIST = "android.intent.action.ALBUM_LIST";
     final String fGOTO_USER_DIRECTORY ="android.intent.action.USER_DIRECTORY";
@@ -137,10 +136,6 @@ public class MainProfileActivity extends AppCompatActivity {
 
     public void viewInboxOnClick (MenuItem aItem){
         toActivity(fGOTO_USER_INBOX);
-    }
-
-    public void createAlbumOnClick (MenuItem aItem){
-        toActivity(fGOTO_CRTEATE_ALBUM);
     }
 
     public void viewAlbumOnClick (MenuItem aItem){

@@ -129,6 +129,7 @@ public class CreateAlbumActivity extends AppCompatActivity {
                                 if (e == null) {
                                     makeToast("Album Successfully created!");
                                     toActivity(fGOTO_ALBUM_VIEW, fAlbumName.getText().toString());
+                                    finish();
                                 } else {
                                     makeToast("Upload Error");
                                 }

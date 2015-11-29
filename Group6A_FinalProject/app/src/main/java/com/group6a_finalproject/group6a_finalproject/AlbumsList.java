@@ -1,5 +1,6 @@
 package com.group6a_finalproject.group6a_finalproject;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.support.v7.app.AppCompatActivity;
@@ -13,6 +14,9 @@ import android.view.MenuItem;
 import java.util.ArrayList;
 
 public class AlbumsList extends AppCompatActivity implements GetAlbumsAsync.IGetAlbums{
+
+    final String fGOTO_CRTEATE_ALBUM = "android.intent.action.CREATE_ALBUM";
+    final int fCHECK_CREATE_ALBUM = 1003;
 
     RecyclerView fAlbumsListRecycler;
     RecyclerAdapter fAlbumsAdapter;
@@ -67,5 +71,26 @@ public class AlbumsList extends AppCompatActivity implements GetAlbumsAsync.IGet
     @Override
     public void putAlbums(ArrayList<Album> albums) {
         setRecyclerView(albums);
+    }
+
+    public void toActivityForResult(String aIntent){
+        Intent lIntent = new Intent(aIntent);
+        startActivityForResult(lIntent, fCHECK_CREATE_ALBUM);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        switch (requestCode){
+            case fCHECK_CREATE_ALBUM:
+
+                break;
+        }
+
+    }
+
+    public void createAlbumOnClick (MenuItem aItem){
+        toActivityForResult(fGOTO_CRTEATE_ALBUM);
     }
 }
