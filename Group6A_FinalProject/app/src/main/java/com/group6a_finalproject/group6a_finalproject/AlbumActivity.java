@@ -10,6 +10,7 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -31,6 +32,7 @@ import java.util.List;
 public class AlbumActivity extends AppCompatActivity implements GetPhotosAsync.IGetPhotos{
 
     final String fGOTO_ADD_PHOTO = "android.intent.action.ADD_PHOTO";
+    final String fGOTO_INVITE = "android.intent.action.INVITE_USERS";
     final  String fALBUM_NAME_EXTRA = "ALBUM_NAME";
     final int fNEW_PHOTO_REQCODE = 1002;
 
@@ -40,7 +42,8 @@ public class AlbumActivity extends AppCompatActivity implements GetPhotosAsync.I
     Button fAddPhotoButton;
     TextView fAlbumNameText;
 
-    String fAlbumName;
+    static String fAlbumName;
+    ParseUser fAlbumOwner;
 
     ArrayList<Photo> fAlbumPhotos;
 
@@ -50,13 +53,16 @@ public class AlbumActivity extends AppCompatActivity implements GetPhotosAsync.I
         setContentView(R.layout.activity_album);
 
         fAlbumPhotos = new ArrayList<Photo>();
+
+
+        getItems();
+        checkPrivacy();
+        getAlbumOwner();
+
         //Display Album name
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayShowHomeEnabled(true);
         actionBar.setTitle(fAlbumName);
-
-        getItems();
-        checkPrivacy();
 
         new GetPhotosAsync(this,2).execute(fAlbumName);
     }
@@ -93,6 +99,12 @@ public class AlbumActivity extends AppCompatActivity implements GetPhotosAsync.I
 
     public void toActivity(String aIntent){
         Intent lIntent = new Intent(aIntent);
+        startActivity(lIntent);
+    }
+
+    public void toActivity(String aIntent,String aExtra){
+        Intent lIntent = new Intent(aIntent);
+        lIntent.putExtra(fALBUM_NAME_EXTRA,aExtra);
         startActivity(lIntent);
     }
 
@@ -152,7 +164,7 @@ public class AlbumActivity extends AppCompatActivity implements GetPhotosAsync.I
         if (photos!=null)
             fAlbumPhotos = photos;
 
-        fAdapter = new RecyclerAdapter(fAlbumPhotos,AlbumActivity.this,2);
+        fAdapter = new RecyclerAdapter(fAlbumPhotos,AlbumActivity.this,2,fAlbumOwner,fAlbumName);
         fPhotoRecycler.setAdapter(fAdapter);
     }
 
@@ -186,5 +198,24 @@ public class AlbumActivity extends AppCompatActivity implements GetPhotosAsync.I
         setRecyclerView(photos);
     }
 
+    @Override
+    public void onBackPressed() {
+        setResult(RESULT_OK);
+        super.onBackPressed();
+    }
 
+    public void shareAlbumOnClick(MenuItem aItem){
+        toActivity(fGOTO_INVITE, fAlbumName);
+    }
+
+    private void getAlbumOwner() {
+        ParseQuery<ParseObject> lGetOwner = ParseQuery.getQuery("Album");
+        lGetOwner.whereEqualTo("name",fAlbumName);
+        lGetOwner.findInBackground(new FindCallback<ParseObject>() {
+            @Override
+            public void done(List<ParseObject> objects, ParseException e) {
+                fAlbumOwner = objects.get(0).getParseUser("owner");
+            }
+        });
+    }
 }

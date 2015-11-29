@@ -44,16 +44,21 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     Context fContext;
     int whichRecycler;
     int fwhichActivity;
+    String fAlbumName;
+
+    ParseUser fAlbumOwner;
 
     public RecyclerAdapter(Context fContext, int which) {
         this.fContext = fContext;
         this.whichRecycler = which;
     }
 
-    public RecyclerAdapter(ArrayList<Photo> albumPhotoList, Context fContext, int which) {
+    public RecyclerAdapter(ArrayList<Photo> albumPhotoList, Context fContext, int which,ParseUser aAlbumOwner,String aAlbumName) {
         this.fPhotosForDisplay = albumPhotoList;
         this.fContext = fContext;
         this.whichRecycler = which;
+        this.fAlbumOwner = aAlbumOwner;
+        this.fAlbumName = aAlbumName;
     }
 
     public RecyclerAdapter(ArrayList<User> userList, Context fContext, int which, int aWhichActivity) {
@@ -89,6 +94,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
     //To display photos of a particular album
     public static class PhotosGridViewHolder extends RecyclerView.ViewHolder{
+        LinearLayout lPhotoGridLayout;
 
         TextView lPhotoName;
         ImageView lPhoto;
@@ -96,6 +102,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         public PhotosGridViewHolder(View itemView) {
             super(itemView);
 
+            lPhotoGridLayout = (LinearLayout) itemView.findViewById(R.id.linearLayoutPhotoGrid);
             lPhotoName = (TextView) itemView.findViewById(R.id.textViewPhotoName);
             lPhoto = (ImageView) itemView.findViewById(R.id.imageViewPhoto);
         }
@@ -227,13 +234,13 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         }
         else lAlbums.lAlbumImage.setImageBitmap(lAlbumBitmap);
 
-        lAlbums.lAlbumRelativeLayout.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                Log.d("say hello","Hello");
-                return true;
-            }
-        });
+//        lAlbums.lAlbumRelativeLayout.setOnLongClickListener(new View.OnLongClickListener() {
+//            @Override
+//            public boolean onLongClick(View v) {
+//                Log.d("say hello","Hello");
+//                return true;
+//            }
+//        });
 
         lAlbums.lAlbumRelativeLayout.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -243,12 +250,53 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         });
     }
 
-    private void configurePhotoViewHolder(PhotosGridViewHolder lPhotos, int position) {
+    private void configurePhotoViewHolder(PhotosGridViewHolder lPhotos, final int position) {
         Bitmap lPhotoBitmap = fPhotosForDisplay.get(position).getPhotoBitmap();
-        String lPhotoString = fPhotosForDisplay.get(position).getPhotoName();
+        final String lPhotoString = fPhotosForDisplay.get(position).getPhotoName();
 
         lPhotos.lPhotoName.setText(lPhotoString);
         lPhotos.lPhoto.setImageBitmap(lPhotoBitmap);
+
+        if(fAlbumOwner.equals(fCURRENT_USER)){
+            lPhotos.lPhotoGridLayout.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+
+                    AlertDialog.Builder lConfirmDelete = new AlertDialog.Builder(fContext);
+                    lConfirmDelete.setMessage("Are you sure to delete this photo?");
+                    lConfirmDelete.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            ParseQuery<ParseObject> lFindRows = ParseQuery.getQuery("Photos");
+                            lFindRows.include("album");
+                            lFindRows.whereEqualTo("name", lPhotoString);
+
+                            lFindRows.findInBackground(new FindCallback<ParseObject>() {
+                                @Override
+                                public void done(List<ParseObject> objects, ParseException e) {
+
+                                    if(e==null){
+                                        for(ParseObject object : objects){
+                                            if(object.getParseObject("album").getString("name").equals(fAlbumName)){
+                                                ParseObject.createWithoutData("Photos",object.getObjectId()).deleteEventually();
+                                                fPhotosForDisplay.remove(position);
+                                                notifyDataSetChanged();
+                                            }
+                                        }
+                                    }
+
+                                }
+                            });
+                        }
+                    });
+                    lConfirmDelete.setNegativeButton("No", null);
+                    AlertDialog lDeleteAlbum = lConfirmDelete.create();
+                    lDeleteAlbum.show();
+
+                    return true;
+                }
+            });
+        }
     }
 
     private void configureUserViewHolder(UsersLinearViewHolder lUsers, final int position) {
@@ -284,4 +332,5 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         lIntent.putExtra("ALBUM_TITLE", aExtra);
         ((AlbumsList)fContext ).startActivity(lIntent);
     }
+
 }

@@ -11,7 +11,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.parse.ParseException;
+import com.parse.ParseInstallation;
+import com.parse.ParsePush;
+import com.parse.ParseQuery;
 import com.parse.ParseUser;
+import com.parse.SaveCallback;
 import com.parse.SignUpCallback;
 
 import java.util.regex.Matcher;
@@ -110,12 +114,30 @@ public class RegisterNewUserActivity extends AppCompatActivity {
         lSignupUser.setUsername(lEmail);
         lSignupUser.put("name", lName);
         lSignupUser.put("gender", lGender);
+        lSignupUser.put("getNotification",true);
+        lSignupUser.put("isVisible",true);
         lSignupUser.signUpInBackground(new SignUpCallback() {
             @Override
             public void done(ParseException e) {
                 if(e==null){
-                    makeToast("Registration Successful");
-                    finish();
+                    ParseInstallation lNewUser = ParseInstallation.getCurrentInstallation();
+                    lNewUser.put("user", lEmail);
+                    lNewUser.saveInBackground(new SaveCallback() {
+                        @Override
+                        public void done(ParseException e) {
+                            if (e == null) {
+                                ParsePush lSendNotification = new ParsePush();
+                                ParseQuery lQuery = ParseInstallation.getQuery();
+                                lQuery.whereNotEqualTo("user", lEmail);
+                                lSendNotification.sendMessageInBackground("New User " + lName + " signed up", lQuery);
+
+                                makeToast("Registration Successful");
+                                finish();
+                            }
+                        }
+                    });
+
+
                 }
                 else{
                     fEmail.setError("Email already exists");

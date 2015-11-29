@@ -1,6 +1,7 @@
 package com.group6a_finalproject.group6a_finalproject;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.provider.MediaStore;
@@ -30,6 +31,7 @@ import java.util.List;
 public class CreateAlbumActivity extends AppCompatActivity {
 
     final String fGOTO_ALBUM_VIEW = "android.intent.action.ALBUM_VIEW";
+
     final int fSELECT_PICTURE = 1;
 
     EditText fAlbumName;
@@ -83,8 +85,11 @@ public class CreateAlbumActivity extends AppCompatActivity {
     public void toActivity(String aIntent, String aExtra){
         Intent lIntent = new Intent(aIntent);
         lIntent.putExtra("ALBUM_TITLE", aExtra);
+        lIntent.setFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT);
         startActivity(lIntent);
     }
+
+
 
     public void makeToast(String aString){
         Toast.makeText(getApplicationContext(), aString, Toast.LENGTH_SHORT).show();
@@ -97,6 +102,10 @@ public class CreateAlbumActivity extends AppCompatActivity {
     }
 
     public void createAlbumOnClick (View aView){
+        final Album lTempAlbum = new Album();
+        SharedPreferences sp = getSharedPreferences("AlbumDetails",MODE_PRIVATE);
+        final SharedPreferenceSetup lSetPreference = new SharedPreferenceSetup(sp);
+
         final String lAlbumName = fAlbumName.getText().toString();
         final String lAlbumPrivacy = fPrivate.isChecked()?"Public":"Private";
         if(!lAlbumName.isEmpty()) {
@@ -113,6 +122,10 @@ public class CreateAlbumActivity extends AppCompatActivity {
                         lSaveAlbum.put("privacy", lAlbumPrivacy);
                         lSaveAlbum.put("owner", lCurrentUser);
 
+                        lTempAlbum.setAlbumName(lAlbumName);
+                        lTempAlbum.setPrivacy(lAlbumPrivacy);
+                        lTempAlbum.setOwnerName(lCurrentUser.getString("name"));
+
                         if (fImageBitmap != null) {
                             ByteArrayOutputStream lStream = new ByteArrayOutputStream();
                             fImageBitmap.compress(Bitmap.CompressFormat.PNG, 100, lStream);
@@ -121,7 +134,16 @@ public class CreateAlbumActivity extends AppCompatActivity {
                             final ParseFile lImageFile = new ParseFile("thumbnail.png", lImageToUpload);
                             lImageFile.saveInBackground();
                             lSaveAlbum.put("thumbnail", lImageFile);
+                            lTempAlbum.setAlbumImage(fImageBitmap);
                         }
+
+                        lSetPreference.putAlbumPreferences("myAlbum",lTempAlbum);
+
+//                        SharedPreferences sp = getSharedPreferences("AlbumDetails",MODE_PRIVATE);
+//                        SharedPreferenceSetup lTempAlbum = new SharedPreferenceSetup(sp);
+//                        Album toPutIntoList = lTempAlbum.getAlbumPreference("myAlbum");
+//
+//                        Log.d("Check album in middle", toPutIntoList.getAlbumName() + " name");
 
                         lSaveAlbum.saveInBackground(new SaveCallback() {
                             @Override
@@ -130,7 +152,8 @@ public class CreateAlbumActivity extends AppCompatActivity {
                                     makeToast("Album Successfully created!");
                                     toActivity(fGOTO_ALBUM_VIEW, fAlbumName.getText().toString());
                                     finish();
-                                } else {
+                                } else
+                                {
                                     makeToast("Upload Error");
                                 }
                             }
@@ -164,6 +187,9 @@ public class CreateAlbumActivity extends AppCompatActivity {
                         e.printStackTrace();
                     }
                     fAlbumThumb.setImageURI(lSelectedImgUri);
+
+                    break;
+
 
 
             }
