@@ -70,7 +70,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageL
                     .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            //delete selected message
+                            //delete selected messages
                             ParseQuery<ParseObject> lFindRow = ParseQuery.getQuery("MessageTable");
                             lFindRow.whereEqualTo("objectId", fUserMessages.get(position).getObjectID())
                                     .findInBackground(new FindCallback<ParseObject>() {
