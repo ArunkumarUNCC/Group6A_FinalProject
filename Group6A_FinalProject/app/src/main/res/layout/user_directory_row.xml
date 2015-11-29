@@ -26,7 +26,8 @@
         android:id="@+id/textViewDirectoryUserName"
         android:layout_toRightOf="@+id/imageViewDirectoryThumb"
         android:layout_toEndOf="@+id/imageViewDirectoryThumb"
-        android:layout_marginLeft="5dp" />
+        android:layout_marginLeft="5dp"
+        android:textColor="#000000" />
 
     <TextView
         android:layout_width="wrap_content"

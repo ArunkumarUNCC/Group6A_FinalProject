@@ -145,14 +145,17 @@ public class MainProfileActivity extends AppCompatActivity {
 
     public void viewInboxOnClick (MenuItem aItem){
         toActivity(fGOTO_USER_INBOX);
+        finish();
     }
 
     public void viewAlbumOnClick (MenuItem aItem){
         toActivity(fGOTO_ALBUM_LIST);
+        finish();
     }
 
     public void viewUserDirectoryOnClick (MenuItem aItem){
         toActivity(fGOTO_USER_DIRECTORY,1);
+        finish();
     }
 
     public void logoutOnClick (MenuItem aItem){

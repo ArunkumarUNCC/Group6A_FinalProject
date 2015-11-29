@@ -43,6 +43,7 @@ public class AlbumActivity extends AppCompatActivity implements GetPhotosAsync.I
     TextView fAlbumNameText;
 
     static String fAlbumName;
+    ParseUser fAlbumOwner;
 
     ArrayList<Photo> fAlbumPhotos;
 
@@ -52,13 +53,16 @@ public class AlbumActivity extends AppCompatActivity implements GetPhotosAsync.I
         setContentView(R.layout.activity_album);
 
         fAlbumPhotos = new ArrayList<Photo>();
+
+
+        getItems();
+        checkPrivacy();
+        getAlbumOwner();
+
         //Display Album name
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayShowHomeEnabled(true);
         actionBar.setTitle(fAlbumName);
-
-        getItems();
-        checkPrivacy();
 
         new GetPhotosAsync(this,2).execute(fAlbumName);
     }
@@ -160,7 +164,7 @@ public class AlbumActivity extends AppCompatActivity implements GetPhotosAsync.I
         if (photos!=null)
             fAlbumPhotos = photos;
 
-        fAdapter = new RecyclerAdapter(fAlbumPhotos,AlbumActivity.this,2);
+        fAdapter = new RecyclerAdapter(fAlbumPhotos,AlbumActivity.this,2,fAlbumOwner,fAlbumName);
         fPhotoRecycler.setAdapter(fAdapter);
     }
 
@@ -201,6 +205,17 @@ public class AlbumActivity extends AppCompatActivity implements GetPhotosAsync.I
     }
 
     public void shareAlbumOnClick(MenuItem aItem){
-        toActivity(fGOTO_INVITE,fAlbumName);
+        toActivity(fGOTO_INVITE, fAlbumName);
+    }
+
+    private void getAlbumOwner() {
+        ParseQuery<ParseObject> lGetOwner = ParseQuery.getQuery("Album");
+        lGetOwner.whereEqualTo("name",fAlbumName);
+        lGetOwner.findInBackground(new FindCallback<ParseObject>() {
+            @Override
+            public void done(List<ParseObject> objects, ParseException e) {
+                fAlbumOwner = objects.get(0).getParseUser("owner");
+            }
+        });
     }
 }
