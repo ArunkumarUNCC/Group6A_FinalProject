@@ -43,7 +43,7 @@
             android:paddingTop="20dp"/>
 
         <Switch
-            android:layout_width="wrap_content"
+            android:layout_width="210dp"
             android:layout_height="wrap_content"
             android:text="Gender: "
             android:textAppearance="?android:attr/textAppearanceMedium"
@@ -54,6 +54,30 @@
             android:textOff="M"
             android:showText="true"
             android:paddingTop="20dp" />
+
+        <Switch
+            android:layout_width="210dp"
+            android:layout_height="wrap_content"
+            android:text="@string/userPrivacy"
+            android:enabled="true"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textOn="Y"
+            android:textOff="N"
+            android:id="@+id/switchEditProfilePrivacy"
+            android:showText="true"
+            android:paddingTop="20dp"/>
+
+        <Switch
+            android:layout_width="210dp"
+            android:layout_height="wrap_content"
+            android:text="@string/GetNotifications"
+            android:enabled="true"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textOn="Y"
+            android:textOff="N"
+            android:id="@+id/switchEditProfileNotifications"
+            android:showText="true"
+            android:paddingTop="20dp"/>
     </LinearLayout>
 
     <LinearLayout

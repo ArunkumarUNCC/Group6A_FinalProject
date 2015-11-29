@@ -1,6 +1,7 @@
 package com.group6a_finalproject.group6a_finalproject;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.support.v7.app.AppCompatActivity;
@@ -11,7 +12,17 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.parse.FindCallback;
+import com.parse.GetDataCallback;
+import com.parse.ParseException;
+import com.parse.ParseFile;
+import com.parse.ParseObject;
+import com.parse.ParseQuery;
+
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 public class AlbumsList extends AppCompatActivity implements GetAlbumsAsync.IGetAlbums{
 
@@ -84,7 +95,18 @@ public class AlbumsList extends AppCompatActivity implements GetAlbumsAsync.IGet
 
         switch (requestCode){
             case fCHECK_CREATE_ALBUM:
+                if(resultCode == RESULT_OK){
 
+                    SharedPreferences sp = getSharedPreferences("AlbumDetails",MODE_PRIVATE);
+                    SharedPreferenceSetup lTempAlbum = new SharedPreferenceSetup(sp);
+                    Album toPutIntoList = lTempAlbum.getAlbumPreference("myAlbum");
+
+                    if(!fAlbumsList.contains(toPutIntoList)){
+                        fAlbumsList.add(toPutIntoList);
+                        fAlbumsAdapter.notifyDataSetChanged();
+                    }
+
+                }
                 break;
         }
 
@@ -93,4 +115,5 @@ public class AlbumsList extends AppCompatActivity implements GetAlbumsAsync.IGet
     public void createAlbumOnClick (MenuItem aItem){
         toActivityForResult(fGOTO_CRTEATE_ALBUM);
     }
+
 }

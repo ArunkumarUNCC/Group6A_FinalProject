@@ -38,7 +38,7 @@ public class EditProfileActivity extends AppCompatActivity {
 
     ImageView fProfilePic;
     EditText fName, fEmail;
-    Switch fGender;
+    Switch fGender,fPrivacy,fNotify;
 
     Bitmap fImageBitmap;
 
@@ -79,6 +79,8 @@ public class EditProfileActivity extends AppCompatActivity {
         fName = (EditText) findViewById(R.id.editTextEditProfileName);
         fEmail = (EditText) findViewById(R.id.editTextEditProfileEmail);
         fGender = (Switch) findViewById(R.id.switchEdiptProfileGender);
+        fPrivacy = (Switch) findViewById(R.id.switchEditProfilePrivacy);
+        fNotify = (Switch) findViewById(R.id.switchEditProfileNotifications);
 
         fProfilePic = (ImageView) findViewById(R.id.imageViewEditProfilePicture);
     }
@@ -90,6 +92,8 @@ public class EditProfileActivity extends AppCompatActivity {
         if (user.getString("gender").equals("Male"))
             fGender.setChecked(false);
         else fGender.setChecked(true);
+        fPrivacy.setChecked(user.getBoolean("isVisible"));
+        fNotify.setChecked(user.getBoolean("getNotification"));
 
         ParseFile file = user.getParseFile("thumbnail");
         if (file!=null) {
@@ -146,6 +150,8 @@ public class EditProfileActivity extends AppCompatActivity {
             lSaveUser.setEmail(lEmail);
             lSaveUser.put("gender", lGender);
             lSaveUser.put("name", lName);
+            lSaveUser.put("getNotification",fNotify.isChecked());
+            lSaveUser.put("isVisible",fPrivacy.isChecked());
 
             if(fImageBitmap!=null) {
                 ByteArrayOutputStream lStream = new ByteArrayOutputStream();

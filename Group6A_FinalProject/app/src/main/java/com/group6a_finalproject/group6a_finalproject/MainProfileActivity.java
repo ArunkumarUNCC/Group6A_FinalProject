@@ -32,7 +32,7 @@ public class MainProfileActivity extends AppCompatActivity {
     final int fEDIT_PROFILE_REQCODE = 1001;
 
     ImageView fProfilePic;
-    TextView fName, fEmail, fGender;
+    TextView fName, fEmail, fGender,fPrivacy,fNotify;
 
 
 
@@ -72,15 +72,24 @@ public class MainProfileActivity extends AppCompatActivity {
         fName = (TextView) findViewById(R.id.textViewProfileName);
         fEmail = (TextView) findViewById(R.id.textViewProfileEmail);
         fGender = (TextView) findViewById(R.id.textViewProfileGender);
+        fNotify = (TextView) findViewById(R.id.textViewProfileNotification);
+        fPrivacy = (TextView) findViewById(R.id.textViewProfilePrivacy);
 
         fProfilePic = (ImageView) findViewById(R.id.imageViewProfilePicture);
     }
 
     public void setItems(){
         ParseUser user = ParseUser.getCurrentUser();
-        fName.setText(fName.getText().toString()+"  "+user.getString("name"));
-        fEmail.setText(fEmail.getText().toString()+" "+user.getEmail());
-        fGender.setText(fGender.getText().toString()+" "+user.getString("gender"));
+        fName.setText("Name:  "+user.getString("name"));
+        fEmail.setText("Email: "+user.getEmail());
+        fGender.setText("Gender: "+user.getString("gender"));
+        if (user.getBoolean("getNotification"))
+            fNotify.setText("Get Notifications : Yes");
+        else fNotify.setText("Get Notifications : No");
+
+        if(user.getBoolean("isVisible"))
+            fPrivacy.setText("Profile : Public");
+        else fPrivacy.setText("Profile : Private");
 
 
         ParseFile file = user.getParseFile("thumbnail");

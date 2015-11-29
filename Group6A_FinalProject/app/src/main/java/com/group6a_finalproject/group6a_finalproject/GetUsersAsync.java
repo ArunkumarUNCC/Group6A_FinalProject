@@ -67,6 +67,7 @@ public class GetUsersAsync extends AsyncTask<Void,Void,ArrayList<User>>{
     protected ArrayList<User> doInBackground(Void... params) {
         ParseQuery<ParseUser> lGetUsers = ParseQuery.getQuery("_User");
         lGetUsers.whereNotEqualTo("username", ParseUser.getCurrentUser().getUsername());
+        lGetUsers.whereEqualTo("isVisible",true);
         try {
             List<ParseUser> lUsers = lGetUsers.find();
 

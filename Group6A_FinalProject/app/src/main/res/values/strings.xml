@@ -30,4 +30,12 @@
     <string name="toFieldOnClick">toFieldOnClick</string>
     <string name="title_activity_albums_list">Albums</string>
     <string name="ownerTitle">Owner:</string>
+    <string name="title_activity_invite_users">Share</string>
+    <string name="shareButtonLabel">Share</string>
+    <string name="shareFieldOnClick">shareFieldOnClick </string>
+    <string name="shareCancelOnClick">shareCancelOnClick</string>
+    <string name="deleteUserOnClick">deleteUserOnClick</string>
+    <string name="shareButtonOnClick">shareButtonOnClick</string>
+    <string name="userPrivacy">Public Profile?</string>
+    <string name="GetNotifications">Get Notifications?</string>
 </resources>
