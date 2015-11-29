@@ -6,7 +6,7 @@ import android.graphics.Bitmap;
  * Created by Michael.
  */
 public class Messages {
-    String messageBody, toField, fromField;
+    String messageBody, toField, fromField, objectID;
     Bitmap userIcon;
 
     public String getMessageBody() {
@@ -39,5 +39,13 @@ public class Messages {
 
     public void setUserIcon(Bitmap userIcon) {
         this.userIcon = userIcon;
+    }
+
+    public String getObjectID() {
+        return objectID;
+    }
+
+    public void setObjectID(String objectID) {
+        this.objectID = objectID;
     }
 }

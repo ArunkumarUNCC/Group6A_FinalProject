@@ -5,6 +5,7 @@ import android.content.Context;
 import android.os.AsyncTask;
 
 import com.parse.FindCallback;
+import com.parse.Parse;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
@@ -39,11 +40,21 @@ public class GetMessagesAsync extends AsyncTask<Void, Void, ArrayList<Messages>>
         fProgress.show();
     }
 
-    public void addToList(ParseObject aMessage){
+    public ParseUser findUser(ParseObject aMessage, String aWhereField) throws ParseException {
+        return aMessage.getParseUser(aWhereField);
+    }
+
+    public void addToList(ParseObject aMessage) throws ParseException {
         final Messages lMessage = new Messages();
-        lMessage.setFromField(aMessage.getString("userFrom"));
-        lMessage.setToField(aMessage.getString("userTo"));
-        lMessage.setMessageBody(aMessage.getString("Message"));
+
+        try {
+            lMessage.setFromField("From: " + findUser(aMessage, "userFrom").fetchIfNeeded().getString("name"));
+            lMessage.setToField(ParseUser.getCurrentUser().getString("name"));
+            lMessage.setMessageBody(aMessage.getString("Message"));
+            lMessage.setObjectID(aMessage.getObjectId());
+        }catch (ParseException e){
+            e.printStackTrace();
+        }
         //add icon
         fMessageList.add(lMessage);
     }
