@@ -3,7 +3,7 @@ package com.group6a_finalproject.group6a_finalproject;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.graphics.Bitmap;
+import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,6 +26,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageL
 
     ArrayList<Messages> fUserMessages;
     Context fContext;
+    final String fGOTO_VIEW_MESSAGE = "android.intent.action.VIEW_MESSAGE";
 
     public MessageAdapter(ArrayList<Messages> aUserMessages, Context aContext) {
         this.fUserMessages = aUserMessages;
@@ -61,6 +62,13 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageL
 //        holder.lUserIcon.setImageBitmap(lUserIcon);
         holder.lFromField.setText(lFromField);
         holder.lMessageBody.setText(lMessagePreview);
+        holder.lMessageBody.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //send message to message view
+                toActivity(fGOTO_VIEW_MESSAGE, fUserMessages.get(position));
+            }
+        });
         holder.lMessageBody.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
@@ -70,7 +78,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageL
                     .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            //delete selected messages
+                            //delete selected message
                             ParseQuery<ParseObject> lFindRow = ParseQuery.getQuery("MessageTable");
                             lFindRow.whereEqualTo("objectId", fUserMessages.get(position).getObjectID())
                                     .findInBackground(new FindCallback<ParseObject>() {
@@ -96,6 +104,11 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageL
         });
     }
 
+    public void toActivity(String aIntent, Messages aMessage){
+        Intent lIntent = new Intent(aIntent);
+        lIntent.putExtra("Message", aMessage);
+        fContext.startActivity(lIntent);
+    }
 
     @Override
     public int getItemCount() {

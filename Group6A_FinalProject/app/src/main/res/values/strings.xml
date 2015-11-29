@@ -30,4 +30,6 @@
     <string name="toFieldOnClick">toFieldOnClick</string>
     <string name="title_activity_albums_list">Albums</string>
     <string name="ownerTitle">Owner:</string>
+    <string name="title_activity_view_message">View Message</string>
+    <string name="replyOnClick">replyOnClick</string>
 </resources>

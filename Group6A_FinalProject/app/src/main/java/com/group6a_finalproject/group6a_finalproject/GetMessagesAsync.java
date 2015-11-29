@@ -48,7 +48,7 @@ public class GetMessagesAsync extends AsyncTask<Void, Void, ArrayList<Messages>>
         final Messages lMessage = new Messages();
 
         try {
-            lMessage.setFromField("From: " + findUser(aMessage, "userFrom").fetchIfNeeded().getString("name"));
+            lMessage.setFromField(findUser(aMessage, "userFrom").fetchIfNeeded().getString("name"));
             lMessage.setToField(ParseUser.getCurrentUser().getString("name"));
             lMessage.setMessageBody(aMessage.getString("Message"));
             lMessage.setObjectID(aMessage.getObjectId());

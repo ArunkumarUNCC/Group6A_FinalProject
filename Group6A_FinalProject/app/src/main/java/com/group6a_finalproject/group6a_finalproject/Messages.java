@@ -2,10 +2,12 @@ package com.group6a_finalproject.group6a_finalproject;
 
 import android.graphics.Bitmap;
 
+import java.io.Serializable;
+
 /**
  * Created by Michael.
  */
-public class Messages {
+public class Messages implements Serializable{
     String messageBody, toField, fromField, objectID;
     Bitmap userIcon;
 
