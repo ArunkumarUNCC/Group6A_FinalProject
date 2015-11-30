@@ -16,6 +16,7 @@ import com.parse.ParsePush;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
+import com.parse.SendCallback;
 import com.parse.SignUpCallback;
 
 import java.util.regex.Matcher;
@@ -108,7 +109,7 @@ public class RegisterNewUserActivity extends AppCompatActivity {
         }
 
         //Signing up in Parse
-        ParseUser lSignupUser = new ParseUser();
+        final ParseUser lSignupUser = new ParseUser();
         lSignupUser.setEmail(lEmail);
         lSignupUser.setPassword(lPassword);
         lSignupUser.setUsername(lEmail);
@@ -120,20 +121,28 @@ public class RegisterNewUserActivity extends AppCompatActivity {
             @Override
             public void done(ParseException e) {
                 if(e==null){
-                    ParseInstallation lNewUser = ParseInstallation.getCurrentInstallation();
-                    lNewUser.put("user", lEmail);
-                    lNewUser.saveInBackground(new SaveCallback() {
+
+                    ParsePush push = new ParsePush();
+                    push.setChannel("NewUser");
+                    push.setMessage("New user "+lName +" Signed up!!!");
+                    push.sendInBackground(new SendCallback() {
                         @Override
                         public void done(ParseException e) {
                             if (e == null) {
-                                ParsePush lSendNotification = new ParsePush();
-                                ParseQuery lQuery = ParseInstallation.getQuery();
-                                lQuery.whereNotEqualTo("user", lEmail);
-                                lSendNotification.sendMessageInBackground("New User " + lName + " signed up", lQuery);
+                                ParseInstallation lNewUser = ParseInstallation.getCurrentInstallation();
+                                lNewUser.put("user", lSignupUser);
+                                lNewUser.addUnique("channels", "NewUser");
+                                lNewUser.saveInBackground(new SaveCallback() {
+                                    @Override
+                                    public void done(ParseException e) {
+                                        if (e == null) {
 
-                                makeToast("Registration Successful");
-                                finish();
-                            }
+                                            makeToast("Registration Successful");
+                                            finish();
+                                        }else e.printStackTrace();
+                                    }
+                                });
+                            } else e.printStackTrace();
                         }
                     });
 
