@@ -31,11 +31,10 @@
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:text="Time..."
         android:maxLines="1"
+        android:maxLength="10"
         android:id="@+id/textViewInboxTimeStamp"
-        android:layout_marginTop="2dp"
-        android:layout_marginLeft="10dp"
-        android:layout_toRightOf="@+id/textViewInboxName"
-        android:layout_toEndOf="@+id/textViewInboxName"/>
+        android:layout_alignParentRight="true"
+        android:layout_marginTop="2dp"/>
 
     <TextView
         android:layout_width="wrap_content"
