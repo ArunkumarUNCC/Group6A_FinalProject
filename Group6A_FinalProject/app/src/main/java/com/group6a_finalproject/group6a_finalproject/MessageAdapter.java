@@ -4,12 +4,17 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.ColorFilter;
+import android.graphics.drawable.Drawable;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.parse.FindCallback;
 import com.parse.ParseException;
@@ -47,7 +52,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageL
     }
 
     @Override
-    public MessageLinearHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public MessageLinearHolder onCreateViewHolder(final ViewGroup parent, int viewType) {
         View lView = LayoutInflater.from(parent.getContext()).inflate(R.layout.message_row, parent, false);
         MessageLinearHolder lMessageView = new MessageLinearHolder(lView);
         return lMessageView;
@@ -62,14 +67,40 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageL
 //        holder.lUserIcon.setImageBitmap(lUserIcon);
         holder.lFromField.setText(lFromField);
         holder.lMessageBody.setText(lMessagePreview);
-        holder.lMessageBody.setOnClickListener(new View.OnClickListener() {
+
+       ParseQuery<ParseObject> lReadQuery = ParseQuery.getQuery("MessageTable")
+               .whereEqualTo("objectId", fUserMessages.get(position).getObjectID());
+        try {//issue is in the try block
+            ParseObject lIsRead = lReadQuery.getFirst();
+            if(lIsRead.getBoolean("Read")){
+                holder.itemView.setBackgroundColor(Color.parseColor("#D3D3D3"));
+//                notifyDataSetChanged();
+            }
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                //set message to read
+                ParseQuery<ParseObject> lQuery = ParseQuery.getQuery("MessageTable")
+                        .whereEqualTo("objectId", fUserMessages.get(position).getObjectID());
+                try {
+                    List<ParseObject> lMessage = lQuery.find();
+                    for(ParseObject message : lMessage){
+                        message.put("Read", true);
+                        notifyDataSetChanged();
+                        message.save();
+                    }
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
                 //send message to message view
                 toActivity(fGOTO_VIEW_MESSAGE, fUserMessages.get(position));
             }
         });
-        holder.lMessageBody.setOnLongClickListener(new View.OnLongClickListener() {
+        holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
                 AlertDialog.Builder lConfirmDelete = new AlertDialog.Builder(fContext);

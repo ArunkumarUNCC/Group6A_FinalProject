@@ -25,6 +25,7 @@ public class ComposeMessage extends AppCompatActivity {
     final String fUSER_FROM = "userFrom";
     final String fMESSAGE = "Message";
     final String fUSER_TO = "userTo";
+    final String fREAD = "Read";
     final int fTO_USER_DIRECTORY = 1002;
     String fTo_User_Email = "";
 
@@ -125,8 +126,9 @@ public class ComposeMessage extends AppCompatActivity {
                     if(fFromMessageView)//if replying to a message
                         fParseObj.put(fUSER_TO, fReturnUser);//to user objectID
                     else
-                        fParseObj.put(fUSER_TO, user);//to user objectIDa
+                        fParseObj.put(fUSER_TO, user);//to user objectID
                     fParseObj.put(fMESSAGE, fMessageBody.getText().toString());
+                    fParseObj.put(fREAD, false);
                 }
 
                 fParseObj.saveInBackground(new SaveCallback() {
