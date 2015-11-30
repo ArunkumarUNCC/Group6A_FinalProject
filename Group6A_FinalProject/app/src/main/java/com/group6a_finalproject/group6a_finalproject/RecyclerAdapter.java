@@ -330,7 +330,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     public void toActivityFromAlbumList(String aIntent, String aExtra){
         Intent lIntent = new Intent(aIntent);
         lIntent.putExtra("ALBUM_TITLE", aExtra);
-        ((AlbumsList)fContext ).startActivity(lIntent);
+        ((AlbumsList)fContext ).startActivityForResult(lIntent, AlbumsList.fCHECK_EDIT_ALBUM);
     }
 
 }

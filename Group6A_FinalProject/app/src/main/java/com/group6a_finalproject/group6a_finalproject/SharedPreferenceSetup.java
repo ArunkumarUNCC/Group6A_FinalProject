@@ -36,10 +36,22 @@ public class SharedPreferenceSetup {
 
     }
 
+    public void putAlbumPreferences(String aPreferenceString,String aOldAlbumName){
+        sp.edit().putString(aPreferenceString,aOldAlbumName).apply();
+    }
+
     public Album getAlbumPreference(String getValue) {
         Gson gson = new Gson();
         String albumJson = sp.getString(getValue,null);
         Type type = new TypeToken<Album>(){}.getType();
         return gson.fromJson(albumJson,type);
+    }
+
+    public String getOldAlbumPreference(String key){
+        return sp.getString(key,null);
+    }
+
+    public boolean checkKey(String key){
+        return sp.contains(key);
     }
 }

@@ -28,6 +28,7 @@ public class AlbumsList extends AppCompatActivity implements GetAlbumsAsync.IGet
 
     final String fGOTO_CRTEATE_ALBUM = "android.intent.action.CREATE_ALBUM";
     final int fCHECK_CREATE_ALBUM = 1003;
+    static final int fCHECK_EDIT_ALBUM = 1004;
 
     RecyclerView fAlbumsListRecycler;
     RecyclerAdapter fAlbumsAdapter;
@@ -84,8 +85,9 @@ public class AlbumsList extends AppCompatActivity implements GetAlbumsAsync.IGet
         setRecyclerView(albums);
     }
 
-    public void toActivityForResult(String aIntent){
+    public void toActivityForResult(String aIntent,int aExtra){
         Intent lIntent = new Intent(aIntent);
+        lIntent.putExtra("taskToPerform",aExtra);
         startActivityForResult(lIntent, fCHECK_CREATE_ALBUM);
     }
 
@@ -108,12 +110,29 @@ public class AlbumsList extends AppCompatActivity implements GetAlbumsAsync.IGet
 
                 }
                 break;
+
+            case fCHECK_EDIT_ALBUM:
+                Log.d("Say ","hello");
+                if (resultCode == RESULT_OK){
+                    SharedPreferences sp = getSharedPreferences("AlbumDetails",MODE_PRIVATE);
+                    SharedPreferenceSetup lTempAlbum = new SharedPreferenceSetup(sp);
+                    if(lTempAlbum.checkKey("oldAlbumName")){
+                        String aOldAlbumName = lTempAlbum.getOldAlbumPreference("oldAlbumName");
+                        for(int i=0;i<fAlbumsList.size();i++){
+                            if(fAlbumsList.get(i).getAlbumName().equals(aOldAlbumName)){
+                                fAlbumsList.set(i, lTempAlbum.getAlbumPreference("myAlbum"));
+                                fAlbumsAdapter.notifyDataSetChanged();
+                                break;
+                            }
+                        }
+                    }
+                }
         }
 
     }
 
     public void createAlbumOnClick (MenuItem aItem){
-        toActivityForResult(fGOTO_CRTEATE_ALBUM);
+        toActivityForResult(fGOTO_CRTEATE_ALBUM,1);
     }
 
 }

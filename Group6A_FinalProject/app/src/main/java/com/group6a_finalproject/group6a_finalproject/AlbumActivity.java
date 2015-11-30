@@ -1,6 +1,7 @@
 package com.group6a_finalproject.group6a_finalproject;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.support.v7.app.ActionBar;
@@ -33,17 +34,22 @@ public class AlbumActivity extends AppCompatActivity implements GetPhotosAsync.I
 
     final String fGOTO_ADD_PHOTO = "android.intent.action.ADD_PHOTO";
     final String fGOTO_INVITE = "android.intent.action.INVITE_USERS";
+    final String fGOTO_CRTEATE_ALBUM = "android.intent.action.CREATE_ALBUM";
     final  String fALBUM_NAME_EXTRA = "ALBUM_NAME";
     final int fNEW_PHOTO_REQCODE = 1002;
+    final int fEDIT_ALBUM_REQCODE = 1003;
 
     RecyclerView fPhotoRecycler;
     RecyclerAdapter fAdapter;
     LinearLayoutManager fRecyclerLayout;
     Button fAddPhotoButton;
     TextView fAlbumNameText;
+    MenuItem fShareMenu,fEditMenu;
 
     static String fAlbumName;
     ParseUser fAlbumOwner;
+
+    boolean hideMenu = false;
 
     ArrayList<Photo> fAlbumPhotos;
 
@@ -59,18 +65,26 @@ public class AlbumActivity extends AppCompatActivity implements GetPhotosAsync.I
         checkPrivacy();
         getAlbumOwner();
 
+        setActionBarTitle(fAlbumName);
+
+
+        new GetPhotosAsync(this,2).execute(fAlbumName);
+    }
+
+    private void setActionBarTitle(String aAlbumName) {
         //Display Album name
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayShowHomeEnabled(true);
-        actionBar.setTitle(fAlbumName);
-
-        new GetPhotosAsync(this,2).execute(fAlbumName);
+        actionBar.setTitle(aAlbumName);
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_album, menu);
+        fShareMenu = menu.findItem(R.id.shareAlbum);
+        fEditMenu = menu.findItem(R.id.editAlbum);
+
         return true;
     }
 
@@ -95,6 +109,7 @@ public class AlbumActivity extends AppCompatActivity implements GetPhotosAsync.I
         fAddPhotoButton = (Button) findViewById(R.id.buttonAddPhoto);
         fAlbumNameText = (TextView) findViewById(R.id.textViewPhotoAlbumName);
         fAlbumNameText.setText(fAlbumName);
+
     }
 
     public void toActivity(String aIntent){
@@ -112,6 +127,13 @@ public class AlbumActivity extends AppCompatActivity implements GetPhotosAsync.I
         Intent lIntent = new Intent(aIntent);
         lIntent.putExtra(fALBUM_NAME_EXTRA,aExtra);
         startActivityForResult(lIntent, fNEW_PHOTO_REQCODE);
+    }
+
+    public void toActivityForResult(String aIntent,int aExtra){
+        Intent lIntent = new Intent(aIntent);
+        lIntent.putExtra("taskToPerform",aExtra);
+        lIntent.putExtra("albumName",fAlbumName);
+        startActivityForResult(lIntent, fEDIT_ALBUM_REQCODE);
     }
 
     @Override
@@ -149,6 +171,16 @@ public class AlbumActivity extends AppCompatActivity implements GetPhotosAsync.I
                             }
                         }
                     });
+                    break;
+
+                case fEDIT_ALBUM_REQCODE:
+                    SharedPreferences sp = getSharedPreferences("AlbumDetails",MODE_PRIVATE);
+                    SharedPreferenceSetup lTempAlbum = new SharedPreferenceSetup(sp);
+                    if (lTempAlbum.checkKey("oldAlbumName")){
+                        Album toPutIntoList = lTempAlbum.getAlbumPreference("myAlbum");
+                        setActionBarTitle(toPutIntoList.getAlbumName());
+
+                    }
             }
         }
     }
@@ -204,18 +236,33 @@ public class AlbumActivity extends AppCompatActivity implements GetPhotosAsync.I
         super.onBackPressed();
     }
 
+    public void editAlbumOnClick(MenuItem aItem){
+        toActivityForResult(fGOTO_CRTEATE_ALBUM,2);
+    }
+
     public void shareAlbumOnClick(MenuItem aItem){
         toActivity(fGOTO_INVITE, fAlbumName);
     }
 
     private void getAlbumOwner() {
         ParseQuery<ParseObject> lGetOwner = ParseQuery.getQuery("Album");
-        lGetOwner.whereEqualTo("name",fAlbumName);
+        lGetOwner.whereEqualTo("name", fAlbumName);
         lGetOwner.findInBackground(new FindCallback<ParseObject>() {
             @Override
             public void done(List<ParseObject> objects, ParseException e) {
-                fAlbumOwner = objects.get(0).getParseUser("owner");
+                if (e == null) {
+                    fAlbumOwner = objects.get(0).getParseUser("owner");
+
+                    if (!ParseUser.getCurrentUser().getUsername().equals(fAlbumOwner.getUsername()))
+                        deleteMenuItems();
+
+                } else e.printStackTrace();
             }
         });
+    }
+
+    public void deleteMenuItems(){
+        fShareMenu.setVisible(false);
+        fEditMenu.setVisible(false);
     }
 }

@@ -38,4 +38,6 @@
     <string name="shareButtonOnClick">shareButtonOnClick</string>
     <string name="userPrivacy">Public Profile?</string>
     <string name="GetNotifications">Get Notifications?</string>
+    <string name="saveAlbumOnClick">saveAlbumOnClick</string>
+    <string name="saveAlbum">Save</string>
 </resources>

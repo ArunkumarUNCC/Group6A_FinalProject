@@ -3,6 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.group6a_finalproject.group6a_finalproject.AlbumActivity">
 
+    <item android:id="@+id/editAlbum" android:title="Edit this Album" android:onClick="editAlbumOnClick"
+        android:orderInCategory="100" app:showAsAction="never" />
     <item android:id="@+id/shareAlbum" android:title="Share this Album" android:onClick="shareAlbumOnClick"
         android:orderInCategory="100" app:showAsAction="never" />
 </menu>
