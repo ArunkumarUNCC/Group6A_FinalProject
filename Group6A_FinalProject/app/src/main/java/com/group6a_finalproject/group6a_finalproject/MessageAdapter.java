@@ -41,13 +41,14 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageL
     public static class MessageLinearHolder extends RecyclerView.ViewHolder {
 
         ImageView lUserIcon;
-        TextView lFromField, lMessageBody;
+        TextView lFromField, lMessageBody, lTimeStamp;
 
         public MessageLinearHolder(View itemView) {
             super(itemView);
             lUserIcon = (ImageView) itemView.findViewById(R.id.imageViewInboxThumb);
             lFromField = (TextView) itemView.findViewById(R.id.textViewInboxName);
             lMessageBody = (TextView) itemView.findViewById(R.id.textViewDirectoryInboxMessagePreview);
+            lTimeStamp = (TextView) itemView.findViewById(R.id.textViewInboxTimeStamp);
         }
     }
 
@@ -67,6 +68,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageL
 //        holder.lUserIcon.setImageBitmap(lUserIcon);
         holder.lFromField.setText(lFromField);
         holder.lMessageBody.setText(lMessagePreview);
+        holder.lTimeStamp.setText(fUserMessages.get(position).getTimeStamp().toString());
 
        ParseQuery<ParseObject> lReadQuery = ParseQuery.getQuery("MessageTable")
                .whereEqualTo("objectId", fUserMessages.get(position).getObjectID());

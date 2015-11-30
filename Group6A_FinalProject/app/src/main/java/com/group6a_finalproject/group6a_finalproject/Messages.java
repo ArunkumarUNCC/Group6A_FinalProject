@@ -3,12 +3,14 @@ package com.group6a_finalproject.group6a_finalproject;
 import android.graphics.Bitmap;
 
 import java.io.Serializable;
+import java.util.Date;
 
 /**
  * Created by Michael.
  */
 public class Messages implements Serializable{
     String messageBody, toField, fromField, objectID;
+    Date timeStamp;
     Bitmap userIcon;
 
     public String getMessageBody() {
@@ -49,5 +51,13 @@ public class Messages implements Serializable{
 
     public void setObjectID(String objectID) {
         this.objectID = objectID;
+    }
+
+    public Date getTimeStamp() {
+        return timeStamp;
+    }
+
+    public void setTimeStamp(Date timeStamp) {
+        this.timeStamp = timeStamp;
     }
 }
