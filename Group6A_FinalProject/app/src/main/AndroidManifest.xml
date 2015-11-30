@@ -125,6 +125,15 @@
             </intent-filter>
         </activity>
         <activity
+            android:name=".ViewMessage"
+            android:label="@string/title_activity_view_message" >
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW_MESSAGE" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity
             android:name=".InviteUsers"
             android:label="@string/title_activity_invite_users" >
 

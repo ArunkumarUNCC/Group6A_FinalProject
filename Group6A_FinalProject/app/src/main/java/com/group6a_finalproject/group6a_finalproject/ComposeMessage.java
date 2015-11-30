@@ -25,13 +25,17 @@ public class ComposeMessage extends AppCompatActivity {
     final String fUSER_FROM = "userFrom";
     final String fMESSAGE = "Message";
     final String fUSER_TO = "userTo";
+    final String fREAD = "Read";
     final int fTO_USER_DIRECTORY = 1002;
-    String fTo_User_Email;
+    String fTo_User_Email = "";
 
     EditText fMessageBody;
     TextView fToField;
-    
-    ParseUser fCurrentUser;
+
+    Boolean fFromMessageView;
+    Messages fMessage;
+
+    ParseUser fCurrentUser, fReturnUser;
     ParseObject fParseObj = new ParseObject("MessageTable");//String is table name
 
     @Override
@@ -40,6 +44,12 @@ public class ComposeMessage extends AppCompatActivity {
         setContentView(R.layout.activity_compose_message);
 
         getItems();
+
+        if(fFromMessageView){
+            fReturnUser = getReturnAddress(fMessage);
+            fToField.setText("TO: " + fReturnUser.getString("name"));
+            fToField.setClickable(false);
+        }
     }
 
     @Override
@@ -68,10 +78,34 @@ public class ComposeMessage extends AppCompatActivity {
         fMessageBody = (EditText) findViewById(R.id.editTextComposeMessageBody);
         fToField = (TextView) findViewById(R.id.textViewToMessageField);
         fCurrentUser = ParseUser.getCurrentUser();
+
+        fFromMessageView = getIntent().getBooleanExtra("FromView", false);
+        fMessage = (Messages) getIntent().getSerializableExtra("Message");
     }
 
     public void makeToast(String aString){
         Toast.makeText(getApplicationContext(), aString, Toast.LENGTH_SHORT).show();
+    }
+
+    public ParseUser getReturnAddress(Messages aMessage){
+
+        ParseUser lUser = null;
+
+        ParseQuery<ParseObject> lQuery = ParseQuery.getQuery("MessageTable")
+                .whereEqualTo("objectId", aMessage.getObjectID());
+        try{
+            List<ParseObject> lMessage = lQuery.find();
+
+            for(ParseObject message : lMessage){
+                lUser =  message.getParseUser("userFrom");
+            }
+        }catch (ParseException e){
+            e.printStackTrace();
+        }
+
+        fTo_User_Email = lUser.getEmail();
+
+        return lUser;
     }
 
     public void cancelOnClick (View aView){
@@ -89,8 +123,12 @@ public class ComposeMessage extends AppCompatActivity {
 
                 for (ParseUser user : objects) {
                     fParseObj.put(fUSER_FROM, fCurrentUser);//current user objectID
-                    fParseObj.put(fUSER_TO, user);//to user objectID
+                    if(fFromMessageView)//if replying to a message
+                        fParseObj.put(fUSER_TO, fReturnUser);//to user objectID
+                    else
+                        fParseObj.put(fUSER_TO, user);//to user objectID
                     fParseObj.put(fMESSAGE, fMessageBody.getText().toString());
+                    fParseObj.put(fREAD, false);
                 }
 
                 fParseObj.saveInBackground(new SaveCallback() {

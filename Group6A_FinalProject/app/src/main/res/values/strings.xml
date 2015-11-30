@@ -40,4 +40,6 @@
     <string name="GetNotifications">Get Notifications?</string>
     <string name="saveAlbumOnClick">saveAlbumOnClick</string>
     <string name="saveAlbum">Save</string>
+    <string name="title_activity_view_message">View Message</string>
+    <string name="replyOnClick">replyOnClick</string>
 </resources>

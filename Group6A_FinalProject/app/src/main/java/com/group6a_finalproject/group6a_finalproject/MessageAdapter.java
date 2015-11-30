@@ -3,13 +3,18 @@ package com.group6a_finalproject.group6a_finalproject;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.graphics.Bitmap;
+import android.content.Intent;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.ColorFilter;
+import android.graphics.drawable.Drawable;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.parse.FindCallback;
 import com.parse.ParseException;
@@ -26,6 +31,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageL
 
     ArrayList<Messages> fUserMessages;
     Context fContext;
+    final String fGOTO_VIEW_MESSAGE = "android.intent.action.VIEW_MESSAGE";
 
     public MessageAdapter(ArrayList<Messages> aUserMessages, Context aContext) {
         this.fUserMessages = aUserMessages;
@@ -46,7 +52,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageL
     }
 
     @Override
-    public MessageLinearHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public MessageLinearHolder onCreateViewHolder(final ViewGroup parent, int viewType) {
         View lView = LayoutInflater.from(parent.getContext()).inflate(R.layout.message_row, parent, false);
         MessageLinearHolder lMessageView = new MessageLinearHolder(lView);
         return lMessageView;
@@ -61,7 +67,40 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageL
 //        holder.lUserIcon.setImageBitmap(lUserIcon);
         holder.lFromField.setText(lFromField);
         holder.lMessageBody.setText(lMessagePreview);
-        holder.lMessageBody.setOnLongClickListener(new View.OnLongClickListener() {
+
+       ParseQuery<ParseObject> lReadQuery = ParseQuery.getQuery("MessageTable")
+               .whereEqualTo("objectId", fUserMessages.get(position).getObjectID());
+        try {//issue is in the try block
+            ParseObject lIsRead = lReadQuery.getFirst();
+            if(lIsRead.getBoolean("Read")){
+                holder.itemView.setBackgroundColor(Color.parseColor("#D3D3D3"));
+//                notifyDataSetChanged();
+            }
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //set message to read
+                ParseQuery<ParseObject> lQuery = ParseQuery.getQuery("MessageTable")
+                        .whereEqualTo("objectId", fUserMessages.get(position).getObjectID());
+                try {
+                    List<ParseObject> lMessage = lQuery.find();
+                    for(ParseObject message : lMessage){
+                        message.put("Read", true);
+                        notifyDataSetChanged();
+                        message.save();
+                    }
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+                //send message to message view
+                toActivity(fGOTO_VIEW_MESSAGE, fUserMessages.get(position));
+            }
+        });
+        holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
                 AlertDialog.Builder lConfirmDelete = new AlertDialog.Builder(fContext);
@@ -70,7 +109,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageL
                     .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            //delete selected messages
+                            //delete selected message
                             ParseQuery<ParseObject> lFindRow = ParseQuery.getQuery("MessageTable");
                             lFindRow.whereEqualTo("objectId", fUserMessages.get(position).getObjectID())
                                     .findInBackground(new FindCallback<ParseObject>() {
@@ -96,6 +135,11 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageL
         });
     }
 
+    public void toActivity(String aIntent, Messages aMessage){
+        Intent lIntent = new Intent(aIntent);
+        lIntent.putExtra("Message", aMessage);
+        fContext.startActivity(lIntent);
+    }
 
     @Override
     public int getItemCount() {
