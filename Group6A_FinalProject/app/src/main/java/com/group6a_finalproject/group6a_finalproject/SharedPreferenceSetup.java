@@ -54,4 +54,8 @@ public class SharedPreferenceSetup {
     public boolean checkKey(String key){
         return sp.contains(key);
     }
+
+    public void clearPreference(){
+        sp.edit().clear().commit();
+    }
 }

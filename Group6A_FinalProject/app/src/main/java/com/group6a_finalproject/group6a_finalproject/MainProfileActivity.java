@@ -18,6 +18,9 @@ import com.parse.GetDataCallback;
 import com.parse.LogOutCallback;
 import com.parse.ParseException;
 import com.parse.ParseFile;
+import com.parse.ParseInstallation;
+import com.parse.ParsePush;
+import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
 import java.io.ByteArrayOutputStream;
@@ -29,6 +32,7 @@ public class MainProfileActivity extends AppCompatActivity {
     final String fGOTO_ALBUM_LIST = "android.intent.action.ALBUM_LIST";
     final String fGOTO_USER_DIRECTORY ="android.intent.action.USER_DIRECTORY";
     final String fGOTO_USER_INBOX = "android.intent.action.USER_INBOX";
+    final String fGOTO_NOTIFICATIONS = "android.intent.action.NOTIFICATIONS";
     final int fEDIT_PROFILE_REQCODE = 1001;
 
     ImageView fProfilePic;
@@ -145,21 +149,31 @@ public class MainProfileActivity extends AppCompatActivity {
 
     public void viewInboxOnClick (MenuItem aItem){
         toActivity(fGOTO_USER_INBOX);
-        finish();
+//        finish();
     }
 
     public void viewAlbumOnClick (MenuItem aItem){
         toActivity(fGOTO_ALBUM_LIST);
-        finish();
+//        finish();
     }
 
     public void viewUserDirectoryOnClick (MenuItem aItem){
-        toActivity(fGOTO_USER_DIRECTORY,1);
-        finish();
+        toActivity(fGOTO_USER_DIRECTORY, 1);
+//        finish();
     }
 
     public void logoutOnClick (MenuItem aItem){
-        ParseUser.logOutInBackground(new LogOutCallback() {
+        ParseUser lCurrentUser = ParseUser.getCurrentUser();
+
+        ParseQuery lUnsetChannel = ParseInstallation.getQuery();
+        lUnsetChannel.include("user");
+        lUnsetChannel.whereEqualTo("user", lCurrentUser);
+
+        ParsePush lUnsubscribeChannel= new ParsePush();
+        lUnsubscribeChannel.setQuery(lUnsetChannel);
+        lUnsubscribeChannel.unsubscribeInBackground("NewUser");
+
+        lCurrentUser.logOutInBackground(new LogOutCallback() {
             @Override
             public void done(ParseException e) {
                 if (e == null) {
@@ -168,5 +182,9 @@ public class MainProfileActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    public void viewNotificationsOnClick(MenuItem aItem){
+        toActivity(fGOTO_NOTIFICATIONS);
     }
 }

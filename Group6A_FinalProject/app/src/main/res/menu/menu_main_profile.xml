@@ -12,6 +12,6 @@
         android:visible="true" app:showAsAction="always" android:onClick="viewUserDirectoryOnClick"
         android:title="asd" />
     <item android:id="@+id/notificationIcon" android:icon="@drawable/notification_warning" android:orderInCategory="60"
-        android:visible="true" app:showAsAction="always"
+        android:visible="true" app:showAsAction="always" android:onClick="viewNotificationsOnClick"
         android:title="asd" />
 </menu>

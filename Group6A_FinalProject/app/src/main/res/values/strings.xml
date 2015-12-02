@@ -42,4 +42,5 @@
     <string name="saveAlbum">Save</string>
     <string name="title_activity_view_message">View Message</string>
     <string name="replyOnClick">replyOnClick</string>
+    <string name="title_activity_notifications">Notifications</string>
 </resources>

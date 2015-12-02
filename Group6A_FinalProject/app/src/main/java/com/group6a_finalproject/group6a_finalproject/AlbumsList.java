@@ -103,20 +103,22 @@ public class AlbumsList extends AppCompatActivity implements GetAlbumsAsync.IGet
                     SharedPreferenceSetup lTempAlbum = new SharedPreferenceSetup(sp);
                     Album toPutIntoList = lTempAlbum.getAlbumPreference("myAlbum");
 
+
                     if(!fAlbumsList.contains(toPutIntoList)){
                         fAlbumsList.add(toPutIntoList);
                         fAlbumsAdapter.notifyDataSetChanged();
+                        Log.d("new album", toPutIntoList.getAlbumName());
                     }
-
+                    lTempAlbum.clearPreference();
                 }
                 break;
 
             case fCHECK_EDIT_ALBUM:
-                Log.d("Say ","hello");
                 if (resultCode == RESULT_OK){
                     SharedPreferences sp = getSharedPreferences("AlbumDetails",MODE_PRIVATE);
                     SharedPreferenceSetup lTempAlbum = new SharedPreferenceSetup(sp);
                     if(lTempAlbum.checkKey("oldAlbumName")){
+                        Log.d("say","hello");
                         String aOldAlbumName = lTempAlbum.getOldAlbumPreference("oldAlbumName");
                         for(int i=0;i<fAlbumsList.size();i++){
                             if(fAlbumsList.get(i).getAlbumName().equals(aOldAlbumName)){
@@ -126,6 +128,7 @@ public class AlbumsList extends AppCompatActivity implements GetAlbumsAsync.IGet
                             }
                         }
                     }
+                    lTempAlbum.clearPreference();
                 }
         }
 

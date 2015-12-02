@@ -36,6 +36,15 @@ import static com.group6a_finalproject.group6a_finalproject.R.id.textViewRecycle
 public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
 
     final String fGOTO_ALBUM_VIEW = "android.intent.action.ALBUM_VIEW";
+    final String fNOTIFICATIONS = "Notifications";
+    final String fTOUSER = "toUser";
+    final String fFROMUSER = "fromUser";
+    final String fSHARED_WITH = "sharedWith";
+    final String fALBUM_COLUMN = "album";
+    final String fALBUM = "Album";
+    final String fNAME = "name";
+    final String fOWNER = "owner";
+    final String fPRIVACY = "privacy";
     final ParseUser fCURRENT_USER = ParseUser.getCurrentUser();
 
     ArrayList<Photo> fPhotosForDisplay;
@@ -71,7 +80,6 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     public void setAlbumsList(ArrayList<Album> aAlbumsList){
         this.fAlbumsForDisplay = aAlbumsList;
     }
-
 
     //To display a list of albums
     public static class AlbumsLinearViewHolder extends RecyclerView.ViewHolder{
@@ -125,6 +133,23 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         }
     }
 
+    //To display album notifications
+    public static class AlbumNotifications extends RecyclerView.ViewHolder{
+        LinearLayout lAlbumNotificationLayout;
+        ImageView lAlbumLogo,lAccept,lReject;
+        TextView lAlbumShareMsg;
+
+        public AlbumNotifications(View itemView) {
+            super(itemView);
+
+            lAlbumNotificationLayout = (LinearLayout) itemView.findViewById(R.id.linearLayoutAlbumRow);
+            lAlbumLogo = (ImageView) itemView.findViewById(R.id.imageViewAlbumNotification);
+            lAccept = (ImageView) itemView.findViewById(R.id.imageViewAccept);
+            lReject = (ImageView) itemView.findViewById(R.id.imageViewReject);
+            lAlbumShareMsg = (TextView) itemView.findViewById(R.id.textViewAlbumNotification);
+        }
+    }
+
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
@@ -147,6 +172,10 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 lViewHolder = new UsersLinearViewHolder(lView3);
                 break;
 
+            case 4:
+                View lView4 = lInflater.inflate(R.layout.album_notification_row,parent,false);
+                lViewHolder = new AlbumNotifications(lView4);
+                break;
         }
 
         return lViewHolder;
@@ -169,6 +198,11 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 UsersLinearViewHolder lUsers = (UsersLinearViewHolder) holder;
                 configureUserViewHolder(lUsers, position);
                 break;
+
+            case 4:
+                AlbumNotifications lAlbumNotifications = (AlbumNotifications) holder;
+                configureAlbumNotificationsViewHolder(lAlbumNotifications,position);
+                break;
         }
     }
 
@@ -176,6 +210,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     public int getItemCount() {
         switch (whichRecycler){
             case 1:
+            case 4:
                 return fAlbumsForDisplay.size();
             case 2:
                 return fPhotosForDisplay.size();
@@ -186,8 +221,9 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         return 0;
     }
 
-    private void configureAlbumViewHolder(AlbumsLinearViewHolder lAlbums, final int position) {
-        Bitmap lAlbumBitmap = fAlbumsForDisplay.get(position).getAlbumImage();
+    //Display User Albums
+    private void configureAlbumViewHolder(final AlbumsLinearViewHolder lAlbums, final int position) {
+        final Bitmap lAlbumBitmap = fAlbumsForDisplay.get(position).getAlbumImage();
         final String lAlbumString = fAlbumsForDisplay.get(position).getAlbumName();
         String lAlbumOwner = fAlbumsForDisplay.get(position).getOwnerName();
         String lAlbumPrivacy = fAlbumsForDisplay.get(position).getPrivacy();
@@ -196,7 +232,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         lAlbums.lAlbumOwnerText.setText(lAlbumOwner);
         lAlbums.lAlbumPrivacyText.setText(lAlbumPrivacy);
 
-        if (!ParseUser.getCurrentUser().getString("name").equals(lAlbumOwner))
+        if (!ParseUser.getCurrentUser().getString(fNAME).equals(lAlbumOwner))
             lAlbums.lAlbumDelete.setImageBitmap(null);
         else{
             lAlbums.lAlbumDelete.setOnClickListener(new View.OnClickListener() {
@@ -207,17 +243,33 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     lConfirmDelete.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            ParseQuery<ParseObject> lFindRows = ParseQuery.getQuery("Album");
-                            lFindRows.include("owner");
-                            lFindRows.whereEqualTo("owner", fCURRENT_USER);
-                            lFindRows.whereEqualTo("name", lAlbumString);
+                            ParseQuery<ParseObject> lFindRows = ParseQuery.getQuery(fALBUM);
+                            lFindRows.include(fOWNER);
+                            lFindRows.whereEqualTo(fOWNER, fCURRENT_USER);
+                            lFindRows.whereEqualTo(fNAME, lAlbumString);
 
                             lFindRows.findInBackground(new FindCallback<ParseObject>() {
                                 @Override
                                 public void done(List<ParseObject> objects, ParseException e) {
-                                    ParseObject.createWithoutData("Album",objects.get(0).getObjectId()).deleteEventually();
+                                    final ParseObject lAlbumId = objects.get(0);
+                                    ParseQuery<ParseObject> lDeletePhotos = ParseQuery.getQuery("Photos");
+                                    lDeletePhotos.whereEqualTo(fALBUM_COLUMN, lAlbumId);
+                                    lDeletePhotos.findInBackground(new FindCallback<ParseObject>() {
+                                        @Override
+                                        public void done(List<ParseObject> objects, ParseException e) {
+                                            if (e == null) {
+                                                for (ParseObject photoObjects : objects) {
+                                                    photoObjects.deleteEventually();
+                                                }
+                                            }
+                                        }
+                                    });
+
+                                    lAlbumId.deleteEventually();
                                     fAlbumsForDisplay.remove(position);
                                     notifyDataSetChanged();
+
+
                                 }
                             });
                         }
@@ -229,18 +281,19 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             });
         }
 
-        if (lAlbumBitmap==null) {
-            lAlbums.lAlbumImage.setImageResource(R.drawable.no_mage);
-        }
-        else lAlbums.lAlbumImage.setImageBitmap(lAlbumBitmap);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                if (lAlbumBitmap==null) {
+                    lAlbums.lAlbumImage.setImageResource(R.drawable.no_mage);
+                }
+                else{
 
-//        lAlbums.lAlbumRelativeLayout.setOnLongClickListener(new View.OnLongClickListener() {
-//            @Override
-//            public boolean onLongClick(View v) {
-//                Log.d("say hello","Hello");
-//                return true;
-//            }
-//        });
+                          lAlbums.lAlbumImage.setImageBitmap(lAlbumBitmap);
+                      }
+
+                }
+        }).run();
 
         lAlbums.lAlbumRelativeLayout.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -250,12 +303,19 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         });
     }
 
-    private void configurePhotoViewHolder(PhotosGridViewHolder lPhotos, final int position) {
-        Bitmap lPhotoBitmap = fPhotosForDisplay.get(position).getPhotoBitmap();
+    //Display Album photos
+    private void configurePhotoViewHolder(final PhotosGridViewHolder lPhotos, final int position) {
+        final Bitmap lPhotoBitmap = fPhotosForDisplay.get(position).getPhotoBitmap();
         final String lPhotoString = fPhotosForDisplay.get(position).getPhotoName();
 
         lPhotos.lPhotoName.setText(lPhotoString);
-        lPhotos.lPhoto.setImageBitmap(lPhotoBitmap);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                lPhotos.lPhoto.setImageBitmap(lPhotoBitmap);
+            }
+        }).run();
+
 
         if(fAlbumOwner.equals(fCURRENT_USER)){
             lPhotos.lPhotoGridLayout.setOnLongClickListener(new View.OnLongClickListener() {
@@ -268,8 +328,8 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             ParseQuery<ParseObject> lFindRows = ParseQuery.getQuery("Photos");
-                            lFindRows.include("album");
-                            lFindRows.whereEqualTo("name", lPhotoString);
+                            lFindRows.include(fALBUM_COLUMN);
+                            lFindRows.whereEqualTo(fNAME, lPhotoString);
 
                             lFindRows.findInBackground(new FindCallback<ParseObject>() {
                                 @Override
@@ -277,7 +337,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
                                     if(e==null){
                                         for(ParseObject object : objects){
-                                            if(object.getParseObject("album").getString("name").equals(fAlbumName)){
+                                            if(object.getParseObject(fALBUM_COLUMN).getString(fNAME).equals(fAlbumName)){
                                                 ParseObject.createWithoutData("Photos",object.getObjectId()).deleteEventually();
                                                 fPhotosForDisplay.remove(position);
                                                 notifyDataSetChanged();
@@ -299,6 +359,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         }
     }
 
+    //Display User list
     private void configureUserViewHolder(UsersLinearViewHolder lUsers, final int position) {
         Bitmap lPhotoBitmap = fUsersForDisplay.get(position).getUserImage();
         String lUserName = fUsersForDisplay.get(position).getUserName();
@@ -327,10 +388,98 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         });
     }
 
+    //Display Album Notifications
+    private void configureAlbumNotificationsViewHolder(AlbumNotifications aAlbumNotifications, final int position){
+        Bitmap lAlbumBitmap = fAlbumsForDisplay.get(position).getAlbumImage();
+        final String lAlbumString = fAlbumsForDisplay.get(position).getAlbumName();
+        String lAlbumOwner = fAlbumsForDisplay.get(position).getOwnerName();
+
+        if(lAlbumBitmap == null){
+            aAlbumNotifications.lAlbumLogo.setImageResource(R.drawable.no_mage);
+        }else aAlbumNotifications.lAlbumLogo.setImageBitmap(lAlbumBitmap);
+        aAlbumNotifications.lAlbumShareMsg.setText(lAlbumOwner + " shared an album with you");
+
+        aAlbumNotifications.lAlbumNotificationLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                toActivityFromAlbumNotificationsList(fGOTO_ALBUM_VIEW, lAlbumString);
+            }
+        });
+
+        aAlbumNotifications.lReject.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                ParseQuery<ParseObject> lGetAlbumId = ParseQuery.getQuery(fALBUM);
+                lGetAlbumId.whereEqualTo(fNAME, lAlbumString);
+                lGetAlbumId.findInBackground(new FindCallback<ParseObject>() {
+                    @Override
+                    public void done(List<ParseObject> objects, ParseException e) {
+                        if (e == null) {
+                            deleteFromNotification(objects.get(0),position);
+                        }
+                    }
+                });
+
+            }
+        });
+
+        aAlbumNotifications.lAccept.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ParseQuery<ParseObject> lGetAlbumId = ParseQuery.getQuery(fALBUM);
+                lGetAlbumId.whereEqualTo(fNAME, lAlbumString);
+                lGetAlbumId.findInBackground(new FindCallback<ParseObject>() {
+                    @Override
+                    public void done(List<ParseObject> objects, ParseException e) {
+                        if (e == null) {
+                            ParseObject lGetAlbum = objects.get(0);
+
+                            ParseObject lAcceptInvite = new ParseObject("AlbumShare");
+                            lAcceptInvite.put(fALBUM_COLUMN,lGetAlbum);
+                            lAcceptInvite.put(fSHARED_WITH,fCURRENT_USER);
+                            lAcceptInvite.saveInBackground();
+
+                            lGetAlbum.put(fPRIVACY, "Shared");
+                            lGetAlbum.saveInBackground();
+
+                            deleteFromNotification(lGetAlbum,position);
+                        }
+                    }
+                });
+            }
+        });
+    }
+
     public void toActivityFromAlbumList(String aIntent, String aExtra){
         Intent lIntent = new Intent(aIntent);
         lIntent.putExtra("ALBUM_TITLE", aExtra);
         ((AlbumsList)fContext ).startActivityForResult(lIntent, AlbumsList.fCHECK_EDIT_ALBUM);
     }
 
+    public void toActivityFromAlbumNotificationsList(String aIntent, String aExtra){
+        Intent lIntent = new Intent(aIntent);
+        lIntent.putExtra("ALBUM_TITLE", aExtra);
+        ((Notifications)fContext ).startActivity(lIntent);
+    }
+
+    public void deleteFromNotification(ParseObject lObject, final int position){
+        ParseQuery<ParseObject> lRejectInvite = new ParseQuery<ParseObject>(fNOTIFICATIONS);
+        lRejectInvite.include(fTOUSER);
+        lRejectInvite.include(fALBUM_COLUMN);
+        lRejectInvite.whereEqualTo(fTOUSER, fCURRENT_USER);
+        lRejectInvite.whereEqualTo(fALBUM_COLUMN, lObject);
+        lRejectInvite.findInBackground(new FindCallback<ParseObject>() {
+            @Override
+            public void done(List<ParseObject> objects, ParseException e) {
+                if (e == null) {
+                    for (ParseObject object : objects) {
+                        object.deleteEventually();
+                        fAlbumsForDisplay.remove(position);
+                        notifyDataSetChanged();
+                    }
+                }
+            }
+        });
+    }
 }

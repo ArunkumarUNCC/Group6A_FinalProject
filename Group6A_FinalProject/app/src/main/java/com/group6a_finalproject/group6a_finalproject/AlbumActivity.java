@@ -18,6 +18,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.parse.CountCallback;
 import com.parse.FindCallback;
 import com.parse.GetDataCallback;
 import com.parse.ParseException;
@@ -38,6 +39,7 @@ public class AlbumActivity extends AppCompatActivity implements GetPhotosAsync.I
     final  String fALBUM_NAME_EXTRA = "ALBUM_NAME";
     final int fNEW_PHOTO_REQCODE = 1002;
     final int fEDIT_ALBUM_REQCODE = 1003;
+    boolean fCANADD = false;
 
     RecyclerView fPhotoRecycler;
     RecyclerAdapter fAdapter;
@@ -110,6 +112,8 @@ public class AlbumActivity extends AppCompatActivity implements GetPhotosAsync.I
         fAlbumNameText = (TextView) findViewById(R.id.textViewPhotoAlbumName);
         fAlbumNameText.setText(fAlbumName);
 
+        fAddPhotoButton.setVisibility(View.INVISIBLE);
+
     }
 
     public void toActivity(String aIntent){
@@ -131,7 +135,7 @@ public class AlbumActivity extends AppCompatActivity implements GetPhotosAsync.I
 
     public void toActivityForResult(String aIntent,int aExtra){
         Intent lIntent = new Intent(aIntent);
-        lIntent.putExtra("taskToPerform",aExtra);
+        lIntent.putExtra("taskToPerform", aExtra);
         lIntent.putExtra("albumName",fAlbumName);
         startActivityForResult(lIntent, fEDIT_ALBUM_REQCODE);
     }
@@ -186,7 +190,9 @@ public class AlbumActivity extends AppCompatActivity implements GetPhotosAsync.I
     }
 
     public void addPhotoOnClick (View aView){
-        toActivityForResult(fGOTO_ADD_PHOTO, fAlbumName);
+
+            toActivityForResult(fGOTO_ADD_PHOTO, fAlbumName);
+
     }
 
     public void setRecyclerView(ArrayList<Photo> photos){
@@ -201,28 +207,54 @@ public class AlbumActivity extends AppCompatActivity implements GetPhotosAsync.I
     }
 
     public void checkPrivacy(){
-        ParseQuery<ParseObject> lGetAllPublic = ParseQuery.getQuery("Album");
-        lGetAllPublic.whereEqualTo("name",fAlbumName);
-        lGetAllPublic.whereEqualTo("privacy", "Public");
-
-        ParseQuery<ParseObject> lGetMyPrivate = ParseQuery.getQuery("Album");
-        lGetMyPrivate.whereEqualTo("owner", ParseUser.getCurrentUser());
-        lGetMyPrivate.whereEqualTo("name",fAlbumName);
-        lGetMyPrivate.whereEqualTo("privacy","Private");
-
-        ArrayList<ParseQuery<ParseObject>> lQueries = new ArrayList<ParseQuery<ParseObject>>();
-        lQueries.add(lGetAllPublic);
-        lQueries.add(lGetMyPrivate);
-
-        ParseQuery<ParseObject> lCheckPrivacy = ParseQuery.or(lQueries);
-        lCheckPrivacy.findInBackground(new FindCallback<ParseObject>() {
+        ParseQuery<ParseObject> lGetAlbumId = ParseQuery.getQuery("Album");
+        lGetAlbumId.whereEqualTo("name",fAlbumName);
+        lGetAlbumId.findInBackground(new FindCallback<ParseObject>() {
             @Override
             public void done(List<ParseObject> objects, ParseException e) {
+                if (e == null) {
+                    ParseObject lCorrectAlbum = objects.get(0);
 
-                if (objects.isEmpty())
-                    fAddPhotoButton.setVisibility(View.INVISIBLE);
+                    ParseQuery<ParseObject> lGetShared = ParseQuery.getQuery("AlbumShare");
+                    lGetShared.include("album");
+                    lGetShared.include("sharedWith");
+                    lGetShared.whereEqualTo("album", lCorrectAlbum);
+                    lGetShared.whereEqualTo("sharedWith", ParseUser.getCurrentUser());
+                    lGetShared.countInBackground(new CountCallback() {
+                        @Override
+                        public void done(int count, ParseException e) {
+                            if (e == null) {
+                                if (count > 0) {
+                                    fAddPhotoButton.setVisibility(View.VISIBLE);
+                                    return;
+                                } else {
+                                    ParseQuery<ParseObject> lGetMyPrivate = ParseQuery.getQuery("Album");
+                                    lGetMyPrivate.include("owner");
+                                    lGetMyPrivate.whereEqualTo("owner", ParseUser.getCurrentUser());
+                                    lGetMyPrivate.whereEqualTo("name", fAlbumName);
+                                    lGetMyPrivate.countInBackground(new CountCallback() {
+                                        @Override
+                                        public void done(int count, ParseException e) {
+                                            if (e == null) {
+                                                if (count > 0) {
+                                                    fAddPhotoButton.setVisibility(View.VISIBLE);
+                                                    return;
+                                                } else {
+                                                    return;
+                                                }
+                                            }
+                                        }
+                                    });
+                                }
+                            }
+                        }
+                    });
+
+
+                }
             }
         });
+
     }
 
     @Override

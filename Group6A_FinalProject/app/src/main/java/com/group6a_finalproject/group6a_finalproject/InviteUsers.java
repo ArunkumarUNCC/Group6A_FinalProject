@@ -26,7 +26,7 @@ import java.util.List;
 public class InviteUsers extends AppCompatActivity {
 
     final String fGOTO_USER_DIRECTORY = "android.intent.action.USER_DIRECTORY";
-    final String fALBUMSNOTIFICATIONS = "AlbumsNotifications";
+    final String fALBUMSNOTIFICATIONS = "Notifications";
     final String fFROMUSER = "fromUser";
     final String fTOUSER = "toUser";
     final String fALBUM = "album";

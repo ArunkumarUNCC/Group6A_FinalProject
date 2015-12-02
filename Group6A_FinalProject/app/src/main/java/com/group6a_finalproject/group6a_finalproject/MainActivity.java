@@ -12,9 +12,15 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.parse.FindCallback;
 import com.parse.LogInCallback;
 import com.parse.ParseException;
+import com.parse.ParseInstallation;
+import com.parse.ParsePush;
+import com.parse.ParseQuery;
 import com.parse.ParseUser;
+
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -95,6 +101,16 @@ public class MainActivity extends AppCompatActivity {
                     if (user != null) {
 //                        makeToast("Login Successful");
                         toActivity(fGOTO_MAIN_PROFILE);
+
+                        ParseQuery lSetChannel = ParseInstallation.getQuery();
+                        lSetChannel.include("user");
+                        lSetChannel.whereEqualTo("user",user);
+
+                        ParsePush lSubscribe = new ParsePush();
+                        lSubscribe.setQuery(lSetChannel);
+                        lSubscribe.subscribeInBackground("NewUser");
+
+
                         finish();
                     } else
                         makeToast("Invalid credentials");

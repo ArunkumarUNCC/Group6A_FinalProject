@@ -10,9 +10,11 @@
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
     <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
 
-    <!-- Setup for push notifications-->
-    <permission android:protectionLevel="signature"
-        android:name="com.group6a_finalproject.group6a_finalproject.permission.C2D_MESSAGE" />
+    <!-- Setup for push notifications -->
+    <permission
+        android:name="com.group6a_finalproject.group6a_finalproject.permission.C2D_MESSAGE"
+        android:protectionLevel="signature" />
+
     <uses-permission android:name="com.group6a_finalproject.group6a_finalproject.permission.C2D_MESSAGE" />
 
     <application
@@ -20,10 +22,11 @@
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme" >
+        android:theme="@style/AppTheme"
+        android:largeHeap="true">
 
-        <!-- For push notofications-->
-        <!--<meta-data android:name="com.parse.push.gcm_sender_id" android:value="id:"></meta-data>-->
+        <!-- For push notofications -->
+        <!-- <meta-data android:name="com.parse.push.gcm_sender_id" android:value="id:"></meta-data> -->
 
         <activity
             android:name=".MainActivity"
@@ -136,7 +139,6 @@
         <activity
             android:name=".InviteUsers"
             android:label="@string/title_activity_invite_users" >
-
             <intent-filter>
                 <action android:name="android.intent.action.INVITE_USERS" />
 
@@ -144,29 +146,39 @@
             </intent-filter>
         </activity>
 
-
-        <!-- Setup for push notifications-->
+        <!-- Setup for push notifications -->
         <service android:name="com.parse.PushService" />
-        <receiver android:name="com.parse.ParsePushBroadcastReceiver"
-            android:exported="false">
+
+        <receiver
+            android:name="com.parse.ParsePushBroadcastReceiver"
+            android:exported="false" >
             <intent-filter>
                 <action android:name="com.parse.push.intent.RECEIVE" />
                 <action android:name="com.parse.push.intent.DELETE" />
                 <action android:name="com.parse.push.intent.OPEN" />
             </intent-filter>
         </receiver>
-        <receiver android:name="com.parse.GcmBroadcastReceiver"
-            android:permission="com.google.android.c2dm.permission.SEND">
+        <receiver
+            android:name="com.parse.GcmBroadcastReceiver"
+            android:permission="com.google.android.c2dm.permission.SEND" >
             <intent-filter>
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
                 <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
 
-                <!--
-                  IMPORTANT: Change "com.parse.starter" to match your app's package name.
-                -->
+<!--                   IMPORTANT: Change "com.parse.starter" to match your app's package name. -->
                 <category android:name="com.group6a_finalproject.group6a_finalproject" />
             </intent-filter>
         </receiver>
+
+        <activity
+            android:name=".Notifications"
+            android:label="@string/title_activity_notifications" >
+            <intent-filter>
+                <action android:name="android.intent.action.NOTIFICATIONS" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
     </application>
 
 </manifest>

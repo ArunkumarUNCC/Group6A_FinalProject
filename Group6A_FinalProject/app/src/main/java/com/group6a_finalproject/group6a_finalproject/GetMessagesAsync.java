@@ -53,6 +53,7 @@ public class GetMessagesAsync extends AsyncTask<Void, Void, ArrayList<Messages>>
             lMessage.setMessageBody(aMessage.getString("Message"));
             lMessage.setObjectID(aMessage.getObjectId());
             lMessage.setTimeStamp(aMessage.getCreatedAt());//Todo update so it displays correctly
+
         }catch (ParseException e){
             e.printStackTrace();
         }

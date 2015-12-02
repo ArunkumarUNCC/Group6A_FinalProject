@@ -121,22 +121,22 @@ public class RegisterNewUserActivity extends AppCompatActivity {
             @Override
             public void done(ParseException e) {
                 if(e==null){
-
-                    ParsePush push = new ParsePush();
+//                    ParsePush.subscribeInBackground("NewUser")
+                    final ParsePush push = new ParsePush();
                     push.setChannel("NewUser");
-                    push.setMessage("New user "+lName +" Signed up!!!");
+                    push.setMessage("New user " + lName + " Signed up!!!");
                     push.sendInBackground(new SendCallback() {
                         @Override
                         public void done(ParseException e) {
                             if (e == null) {
                                 ParseInstallation lNewUser = ParseInstallation.getCurrentInstallation();
                                 lNewUser.put("user", lSignupUser);
-                                lNewUser.addUnique("channels", "NewUser");
+//                                lNewUser.addUnique("channels", "NewUser");
                                 lNewUser.saveInBackground(new SaveCallback() {
                                     @Override
                                     public void done(ParseException e) {
                                         if (e == null) {
-
+//                                            push.subscribeInBackground("NewUser");
                                             makeToast("Registration Successful");
                                             finish();
                                         }else e.printStackTrace();
