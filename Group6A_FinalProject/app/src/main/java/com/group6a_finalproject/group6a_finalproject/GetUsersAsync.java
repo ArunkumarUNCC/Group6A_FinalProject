@@ -6,9 +6,11 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 
+import com.parse.FindCallback;
 import com.parse.GetDataCallback;
 import com.parse.ParseException;
 import com.parse.ParseFile;
+import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
@@ -26,9 +28,18 @@ public class GetUsersAsync extends AsyncTask<Void,Void,ArrayList<User>>{
     String fPROGRESS_MESSAGE = "Loading Users";
 
     ArrayList<User> fUsers;
+    boolean fIsShared;
+    String fAlbumName = null;
+    List<ParseUser> fSharedUsers;
 
     public GetUsersAsync(IGetUsers fActivity) {
         this.fActivity = fActivity;
+        fUsers = new ArrayList<>();
+    }
+
+    public GetUsersAsync(IGetUsers fActivity,String aAlbumName) {
+        this.fActivity = fActivity;
+        this.fAlbumName = aAlbumName;
         fUsers = new ArrayList<>();
     }
 
@@ -67,12 +78,17 @@ public class GetUsersAsync extends AsyncTask<Void,Void,ArrayList<User>>{
     protected ArrayList<User> doInBackground(Void... params) {
         ParseQuery<ParseUser> lGetUsers = ParseQuery.getQuery("_User");
         lGetUsers.whereNotEqualTo("username", ParseUser.getCurrentUser().getUsername());
-        lGetUsers.whereEqualTo("isVisible",true);
+        lGetUsers.whereEqualTo("isVisible", true);
         try {
             List<ParseUser> lUsers = lGetUsers.find();
 
+            if(fAlbumName!=null){
+                fSharedUsers = getSharedUsers();
+            }
+
             for (ParseUser user:lUsers){
-                addToList(user);
+                if (!fSharedUsers.contains(user))
+                    addToList(user);
             }
 
         } catch (ParseException e) {
@@ -88,6 +104,41 @@ public class GetUsersAsync extends AsyncTask<Void,Void,ArrayList<User>>{
 
         fProgress.dismiss();
         fActivity.putUsers(users);
+    }
+
+    public List<ParseUser> getSharedUsers(){
+        ParseObject lAlbumId = getAlbumId(fAlbumName);
+        final List<ParseUser> lSharedUsers = new ArrayList<>();
+
+        ParseQuery<ParseObject> lUsers = ParseQuery.getQuery("AlbumShare");
+        lUsers.include("album");
+        lUsers.include("sharedWith");
+        lUsers.whereEqualTo("album", lAlbumId);
+        try {
+            List<ParseObject> objects = lUsers.find();
+            for(ParseObject lObject:objects){
+                lSharedUsers.add(lObject.getParseUser("sharedWith"));
+            }
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        return lSharedUsers;
+    }
+
+    public ParseObject getAlbumId(String aAlbumName){
+        ParseObject lAlbumId = null;
+
+        ParseQuery<ParseObject> lGetId = ParseQuery.getQuery("Album");
+        lGetId.whereEqualTo("name",aAlbumName);
+        try {
+            List<ParseObject> lAlbums = lGetId.find();
+            lAlbumId = lAlbums.get(0);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        return lAlbumId;
     }
 
     public static interface IGetUsers{

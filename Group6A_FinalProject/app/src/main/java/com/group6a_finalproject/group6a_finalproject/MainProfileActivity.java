@@ -125,6 +125,7 @@ public class MainProfileActivity extends AppCompatActivity {
     public void toActivity(String aIntent, int aExtra){
         Intent lIntent = new Intent(aIntent);
         lIntent.putExtra("user_dir_flag", aExtra);
+        lIntent.putExtra("fromShared",false);
         startActivity(lIntent);
     }
 

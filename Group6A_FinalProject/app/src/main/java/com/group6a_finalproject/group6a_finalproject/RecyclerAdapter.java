@@ -265,6 +265,32 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                                         }
                                     });
 
+                                    ParseQuery<ParseObject> lDeleteNotifications = ParseQuery.getQuery("Notifications");
+                                    lDeleteNotifications.whereEqualTo(fALBUM_COLUMN,lAlbumId);
+                                    lDeleteNotifications.findInBackground(new FindCallback<ParseObject>() {
+                                        @Override
+                                        public void done(List<ParseObject> objects, ParseException e) {
+                                            if (e == null) {
+                                                for (ParseObject notificationObjects : objects) {
+                                                    notificationObjects.deleteEventually();
+                                                }
+                                            }
+                                        }
+                                    });
+
+                                    ParseQuery<ParseObject> lDeleteShared = ParseQuery.getQuery("AlbumShare");
+                                    lDeleteShared.whereEqualTo(fALBUM_COLUMN,lAlbumId);
+                                    lDeleteShared.findInBackground(new FindCallback<ParseObject>() {
+                                        @Override
+                                        public void done(List<ParseObject> objects, ParseException e) {
+                                            if (e == null) {
+                                                for (ParseObject sharedObjects : objects) {
+                                                    sharedObjects.deleteEventually();
+                                                }
+                                            }
+                                        }
+                                    });
+
                                     lAlbumId.deleteEventually();
                                     fAlbumsForDisplay.remove(position);
                                     notifyDataSetChanged();

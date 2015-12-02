@@ -160,6 +160,7 @@ public class ComposeMessage extends AppCompatActivity {
     public void toActivity(int aCode){
         Intent lIntent = new Intent(this, UserDirectory.class);
         lIntent.putExtra("fromCompose", 2);
+        lIntent.putExtra("fromShared",false);
         startActivityForResult(lIntent, aCode);
     }
 

@@ -86,7 +86,9 @@ public class GetAlbumsAsync extends AsyncTask<String,Void,ArrayList<Album>> {
     @Override
     protected ArrayList<Album> doInBackground(String... params) {
         ParseQuery<ParseObject> lGetPublicAlbums = ParseQuery.getQuery("Album");
+        lGetPublicAlbums.include("owner");
         lGetPublicAlbums.whereEqualTo("privacy", "Public");
+        lGetPublicAlbums.whereNotEqualTo("owner",fCurrentUser);
         try {
             List<ParseObject> lObjects = lGetPublicAlbums.find();
 
@@ -103,7 +105,6 @@ public class GetAlbumsAsync extends AsyncTask<String,Void,ArrayList<Album>> {
         ParseQuery<ParseObject> lGetMyPrivateAlbums = ParseQuery.getQuery("Album");
         lGetMyPrivateAlbums.include("owner");
         lGetMyPrivateAlbums.whereEqualTo("owner", fCurrentUser);
-        lGetMyPrivateAlbums.whereEqualTo("privacy","Private");
         try {
             List<ParseObject> lObjects = lGetMyPrivateAlbums.find();
 

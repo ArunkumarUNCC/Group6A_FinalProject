@@ -7,6 +7,8 @@ import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.parse.ParseObject;
+
 import java.util.ArrayList;
 
 public class UserDirectory extends AppCompatActivity implements GetUsersAsync.IGetUsers{
@@ -16,8 +18,9 @@ public class UserDirectory extends AppCompatActivity implements GetUsersAsync.IG
     LinearLayoutManager fRecyclerLayout;
 
     ArrayList<User> fUsers;
-
+    boolean fIsShared;
     int fWhich;
+    String fAlbumName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,7 +30,12 @@ public class UserDirectory extends AppCompatActivity implements GetUsersAsync.IG
         fUsers = new ArrayList<>();
         getItems();
 
-        new GetUsersAsync(this).execute();
+        if (fIsShared){
+            fAlbumName = getIntent().getExtras().getString("albumName");
+            new GetUsersAsync(this,fAlbumName).execute();
+        }
+        else
+            new GetUsersAsync(this).execute();
     }
 
     @Override
@@ -53,7 +61,9 @@ public class UserDirectory extends AppCompatActivity implements GetUsersAsync.IG
     }
 
     private void getItems() {
-        fWhich = getIntent().getExtras().getInt("fromCompose");
+        Bundle lIntentBundle = getIntent().getExtras();
+        fWhich = lIntentBundle.getInt("fromCompose");
+        fIsShared = lIntentBundle.getBoolean("fromShared");
         fUserRecycler = (RecyclerView) findViewById(R.id.RecyclerViewUserDirectory);
     }
 
