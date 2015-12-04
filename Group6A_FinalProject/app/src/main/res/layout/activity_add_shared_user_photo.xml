@@ -19,7 +19,8 @@
         android:id="@+id/imageViewSharedPhotoThumbnail"
         android:layout_below="@+id/editTextSharedPhotoTitle"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="42dp" />
+        android:layout_marginTop="42dp"
+        android:onClick="@string/sharedPhotoOnClick" />
 
     <TextView
         android:layout_width="wrap_content"

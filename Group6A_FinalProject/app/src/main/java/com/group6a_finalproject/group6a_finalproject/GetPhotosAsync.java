@@ -51,7 +51,7 @@ public class GetPhotosAsync extends AsyncTask<String,Void,ArrayList<Photo>> {
     public void addToList(ParseObject object){
         final Photo lCurrentAlbum = new Photo();
         lCurrentAlbum.setPhotoName(object.getString("name"));
-
+        lCurrentAlbum.setObjectId(object.getObjectId());
         ParseFile lPhotoImage = object.getParseFile("thumbnail");
 
         if (lPhotoImage != null) {

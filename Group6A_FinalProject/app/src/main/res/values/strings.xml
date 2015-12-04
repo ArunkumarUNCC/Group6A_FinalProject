@@ -47,4 +47,5 @@
     <string name="deleteSharedOnClick">deleteSharedOnClick</string>
     <string name="saveSharedOnClick">saveSharedOnClick</string>
     <string name="cancelSharedOnClick">cancelSharedOnClick</string>
+    <string name="sharedPhotoOnClick">sharedPhotoOnClick</string>
 </resources>

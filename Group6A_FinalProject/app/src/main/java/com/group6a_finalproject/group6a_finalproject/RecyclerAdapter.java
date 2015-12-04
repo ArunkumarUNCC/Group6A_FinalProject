@@ -374,6 +374,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     private void configurePhotoViewHolder(final PhotosGridViewHolder lPhotos, final int position) {
         final ParseFile lPhotoBitmap = fPhotosForDisplay.get(position).getPhotoBitmap();
         final String lPhotoString = fPhotosForDisplay.get(position).getPhotoName();
+        final String lPhotoId = fPhotosForDisplay.get(position).getObjectId();
 
         lPhotos.lPhotoName.setText(lPhotoString);
         new Thread(new Runnable() {
@@ -397,7 +398,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                         public void onClick(DialogInterface dialog, int which) {
                             ParseQuery<ParseObject> lFindRows = ParseQuery.getQuery("Photos");
                             lFindRows.include(fALBUM_COLUMN);
-                            lFindRows.whereEqualTo(fNAME, lPhotoString);
+                            lFindRows.whereEqualTo("objectId", lPhotoId);
 
                             lFindRows.findInBackground(new FindCallback<ParseObject>() {
                                 @Override
@@ -455,6 +456,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             lUsers.lUserPhoto.setImageResource(R.drawable.no_mage);
         else{
             lUsers.lUserPhoto.setParseFile(lPhotoBitmap);
+            lUsers.lUserPhoto.loadInBackground();
         }
 
         lUsers.lUserRelativeLayout.setOnClickListener(new View.OnClickListener() {
@@ -579,7 +581,8 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                                 public void onClick(View v) {
                                     Intent lIntent = new Intent(fGOTO_EDIT_SHARED_PHOTO);
                                     lIntent.putExtra("photoId", lObject.getObjectId());
-                                    fContext.startActivity(lIntent);
+                                    lIntent.putExtra("photoPosition",position);
+                                    ((Notifications)fContext).startActivityForResult(lIntent, Notifications.fEDIT_PHOTO);
                                 }
                             });
                         }
