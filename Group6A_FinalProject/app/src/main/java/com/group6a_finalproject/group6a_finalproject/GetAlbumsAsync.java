@@ -2,6 +2,7 @@ package com.group6a_finalproject.group6a_finalproject;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
@@ -21,7 +22,7 @@ import java.util.List;
 /**
  * Created by Arunkumar's on 11/25/2015.
  */
-public class GetAlbumsAsync extends AsyncTask<String,Void,ArrayList<Album>> {
+public class GetAlbumsAsync extends AsyncTask<Integer,Void,ArrayList<Album>> {
 
     IGetAlbums fActivity;
     ProgressDialog fProgress;
@@ -29,10 +30,11 @@ public class GetAlbumsAsync extends AsyncTask<String,Void,ArrayList<Album>> {
 
     ArrayList<Album> fAlbums;
 
-    ParseUser fCurrentUser = ParseUser.getCurrentUser();
+    ParseUser fCurrentUser;
 
-    public GetAlbumsAsync(IGetAlbums fActivity) {
+    public GetAlbumsAsync(IGetAlbums fActivity,ParseUser aCurrentUser) {
         this.fActivity = fActivity;
+        fCurrentUser = aCurrentUser;
         fAlbums = new ArrayList<Album>();
     }
 
@@ -47,64 +49,77 @@ public class GetAlbumsAsync extends AsyncTask<String,Void,ArrayList<Album>> {
     }
 
     public void addToList(ParseObject object,int aUserFlag){
+        ParseUser lUser = null;
         final Album lCurrentAlbum = new Album();
         lCurrentAlbum.setAlbumName(object.getString("name"));
-        lCurrentAlbum.setPrivacy(object.getString("privacy"));
+        if(aUserFlag != 2)
+            lCurrentAlbum.setPrivacy(object.getString("privacy"));
+        else lCurrentAlbum.setPrivacy("Shared");
         ParseFile lPhotoImage = object.getParseFile("thumbnail");
 
         if (lPhotoImage != null) {
-            lPhotoImage.getDataInBackground(new GetDataCallback() {
-                @Override
-                public void done(byte[] data, ParseException e) {
-                    Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
-                    ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
-                    lCurrentAlbum.setAlbumImage(bitmap);
-
-                }
-            });
+            lCurrentAlbum.setAlbumImage(lPhotoImage);
         } else{
 
             lCurrentAlbum.setAlbumImage(null);
         }
 
-        switch (aUserFlag){
-            case 1:
-                lCurrentAlbum.setOwnerName(ParseUser.getCurrentUser().getString("name"));
-                break;
-            case 2:
-                try {
-                    lCurrentAlbum.setOwnerName(object.getParseUser("owner").fetchIfNeeded().getString("name"));
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                }
-                break;
+        try {
+            lUser = object.getParseUser("owner").fetchIfNeeded();
+            lCurrentAlbum.setOwnerName(lUser.getString("name"));
+            lCurrentAlbum.setOwnerEmail(lUser.getEmail());
+        } catch (ParseException e) {
+            e.printStackTrace();
         }
+
         fAlbums.add(lCurrentAlbum);
     }
 
     @Override
-    protected ArrayList<Album> doInBackground(String... params) {
-        ParseQuery<ParseObject> lGetPublicAlbums = ParseQuery.getQuery("Album");
-        lGetPublicAlbums.include("owner");
-        lGetPublicAlbums.whereEqualTo("privacy", "Public");
-        lGetPublicAlbums.whereNotEqualTo("owner",fCurrentUser);
-        try {
-            List<ParseObject> lObjects = lGetPublicAlbums.find();
+    protected ArrayList<Album> doInBackground(Integer... params) {
+        int lQueryFlag = params[0];
+        if (lQueryFlag == 1) {
+            ParseQuery<ParseObject> lGetPublicAlbums = ParseQuery.getQuery("Album");
+            lGetPublicAlbums.include("owner");
+            lGetPublicAlbums.whereEqualTo("privacy", "Public");
+            lGetPublicAlbums.whereNotEqualTo("owner", fCurrentUser);
+            try {
+                List<ParseObject> lObjects = lGetPublicAlbums.find();
 
-            if(lObjects.size()>0) {
-                for (ParseObject album : lObjects) {
-                    addToList(album, 2);
+                if (lObjects.size() > 0) {
+                    for (ParseObject album : lObjects) {
+                        addToList(album, 1);
+                    }
                 }
+
+            } catch (ParseException e) {
+                e.printStackTrace();
             }
 
-        } catch (ParseException e) {
-            e.printStackTrace();
+            ParseQuery<ParseObject> lGetSharedAlbums = ParseQuery.getQuery("AlbumShare");
+            lGetSharedAlbums.include("sharedWith");
+            lGetSharedAlbums.include("album");
+            lGetSharedAlbums.whereEqualTo("sharedWith", fCurrentUser);
+            try {
+                List<ParseObject> lObjects = lGetSharedAlbums.find();
+
+                if (lObjects.size()>0){
+                    for (ParseObject album:lObjects){
+                        ParseObject lObject = album.getParseObject("album");
+                        addToList(lObject,2);
+                    }
+                }
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
         }
 
         ParseQuery<ParseObject> lGetMyPrivateAlbums = ParseQuery.getQuery("Album");
         lGetMyPrivateAlbums.include("owner");
         lGetMyPrivateAlbums.whereEqualTo("owner", fCurrentUser);
+        if (lQueryFlag == 2){
+            lGetMyPrivateAlbums.whereEqualTo("privacy","Public");
+        }
         try {
             List<ParseObject> lObjects = lGetMyPrivateAlbums.find();
 
@@ -114,23 +129,6 @@ public class GetAlbumsAsync extends AsyncTask<String,Void,ArrayList<Album>> {
                 }
             }
 
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-
-        ParseQuery<ParseObject> lGetSharedAlbums = ParseQuery.getQuery("AlbumShare");
-        lGetSharedAlbums.include("sharedWith");
-        lGetSharedAlbums.include("album");
-        lGetSharedAlbums.whereEqualTo("sharedWith", fCurrentUser);
-        try {
-            List<ParseObject> lObjects = lGetSharedAlbums.find();
-
-            if (lObjects.size()>0){
-                for (ParseObject album:lObjects){
-                    ParseObject lObject = album.getParseObject("album");
-                    addToList(lObject,2);
-                }
-            }
         } catch (ParseException e) {
             e.printStackTrace();
         }

@@ -9,13 +9,13 @@
         android:layout_height="@dimen/photoHeight"
         android:id="@+id/linearLayoutAlbumRow">
 
-        <ImageView
+        <com.parse.ParseImageView
             android:layout_width="@dimen/photoWidth"
             android:layout_height="@dimen/photoHeight"
             android:id="@+id/imageViewAlbumNotification" />
 
         <TextView
-            android:layout_width="150dp"
+            android:layout_width="175dp"
             android:layout_height="wrap_content"
             android:text="New Text"
             android:id="@+id/textViewAlbumNotification"

@@ -36,22 +36,22 @@ public class AlbumActivity extends AppCompatActivity implements GetPhotosAsync.I
     final String fGOTO_ADD_PHOTO = "android.intent.action.ADD_PHOTO";
     final String fGOTO_INVITE = "android.intent.action.INVITE_USERS";
     final String fGOTO_CRTEATE_ALBUM = "android.intent.action.CREATE_ALBUM";
+    final String fGOTO_USER_DIRECTORY ="android.intent.action.USER_DIRECTORY";
     final  String fALBUM_NAME_EXTRA = "ALBUM_NAME";
+    final  String fALBUM_USER = "IS_SHARED_USER";
     final int fNEW_PHOTO_REQCODE = 1002;
     final int fEDIT_ALBUM_REQCODE = 1003;
-    boolean fCANADD = false;
 
     RecyclerView fPhotoRecycler;
     RecyclerAdapter fAdapter;
     LinearLayoutManager fRecyclerLayout;
     Button fAddPhotoButton;
     TextView fAlbumNameText;
-    MenuItem fShareMenu,fEditMenu;
+    MenuItem fShareMenu,fEditMenu,fSharedMembers;
 
     static String fAlbumName;
+    boolean fIsSharedUser;
     ParseUser fAlbumOwner;
-
-    boolean hideMenu = false;
 
     ArrayList<Photo> fAlbumPhotos;
 
@@ -62,13 +62,11 @@ public class AlbumActivity extends AppCompatActivity implements GetPhotosAsync.I
 
         fAlbumPhotos = new ArrayList<Photo>();
 
-
         getItems();
         checkPrivacy();
         getAlbumOwner();
 
         setActionBarTitle(fAlbumName);
-
 
         new GetPhotosAsync(this,2).execute(fAlbumName);
     }
@@ -86,6 +84,7 @@ public class AlbumActivity extends AppCompatActivity implements GetPhotosAsync.I
         getMenuInflater().inflate(R.menu.menu_album, menu);
         fShareMenu = menu.findItem(R.id.shareAlbum);
         fEditMenu = menu.findItem(R.id.editAlbum);
+        fSharedMembers = menu.findItem(R.id.showSharedMembers);
 
         return true;
     }
@@ -127,9 +126,10 @@ public class AlbumActivity extends AppCompatActivity implements GetPhotosAsync.I
         startActivity(lIntent);
     }
 
-    public void toActivityForResult(String aIntent,String aExtra){
+    public void toActivityForResult(String aIntent,String aExtra,boolean aIsSharedUser){
         Intent lIntent = new Intent(aIntent);
         lIntent.putExtra(fALBUM_NAME_EXTRA,aExtra);
+        lIntent.putExtra(fALBUM_USER,aIsSharedUser);
         startActivityForResult(lIntent, fNEW_PHOTO_REQCODE);
     }
 
@@ -140,6 +140,16 @@ public class AlbumActivity extends AppCompatActivity implements GetPhotosAsync.I
         startActivityForResult(lIntent, fEDIT_ALBUM_REQCODE);
     }
 
+    //To start User Directory
+    public void toActivity(String aIntent, int aExtra1, boolean aExtra2,boolean aExtra3){
+        Intent lIntent = new Intent(aIntent);
+        lIntent.putExtra("fromCompose", aExtra1);
+        lIntent.putExtra("fromShared",aExtra2);
+        lIntent.putExtra("albumName",fAlbumName);
+        lIntent.putExtra("showShared",aExtra3);
+        startActivity(lIntent);
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -147,34 +157,26 @@ public class AlbumActivity extends AppCompatActivity implements GetPhotosAsync.I
         if (resultCode == RESULT_OK){
             switch (requestCode){
                 case fNEW_PHOTO_REQCODE:
-                    String lPhotoId = data.getExtras().getString("NEW_PHOTO");
-                    ParseQuery<ParseObject> lGetPhoto = ParseQuery.getQuery("Photos");
-                    lGetPhoto.whereEqualTo("objectId", lPhotoId);
-                    lGetPhoto.findInBackground(new FindCallback<ParseObject>() {
-                        @Override
-                        public void done(List<ParseObject> objects, ParseException e) {
-                            if (e == null) {
-                                final Photo lNewPhoto = new Photo();
-                                lNewPhoto.setPhotoName(objects.get(0).getString("name"));
+                    if (!fIsSharedUser) {
+                        String lPhotoId = data.getExtras().getString("NEW_PHOTO");
+                        ParseQuery<ParseObject> lGetPhoto = ParseQuery.getQuery("Photos");
+                        lGetPhoto.whereEqualTo("objectId", lPhotoId);
+                        lGetPhoto.findInBackground(new FindCallback<ParseObject>() {
+                            @Override
+                            public void done(List<ParseObject> objects, ParseException e) {
+                                if (e == null) {
+                                    final Photo lNewPhoto = new Photo();
+                                    lNewPhoto.setPhotoName(objects.get(0).getString("name"));
 
-                                ParseFile lImageFromParse = objects.get(0).getParseFile("thumbnail");
-                                lImageFromParse.getDataInBackground(new GetDataCallback() {
-                                    @Override
-                                    public void done(byte[] data, ParseException e) {
-                                        Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
-                                        ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                                        bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
-                                        lNewPhoto.setPhotoBitmap(bitmap);
+                                    ParseFile lImageFromParse = objects.get(0).getParseFile("thumbnail");
+                                    lNewPhoto.setPhotoBitmap(lImageFromParse);
 
-                                        fAlbumPhotos.add(lNewPhoto);
-                                        fAdapter.notifyDataSetChanged();
-                                    }
-                                });
-
-
+                                    fAlbumPhotos.add(lNewPhoto);
+                                    fAdapter.notifyDataSetChanged();
+                                }
                             }
-                        }
-                    });
+                        });
+                    }
                     break;
 
                 case fEDIT_ALBUM_REQCODE:
@@ -191,7 +193,7 @@ public class AlbumActivity extends AppCompatActivity implements GetPhotosAsync.I
 
     public void addPhotoOnClick (View aView){
 
-            toActivityForResult(fGOTO_ADD_PHOTO, fAlbumName);
+            toActivityForResult(fGOTO_ADD_PHOTO, fAlbumName, fIsSharedUser);
 
     }
 
@@ -269,11 +271,15 @@ public class AlbumActivity extends AppCompatActivity implements GetPhotosAsync.I
     }
 
     public void editAlbumOnClick(MenuItem aItem){
-        toActivityForResult(fGOTO_CRTEATE_ALBUM,2);
+        toActivityForResult(fGOTO_CRTEATE_ALBUM, 2);
     }
 
     public void shareAlbumOnClick(MenuItem aItem){
         toActivity(fGOTO_INVITE, fAlbumName);
+    }
+
+    public void sharedMembersOnClick(MenuItem aItem){
+        toActivity(fGOTO_USER_DIRECTORY, 1, true, true);
     }
 
     private void getAlbumOwner() {
@@ -285,8 +291,14 @@ public class AlbumActivity extends AppCompatActivity implements GetPhotosAsync.I
                 if (e == null) {
                     fAlbumOwner = objects.get(0).getParseUser("owner");
 
-                    if (!ParseUser.getCurrentUser().getUsername().equals(fAlbumOwner.getUsername()))
-                        deleteMenuItems();
+                    try {
+                        if (!ParseUser.getCurrentUser().fetchIfNeeded().getUsername().equals(fAlbumOwner.fetchIfNeeded().getUsername())) {
+                            deleteMenuItems();
+                            fIsSharedUser = true;
+                        }
+                    } catch (ParseException e1) {
+                        e1.printStackTrace();
+                    }
 
                 } else e.printStackTrace();
             }
@@ -296,5 +308,6 @@ public class AlbumActivity extends AppCompatActivity implements GetPhotosAsync.I
     public void deleteMenuItems(){
         fShareMenu.setVisible(false);
         fEditMenu.setVisible(false);
+        fSharedMembers.setVisible(false);
     }
 }

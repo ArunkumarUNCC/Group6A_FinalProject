@@ -9,16 +9,17 @@
         android:id="@+id/relativeLayoutPhotoRow">
 
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textAppearance="?android:attr/textAppearanceSmall"
             android:text="Medium Text"
             android:id="@+id/textViewPhotoNotification"
             android:layout_centerVertical="true"
             android:layout_toRightOf="@+id/imageViewPhotoNotification"
-            android:layout_toEndOf="@+id/imageViewPhotoNotification" />
+            android:layout_toEndOf="@+id/imageViewPhotoNotification"
+            android:layout_marginLeft="5dp" />
 
-        <ImageView
+        <com.parse.ParseImageView
             android:layout_width="@dimen/photoWidth"
             android:layout_height="@dimen/photoHeight"
             android:id="@+id/imageViewPhotoNotification" />

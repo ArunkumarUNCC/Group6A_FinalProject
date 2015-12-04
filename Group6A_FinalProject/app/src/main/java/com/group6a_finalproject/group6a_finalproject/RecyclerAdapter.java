@@ -5,19 +5,24 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.os.Parcelable;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.parse.FindCallback;
+import com.parse.GetDataCallback;
 import com.parse.ParseException;
+import com.parse.ParseFile;
+import com.parse.ParseImageView;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
@@ -36,6 +41,8 @@ import static com.group6a_finalproject.group6a_finalproject.R.id.textViewRecycle
 public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
 
     final String fGOTO_ALBUM_VIEW = "android.intent.action.ALBUM_VIEW";
+    final String fGOTO_ALBUM_LIST = "android.intent.action.ALBUM_LIST";
+    final String fGOTO_EDIT_SHARED_PHOTO = "android.intent.action.EDIT_SHARED_PHOTO";
     final String fNOTIFICATIONS = "Notifications";
     final String fTOUSER = "toUser";
     final String fFROMUSER = "fromUser";
@@ -45,15 +52,18 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     final String fNAME = "name";
     final String fOWNER = "owner";
     final String fPRIVACY = "privacy";
+    final String fTHUMBNAIL = "thumbnail";
     final ParseUser fCURRENT_USER = ParseUser.getCurrentUser();
 
     ArrayList<Photo> fPhotosForDisplay;
     ArrayList<User> fUsersForDisplay;
     ArrayList<Album> fAlbumsForDisplay;
+    ArrayList<String> fPhotoIds;
     Context fContext;
     int whichRecycler;
     int fwhichActivity;
     String fAlbumName;
+    boolean fCanExpand = false;
 
     ParseUser fAlbumOwner;
 
@@ -63,18 +73,21 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     }
 
     public RecyclerAdapter(ArrayList<Photo> albumPhotoList, Context fContext, int which,ParseUser aAlbumOwner,String aAlbumName) {
+        this(fContext,which);
         this.fPhotosForDisplay = albumPhotoList;
-        this.fContext = fContext;
-        this.whichRecycler = which;
         this.fAlbumOwner = aAlbumOwner;
         this.fAlbumName = aAlbumName;
     }
 
     public RecyclerAdapter(ArrayList<User> userList, Context fContext, int which, int aWhichActivity) {
+        this(fContext,which);
         this.fUsersForDisplay = userList;
-        this.fContext = fContext;
-        this.whichRecycler = which;
         this.fwhichActivity = aWhichActivity;
+    }
+
+    public RecyclerAdapter(Context fContext, int which, ArrayList<String> aIds){
+        this(fContext,which);
+        this.fPhotoIds = aIds;
     }
 
     public void setAlbumsList(ArrayList<Album> aAlbumsList){
@@ -86,13 +99,14 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
         RelativeLayout lAlbumRelativeLayout;
         TextView lAlbumName,lAlbumOwnerText,lAlbumPrivacyText;
-        ImageView lAlbumImage,lAlbumDelete;
+        ImageView lAlbumDelete;
+        ParseImageView lAlbumImage;
 
         public AlbumsLinearViewHolder(View itemView) {
             super(itemView);
 
             lAlbumRelativeLayout = (RelativeLayout) itemView.findViewById(R.id.relativeLayoutAlbumList);
-            lAlbumImage = (ImageView) itemView.findViewById(R.id.imageViewRecyclerAlbumImage);
+            lAlbumImage = (ParseImageView) itemView.findViewById(R.id.imageViewRecyclerAlbumImage);
             lAlbumName = (TextView) itemView.findViewById(R.id.textViewRecylclerAlbumName);
             lAlbumOwnerText = (TextView) itemView.findViewById(R.id.textViewRecyclerOwnerName);
             lAlbumPrivacyText = (TextView) itemView.findViewById(textViewRecyclerPrivacy);
@@ -105,14 +119,14 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         LinearLayout lPhotoGridLayout;
 
         TextView lPhotoName;
-        ImageView lPhoto;
+        ParseImageView lPhoto;
 
         public PhotosGridViewHolder(View itemView) {
             super(itemView);
 
             lPhotoGridLayout = (LinearLayout) itemView.findViewById(R.id.linearLayoutPhotoGrid);
             lPhotoName = (TextView) itemView.findViewById(R.id.textViewPhotoName);
-            lPhoto = (ImageView) itemView.findViewById(R.id.imageViewPhoto);
+            lPhoto = (ParseImageView) itemView.findViewById(R.id.imageViewPhoto);
         }
     }
 
@@ -121,7 +135,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         RelativeLayout lUserRelativeLayout;
 
         TextView lUserName,lUserEmail;
-        ImageView lUserPhoto;
+        ParseImageView lUserPhoto;
 
         public UsersLinearViewHolder(View itemView) {
             super(itemView);
@@ -129,24 +143,40 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             lUserRelativeLayout = (RelativeLayout) itemView.findViewById(R.id.relativeLayoutUserRecycler);
             lUserName = (TextView) itemView.findViewById(R.id.textViewDirectoryUserName);
             lUserEmail = (TextView) itemView.findViewById(textViewDirectoryUserEmail);
-            lUserPhoto = (ImageView) itemView.findViewById(R.id.imageViewDirectoryThumb);
+            lUserPhoto = (ParseImageView) itemView.findViewById(R.id.imageViewDirectoryThumb);
         }
     }
 
     //To display album notifications
     public static class AlbumNotifications extends RecyclerView.ViewHolder{
         LinearLayout lAlbumNotificationLayout;
-        ImageView lAlbumLogo,lAccept,lReject;
+        ImageView lAccept,lReject;
+        ParseImageView lAlbumLogo;
         TextView lAlbumShareMsg;
 
         public AlbumNotifications(View itemView) {
             super(itemView);
 
             lAlbumNotificationLayout = (LinearLayout) itemView.findViewById(R.id.linearLayoutAlbumRow);
-            lAlbumLogo = (ImageView) itemView.findViewById(R.id.imageViewAlbumNotification);
+            lAlbumLogo = (ParseImageView) itemView.findViewById(R.id.imageViewAlbumNotification);
             lAccept = (ImageView) itemView.findViewById(R.id.imageViewAccept);
             lReject = (ImageView) itemView.findViewById(R.id.imageViewReject);
             lAlbumShareMsg = (TextView) itemView.findViewById(R.id.textViewAlbumNotification);
+        }
+    }
+
+    //To display photo notifications
+    public static class PhotoNotifications extends RecyclerView.ViewHolder{
+        RelativeLayout lPhotoNotificationLayout;
+        ParseImageView lPhotoThumbnail;
+        TextView lMsgText;
+
+        public PhotoNotifications(View itemView) {
+            super(itemView);
+
+            lPhotoNotificationLayout = (RelativeLayout) itemView.findViewById(R.id.relativeLayoutPhotoRow);
+            lPhotoThumbnail = (ParseImageView) itemView.findViewById(R.id.imageViewPhotoNotification);
+            lMsgText = (TextView) itemView.findViewById(R.id.textViewPhotoNotification);
         }
     }
 
@@ -176,6 +206,11 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 View lView4 = lInflater.inflate(R.layout.album_notification_row,parent,false);
                 lViewHolder = new AlbumNotifications(lView4);
                 break;
+
+            case 5:
+                View lView5 = lInflater.inflate(R.layout.photo_notification_row,parent,false);
+                lViewHolder = new PhotoNotifications(lView5);
+                break;
         }
 
         return lViewHolder;
@@ -203,6 +238,10 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 AlbumNotifications lAlbumNotifications = (AlbumNotifications) holder;
                 configureAlbumNotificationsViewHolder(lAlbumNotifications,position);
                 break;
+
+            case 5:
+                PhotoNotifications lPhotoNotifications = (PhotoNotifications) holder;
+                configurePhotoNotificationsViewHolder(lPhotoNotifications,position);
         }
     }
 
@@ -216,14 +255,15 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 return fPhotosForDisplay.size();
             case 3:
                 return fUsersForDisplay.size();
-
+            case 5:
+                return fPhotoIds.size();
         }
         return 0;
     }
 
     //Display User Albums
     private void configureAlbumViewHolder(final AlbumsLinearViewHolder lAlbums, final int position) {
-        final Bitmap lAlbumBitmap = fAlbumsForDisplay.get(position).getAlbumImage();
+        final ParseFile lAlbumBitmap = fAlbumsForDisplay.get(position).getAlbumImage();
         final String lAlbumString = fAlbumsForDisplay.get(position).getAlbumName();
         String lAlbumOwner = fAlbumsForDisplay.get(position).getOwnerName();
         String lAlbumPrivacy = fAlbumsForDisplay.get(position).getPrivacy();
@@ -266,7 +306,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                                     });
 
                                     ParseQuery<ParseObject> lDeleteNotifications = ParseQuery.getQuery("Notifications");
-                                    lDeleteNotifications.whereEqualTo(fALBUM_COLUMN,lAlbumId);
+                                    lDeleteNotifications.whereEqualTo(fALBUM_COLUMN, lAlbumId);
                                     lDeleteNotifications.findInBackground(new FindCallback<ParseObject>() {
                                         @Override
                                         public void done(List<ParseObject> objects, ParseException e) {
@@ -279,7 +319,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                                     });
 
                                     ParseQuery<ParseObject> lDeleteShared = ParseQuery.getQuery("AlbumShare");
-                                    lDeleteShared.whereEqualTo(fALBUM_COLUMN,lAlbumId);
+                                    lDeleteShared.whereEqualTo(fALBUM_COLUMN, lAlbumId);
                                     lDeleteShared.findInBackground(new FindCallback<ParseObject>() {
                                         @Override
                                         public void done(List<ParseObject> objects, ParseException e) {
@@ -314,11 +354,12 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     lAlbums.lAlbumImage.setImageResource(R.drawable.no_mage);
                 }
                 else{
-
-                          lAlbums.lAlbumImage.setImageBitmap(lAlbumBitmap);
-                      }
-
+                    lAlbums.lAlbumImage.setParseFile(lAlbumBitmap);
+                    lAlbums.lAlbumImage.setScaleType(ParseImageView.ScaleType.FIT_XY);
+                    lAlbums.lAlbumImage.loadInBackground();
                 }
+
+            }
         }).run();
 
         lAlbums.lAlbumRelativeLayout.setOnClickListener(new View.OnClickListener() {
@@ -331,14 +372,15 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
     //Display Album photos
     private void configurePhotoViewHolder(final PhotosGridViewHolder lPhotos, final int position) {
-        final Bitmap lPhotoBitmap = fPhotosForDisplay.get(position).getPhotoBitmap();
+        final ParseFile lPhotoBitmap = fPhotosForDisplay.get(position).getPhotoBitmap();
         final String lPhotoString = fPhotosForDisplay.get(position).getPhotoName();
 
         lPhotos.lPhotoName.setText(lPhotoString);
         new Thread(new Runnable() {
             @Override
             public void run() {
-                lPhotos.lPhoto.setImageBitmap(lPhotoBitmap);
+                lPhotos.lPhoto.setParseFile(lPhotoBitmap);
+                lPhotos.lPhoto.loadInBackground();
             }
         }).run();
 
@@ -383,20 +425,37 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 }
             });
         }
+
+//        lPhotos.lPhoto.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                if (fCanExpand){
+//                    fCanExpand=false;
+//                    lPhotos.lPhoto.setLayoutParams(new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT));
+//                    lPhotos.lPhoto.setAdjustViewBounds(true);
+//                }else{
+//                    fCanExpand=true;
+//                    lPhotos.lPhoto.setLayoutParams(new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
+//                    lPhotos.lPhoto.setScaleType(ImageView.ScaleType.FIT_XY);
+//                }
+//            }
+//        });
     }
 
     //Display User list
     private void configureUserViewHolder(UsersLinearViewHolder lUsers, final int position) {
-        Bitmap lPhotoBitmap = fUsersForDisplay.get(position).getUserImage();
+        ParseFile lPhotoBitmap = fUsersForDisplay.get(position).getUserImage();
         String lUserName = fUsersForDisplay.get(position).getUserName();
-        String lUserEmail = fUsersForDisplay.get(position).getUserMail();
+        final String lUserEmail = fUsersForDisplay.get(position).getUserMail();
 
         lUsers.lUserName.setText(lUserName);
         lUsers.lUserEmail.setText(lUserEmail);
 
         if (lPhotoBitmap==null)
             lUsers.lUserPhoto.setImageResource(R.drawable.no_mage);
-        else lUsers.lUserPhoto.setImageBitmap(lPhotoBitmap);
+        else{
+            lUsers.lUserPhoto.setParseFile(lPhotoBitmap);
+        }
 
         lUsers.lUserRelativeLayout.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -408,7 +467,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     ((UserDirectory) fContext).finish();
 
                 } else {
-                    //TODO goto other users profile and their albums
+                    toActivity(fGOTO_ALBUM_LIST, 2, lUserEmail);
                 }
             }
         });
@@ -416,13 +475,16 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
     //Display Album Notifications
     private void configureAlbumNotificationsViewHolder(AlbumNotifications aAlbumNotifications, final int position){
-        Bitmap lAlbumBitmap = fAlbumsForDisplay.get(position).getAlbumImage();
+        ParseFile lAlbumBitmap = fAlbumsForDisplay.get(position).getAlbumImage();
         final String lAlbumString = fAlbumsForDisplay.get(position).getAlbumName();
         String lAlbumOwner = fAlbumsForDisplay.get(position).getOwnerName();
 
         if(lAlbumBitmap == null){
             aAlbumNotifications.lAlbumLogo.setImageResource(R.drawable.no_mage);
-        }else aAlbumNotifications.lAlbumLogo.setImageBitmap(lAlbumBitmap);
+        }else{
+            aAlbumNotifications.lAlbumLogo.setParseFile(lAlbumBitmap);
+            aAlbumNotifications.lAlbumLogo.loadInBackground();
+        }
         aAlbumNotifications.lAlbumShareMsg.setText(lAlbumOwner + " shared an album with you");
 
         aAlbumNotifications.lAlbumNotificationLayout.setOnClickListener(new View.OnClickListener() {
@@ -442,7 +504,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     @Override
                     public void done(List<ParseObject> objects, ParseException e) {
                         if (e == null) {
-                            deleteFromNotification(objects.get(0),position);
+                            deleteFromNotification(objects.get(0), position);
                         }
                     }
                 });
@@ -462,19 +524,70 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                             ParseObject lGetAlbum = objects.get(0);
 
                             ParseObject lAcceptInvite = new ParseObject("AlbumShare");
-                            lAcceptInvite.put(fALBUM_COLUMN,lGetAlbum);
-                            lAcceptInvite.put(fSHARED_WITH,fCURRENT_USER);
+                            lAcceptInvite.put(fALBUM_COLUMN, lGetAlbum);
+                            lAcceptInvite.put(fSHARED_WITH, fCURRENT_USER);
                             lAcceptInvite.saveInBackground();
 
-                            lGetAlbum.put(fPRIVACY, "Shared");
+                            lGetAlbum.put("isShared", true);
                             lGetAlbum.saveInBackground();
 
-                            deleteFromNotification(lGetAlbum,position);
+                            deleteFromNotification(lGetAlbum, position);
                         }
                     }
                 });
             }
         });
+    }
+
+    //Display Photo Notifications
+    private void configurePhotoNotificationsViewHolder(final PhotoNotifications aPhotoNotifications, final int position){
+        final String lCurrrentId = fPhotoIds.get(position);
+        final TextView lMsgText = aPhotoNotifications.lMsgText;
+        final ParseImageView lPhotoThumbnail = aPhotoNotifications.lPhotoThumbnail;
+        byte[] lParseImage;
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                ParseQuery<ParseObject> lGetNotifications = ParseQuery.getQuery(fNOTIFICATIONS);
+                lGetNotifications.include(fFROMUSER);
+                lGetNotifications.include(fALBUM_COLUMN);
+                lGetNotifications.include(fALBUM_COLUMN);
+                lGetNotifications.whereEqualTo("objectId", lCurrrentId);
+                lGetNotifications.findInBackground(new FindCallback<ParseObject>() {
+                    @Override
+                    public void done(List<ParseObject> objects, ParseException e) {
+                        if (e == null){
+                            final ParseObject lObject = objects.get(0);
+                            final ParseFile lPhotoParseFile = lObject.getParseFile(fTHUMBNAIL);
+                            ParseObject lAbumObject = lObject.getParseObject(fALBUM_COLUMN);
+                            ParseUser lFrom = lObject.getParseUser(fFROMUSER);
+
+                            final String lPhotoTitle = lObject.getString(fNAME);
+                            final String lPhotoOwner = lFrom.getString(fNAME);
+
+                            if(lPhotoParseFile != null){
+                                lPhotoThumbnail.setParseFile(lPhotoParseFile);
+                                lPhotoThumbnail.loadInBackground();
+                                lPhotoThumbnail.setScaleType(ParseImageView.ScaleType.FIT_XY);
+                            }
+
+                            lMsgText.setText(lPhotoOwner + " created a new photo in " + lAbumObject.getString(fNAME));
+
+                            aPhotoNotifications.lPhotoNotificationLayout.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    Intent lIntent = new Intent(fGOTO_EDIT_SHARED_PHOTO);
+                                    lIntent.putExtra("photoId", lObject.getObjectId());
+                                    fContext.startActivity(lIntent);
+                                }
+                            });
+                        }
+                    }
+                });
+            }
+        }).run();
+
     }
 
     public void toActivityFromAlbumList(String aIntent, String aExtra){
@@ -507,5 +620,13 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 }
             }
         });
+    }
+
+    //To start View Albums
+    public void toActivity(String aIntent, int aExtra, String aEmail){
+        Intent lIntent = new Intent(aIntent);
+        lIntent.putExtra("album_flag", aExtra);
+        lIntent.putExtra("current_user",aEmail);
+        fContext.startActivity(lIntent);
     }
 }

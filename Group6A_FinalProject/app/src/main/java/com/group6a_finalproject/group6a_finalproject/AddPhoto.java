@@ -18,6 +18,7 @@ import android.widget.Toast;
 import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseFile;
+import com.parse.ParseImageView;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
@@ -25,6 +26,7 @@ import com.parse.SaveCallback;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.Serializable;
 import java.util.List;
 
@@ -34,20 +36,19 @@ public class AddPhoto extends AppCompatActivity {
     final String fNEW_PHOTONAME_EXTRA = "NEW_PHOTO";
 
     String fAlbumName;
+    boolean fIsSharedUser;
 
-    ImageView fPhotoThumb;
+    ParseImageView fPhotoThumb;
     EditText fPhotoName;
 
-    Bitmap fImageBitmap;
+    ParseFile fImageFile;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_photo);
 
-        fImageBitmap = null;
-
-        fAlbumName = getIntent().getExtras().getString("ALBUM_NAME");
+        fImageFile = null;
 
         getItems();
     }
@@ -76,8 +77,8 @@ public class AddPhoto extends AppCompatActivity {
 
     public void savePictureOnClick (View aView){
         final String lPhotoName = fPhotoName.getText().toString();
-        if(fImageBitmap==null || lPhotoName.isEmpty()) {
-            if(fImageBitmap==null)
+        if(fImageFile==null || lPhotoName.isEmpty()) {
+            if(fImageFile==null)
                 makeToast("Choose photo");
             if (lPhotoName.isEmpty())
                 fPhotoName.setError("Photo name is empty");
@@ -89,30 +90,13 @@ public class AddPhoto extends AppCompatActivity {
                 @Override
                 public void done(List<ParseObject> objects, ParseException e) {
                     if (e == null) {
-
-                        final ParseObject lNewPhoto = new ParseObject("Photos");
-                        lNewPhoto.put("name",lPhotoName);
-                        lNewPhoto.put("album",objects.get(0));
-                        lNewPhoto.put("uploadedBy", ParseUser.getCurrentUser());
-
-                        ByteArrayOutputStream lStream = new ByteArrayOutputStream();
-                        fImageBitmap.compress(Bitmap.CompressFormat.PNG, 100, lStream);
-                        byte[] lImageToUpload = lStream.toByteArray();
-
-                        final ParseFile lImageFile = new ParseFile("default.png", lImageToUpload);
-                        lImageFile.saveInBackground();
-                        lNewPhoto.put("thumbnail", lImageFile);
-                        lNewPhoto.saveInBackground(new SaveCallback() {
-                            @Override
-                            public void done(ParseException e) {
-                                if (e==null){
-                                    makeToast("New photo created");
-                                    sendActivityResult(lNewPhoto.getObjectId());
-                                    finish();
-                                }
-                            }
-                        });
-
+                        ParseObject lValidObject = objects.get(0);
+                        if(fIsSharedUser){
+                            putIntoNotifications(lValidObject,lPhotoName);
+                        }
+                        else {
+                            putIntoPhotos(lValidObject,lPhotoName);
+                        }
                     }else e.printStackTrace();
                 }
             });
@@ -121,8 +105,12 @@ public class AddPhoto extends AppCompatActivity {
     }
 
     public void getItems (){
+        Bundle lIntentBundle = getIntent().getExtras();
+        fAlbumName = lIntentBundle.getString("ALBUM_NAME");
+        fIsSharedUser = lIntentBundle.getBoolean("IS_SHARED_USER");
+
         fPhotoName = (EditText) findViewById(R.id.editTextAddPictureName);
-        fPhotoThumb = (ImageView) findViewById(R.id.imageViewAddPhotoThumb);
+        fPhotoThumb = (ParseImageView) findViewById(R.id.imageViewAddPhotoThumb);
     }
 
     public void addPhotoCancelOnClick (View aView){
@@ -149,11 +137,17 @@ public class AddPhoto extends AppCompatActivity {
                     Uri lSelectedImgUri;
                     lSelectedImgUri = data.getData();
                     try {
-                        fImageBitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(),lSelectedImgUri);
+                        InputStream lStream =   getContentResolver().openInputStream(lSelectedImgUri);
+                        byte[] imageBytes = getBytes(lStream);
+
+                        fImageFile = new ParseFile("default.png", imageBytes);
+                        fImageFile.saveInBackground();
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
                     fPhotoThumb.setImageURI(lSelectedImgUri);
+                    fPhotoThumb.setScaleType(ParseImageView.ScaleType.FIT_XY);
+
             }
         }
     }
@@ -166,5 +160,63 @@ public class AddPhoto extends AppCompatActivity {
         setResult(RESULT_OK,lIntent);
         finish();
 
+    }
+
+    private byte[] getBytes(InputStream lStream) throws IOException {
+        ByteArrayOutputStream byteBuffer = new ByteArrayOutputStream();
+        int bufferSize = 1024;
+        byte[] buffer = new byte[bufferSize];
+
+        int len = 0;
+        while ((len = lStream.read(buffer)) != -1) {
+            byteBuffer.write(buffer, 0, len);
+        }
+        return byteBuffer.toByteArray();
+    }
+
+    private void putIntoNotifications(ParseObject object,String aPhotoName){
+        ParseUser lUserObject = null;
+        String lOwnerName = null;
+        try {
+            lUserObject = object.getParseUser("owner").fetchIfNeeded();
+            lOwnerName = lUserObject.getString("name");
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        final ParseObject lNewPhoto = new ParseObject("Notifications");
+        lNewPhoto.put("album", object);
+        lNewPhoto.put("name", aPhotoName);
+        lNewPhoto.put("fromUser", ParseUser.getCurrentUser());
+        lNewPhoto.put("toUser",lUserObject);
+        lNewPhoto.put("thumbnail", fImageFile);
+        lNewPhoto.saveInBackground(new SaveCallback() {
+            @Override
+            public void done(ParseException e) {
+                if (e == null) {
+                    makeToast("New photo sent to the owner for verification");
+                    sendActivityResult(lNewPhoto.getObjectId());
+                    finish();
+                }
+            }
+        });
+    }
+
+    private  void putIntoPhotos(ParseObject object,String aPhotoName){
+        final ParseObject lNewPhoto = new ParseObject("Photos");
+        lNewPhoto.put("name", aPhotoName);
+        lNewPhoto.put("album", object);
+        lNewPhoto.put("uploadedBy", ParseUser.getCurrentUser());
+        lNewPhoto.put("thumbnail", fImageFile);
+        lNewPhoto.saveInBackground(new SaveCallback() {
+            @Override
+            public void done(ParseException e) {
+                if (e == null) {
+                    makeToast("New photo created");
+                    sendActivityResult(lNewPhoto.getObjectId());
+                    finish();
+                }
+            }
+        });
     }
 }

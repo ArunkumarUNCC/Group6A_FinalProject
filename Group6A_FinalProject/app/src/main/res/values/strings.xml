@@ -43,4 +43,8 @@
     <string name="title_activity_view_message">View Message</string>
     <string name="replyOnClick">replyOnClick</string>
     <string name="title_activity_notifications">Notifications</string>
+    <string name="title_activity_add_shared_user_photo">Add Photo</string>
+    <string name="deleteSharedOnClick">deleteSharedOnClick</string>
+    <string name="saveSharedOnClick">saveSharedOnClick</string>
+    <string name="cancelSharedOnClick">cancelSharedOnClick</string>
 </resources>
