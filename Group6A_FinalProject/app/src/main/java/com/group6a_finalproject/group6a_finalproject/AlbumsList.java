@@ -11,6 +11,7 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
 
 import com.parse.FindCallback;
 import com.parse.GetDataCallback;
@@ -18,8 +19,10 @@ import com.parse.ParseException;
 import com.parse.ParseFile;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
+import com.parse.ParseUser;
 
 import java.io.ByteArrayOutputStream;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -33,24 +36,31 @@ public class AlbumsList extends AppCompatActivity implements GetAlbumsAsync.IGet
     RecyclerView fAlbumsListRecycler;
     RecyclerAdapter fAlbumsAdapter;
     LinearLayoutManager fAlbumsLayoutManager;
+    TextView fAlbumListTitle;
 
-    ArrayList<Album> fAlbumsList;
+    static ArrayList<Album> fAlbumsList;
+    int fWhoseAlbum;
+
+    ParseUser fCurrentUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_albums_list);
 
-        fAlbumsListRecycler = (RecyclerView) findViewById(R.id.recyclerViewAlbums);
+        getItems();
 
-        new GetAlbumsAsync(this).execute("");
+        new GetAlbumsAsync(this,fCurrentUser).execute(fWhoseAlbum);
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_albums_list, menu);
-        return true;
+        if (fWhoseAlbum == 2)
+            return false;
+        else
+            return true;
     }
 
     @Override
@@ -68,6 +78,25 @@ public class AlbumsList extends AppCompatActivity implements GetAlbumsAsync.IGet
         return super.onOptionsItemSelected(item);
     }
 
+    private void getItems(){
+        fAlbumsListRecycler = (RecyclerView) findViewById(R.id.recyclerViewAlbums);
+        fAlbumListTitle = (TextView) findViewById(R.id.textViewAlbumListTitle);
+
+        Bundle lExtras = getIntent().getExtras();
+        fWhoseAlbum = lExtras.getInt("album_flag");
+        String lUserEmail = lExtras.getString("current_user");
+        ParseQuery<ParseUser> lGetUser = ParseUser.getQuery();
+        lGetUser.whereContains("email",lUserEmail);
+        try {
+            List<ParseUser> lUsers = lGetUser.find();
+            if(lUsers!=null){
+                fCurrentUser = lUsers.get(0);
+            }
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+    }
+
     private void setRecyclerView(ArrayList<Album> albums) {
         fAlbumsLayoutManager=  new LinearLayoutManager(this);
         fAlbumsListRecycler.setLayoutManager(fAlbumsLayoutManager);
@@ -78,6 +107,14 @@ public class AlbumsList extends AppCompatActivity implements GetAlbumsAsync.IGet
         fAlbumsAdapter = new RecyclerAdapter(AlbumsList.this,1);
         fAlbumsAdapter.setAlbumsList(fAlbumsList);
         fAlbumsListRecycler.setAdapter(fAlbumsAdapter);
+    }
+
+    private void resetRecyclerView(ArrayList<Album> albums){
+
+        RecyclerAdapter lAlbumsAdapter = new RecyclerAdapter(AlbumsList.this,1);
+        lAlbumsAdapter.setAlbumsList(albums);
+        fAlbumsListRecycler.swapAdapter(lAlbumsAdapter, false);
+
     }
 
     @Override
@@ -107,7 +144,6 @@ public class AlbumsList extends AppCompatActivity implements GetAlbumsAsync.IGet
                     if(!fAlbumsList.contains(toPutIntoList)){
                         fAlbumsList.add(toPutIntoList);
                         fAlbumsAdapter.notifyDataSetChanged();
-                        Log.d("new album", toPutIntoList.getAlbumName());
                     }
                     lTempAlbum.clearPreference();
                 }
@@ -118,7 +154,6 @@ public class AlbumsList extends AppCompatActivity implements GetAlbumsAsync.IGet
                     SharedPreferences sp = getSharedPreferences("AlbumDetails",MODE_PRIVATE);
                     SharedPreferenceSetup lTempAlbum = new SharedPreferenceSetup(sp);
                     if(lTempAlbum.checkKey("oldAlbumName")){
-                        Log.d("say","hello");
                         String aOldAlbumName = lTempAlbum.getOldAlbumPreference("oldAlbumName");
                         for(int i=0;i<fAlbumsList.size();i++){
                             if(fAlbumsList.get(i).getAlbumName().equals(aOldAlbumName)){
@@ -135,7 +170,79 @@ public class AlbumsList extends AppCompatActivity implements GetAlbumsAsync.IGet
     }
 
     public void createAlbumOnClick (MenuItem aItem){
-        toActivityForResult(fGOTO_CRTEATE_ALBUM,1);
+        toActivityForResult(fGOTO_CRTEATE_ALBUM, 1);
+    }
+
+    public void allAlbumsOnClick(MenuItem aItem){
+        resetRecyclerView(fAlbumsList);
+    }
+
+    public void myAlbumsOnClick(MenuItem aItem){
+        ArrayList<Album> lMyAlbums = new ArrayList<>();
+        String lCurrentUserEmail = fCurrentUser.getEmail();
+
+        for(Album album:fAlbumsList){
+            if (lCurrentUserEmail.equals(album.getOwnerEmail())){
+                lMyAlbums.add(album);
+            }
+        }
+
+        resetRecyclerView(lMyAlbums);
+    }
+
+    public void publicAlbumsOnClick(MenuItem aItem){
+        ArrayList<Album> lMyAlbums = new ArrayList<>();
+        String lCurrentUserEmail = fCurrentUser.getEmail();
+
+        for(Album album:fAlbumsList){
+            if (album.getPrivacy().equals("Public") && !lCurrentUserEmail.equals(album.getOwnerEmail())){
+                lMyAlbums.add(album);
+            }
+        }
+
+        resetRecyclerView(lMyAlbums);
+    }
+
+    public void sharedAlbumsOnClick(MenuItem aItem){
+        ArrayList<Album> lMyAlbums = new ArrayList<>();
+        String lCurrentUserEmail = fCurrentUser.getEmail();
+
+        for(Album album:fAlbumsList){
+            if (album.getPrivacy().equals("Shared")){
+//                if((album.getOwnerEmail().equals(fCurrentUser.getEmail()) || canAdd(album.getAlbumName())))
+                    lMyAlbums.add(album);
+            }
+        }
+
+        resetRecyclerView(lMyAlbums);
+    }
+
+    public boolean canAdd(String aAlbumName){
+        boolean lCanAdd = false;
+
+        ParseQuery<ParseObject> lGetAlbumObject = ParseQuery.getQuery("Album");
+        lGetAlbumObject.whereEqualTo("name",aAlbumName);
+        try {
+            List<ParseObject> lAlbum = lGetAlbumObject.find();
+
+            ParseQuery<ParseObject> lGetShared = ParseQuery.getQuery("AlbumShare");
+            lGetShared.include("sharedWith");
+            lGetShared.include("album");
+            lGetShared.whereEqualTo("album",lAlbum.get(0));
+            List<ParseObject> lSharedUsers = lGetShared.find();
+
+            for (ParseObject objects:lSharedUsers){
+                if (objects.getParseUser("sharedWith").equals(fCurrentUser)){
+                    lCanAdd = true;
+                    break;
+                }
+            }
+
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        return lCanAdd;
     }
 
 }

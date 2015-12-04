@@ -5,7 +5,7 @@
     android:paddingTop="10dp"
     android:id="@+id/relativeLayoutUserRecycler">
 
-    <ImageView
+    <com.parse.ParseImageView
         android:layout_width="@dimen/photoWidth"
         android:layout_height="@dimen/photoHeight"
         android:id="@+id/imageViewDirectoryThumb"

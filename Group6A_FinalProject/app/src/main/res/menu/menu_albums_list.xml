@@ -4,4 +4,12 @@
     tools:context="com.group6a_finalproject.group6a_finalproject.AlbumsList">
     <item android:id="@+id/createAlbum" android:title="Create Album" android:onClick="createAlbumOnClick"
         android:orderInCategory="100" app:showAsAction="never" />
+    <item android:id="@+id/allAlbum" android:title="All Albums" android:onClick="allAlbumsOnClick"
+        android:orderInCategory="100" app:showAsAction="never" />
+    <item android:id="@+id/myAlbum" android:title="My Albums" android:onClick="myAlbumsOnClick"
+        android:orderInCategory="100" app:showAsAction="never" />
+    <item android:id="@+id/publicAlbum" android:title="Other Public Albums" android:onClick="publicAlbumsOnClick"
+        android:orderInCategory="100" app:showAsAction="never" />
+    <item android:id="@+id/shareAlbum" android:title="Shared With Me" android:onClick="sharedAlbumsOnClick"
+        android:orderInCategory="100" app:showAsAction="never" />
 </menu>

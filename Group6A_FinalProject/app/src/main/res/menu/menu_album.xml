@@ -7,4 +7,6 @@
         android:orderInCategory="100" app:showAsAction="never" />
     <item android:id="@+id/shareAlbum" android:title="Share this Album" android:onClick="shareAlbumOnClick"
         android:orderInCategory="100" app:showAsAction="never" />
+    <item android:id="@+id/showSharedMembers" android:title="Shared Users" android:onClick="sharedMembersOnClick"
+        android:orderInCategory="100" app:showAsAction="never" />
 </menu>

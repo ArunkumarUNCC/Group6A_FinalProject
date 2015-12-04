@@ -22,6 +22,7 @@ import com.parse.FindCallback;
 import com.parse.GetDataCallback;
 import com.parse.ParseException;
 import com.parse.ParseFile;
+import com.parse.ParseImageView;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
@@ -29,6 +30,7 @@ import com.parse.SaveCallback;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 
 public class CreateAlbumActivity extends AppCompatActivity {
@@ -38,11 +40,11 @@ public class CreateAlbumActivity extends AppCompatActivity {
     final int fSELECT_PICTURE = 1;
 
     EditText fAlbumName;
-    ImageView fAlbumThumb;
+    ParseImageView fAlbumThumb;
     Switch fPrivate;
     Button fSaveAlbum;
 
-    Bitmap fImageBitmap;
+    ParseFile fPhotoImage;
 
     int fWhichTask;
     String fAlbumString,fOldAlbumName;
@@ -52,7 +54,7 @@ public class CreateAlbumActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_album);
 
-        fImageBitmap = null;
+        fPhotoImage = null;
         getItems();
     }
 
@@ -80,7 +82,7 @@ public class CreateAlbumActivity extends AppCompatActivity {
 
     public void getItems (){
         fAlbumName = (EditText) findViewById(R.id.editTextCreateAlbumName);
-        fAlbumThumb = (ImageView) findViewById(R.id.imageViewCreateAlbumThumb);
+        fAlbumThumb = (ParseImageView) findViewById(R.id.imageViewCreateAlbumThumb);
         fPrivate = (Switch) findViewById(R.id.switchAlbumPrivacy);
         fSaveAlbum = (Button) findViewById(R.id.buttonCreateAlbum);
 
@@ -112,19 +114,11 @@ public class CreateAlbumActivity extends AppCompatActivity {
                     if (lIsPrivate.equals("Public"))
                         fPrivate.setChecked(true);
 
-                    ParseFile lPhotoImage = lObject.getParseFile("thumbnail");
-                    if (lPhotoImage != null) {
-                        lPhotoImage.getDataInBackground(new GetDataCallback() {
-                            @Override
-                            public void done(byte[] data, ParseException e) {
-                                Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
-                                ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                                bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
-                                fAlbumThumb.setImageBitmap(bitmap);
-                                fImageBitmap = bitmap;
-
-                            }
-                        });
+                    fPhotoImage = lObject.getParseFile("thumbnail");
+                    if (fPhotoImage != null) {
+                        fAlbumThumb.setParseFile(fPhotoImage);
+                        fAlbumThumb.setScaleType(ParseImageView.ScaleType.FIT_XY);
+                        fAlbumThumb.loadInBackground();
                     } else {
 
                         fAlbumThumb.setImageResource(R.drawable.no_mage);
@@ -197,10 +191,6 @@ public class CreateAlbumActivity extends AppCompatActivity {
         finish();
     }
 
-    public void saveAlbumOnClick(View aView){
-
-    }
-
     public void saveAlbum(ParseObject aToSave){
 
         final Album lTempAlbum = new Album();
@@ -215,20 +205,16 @@ public class CreateAlbumActivity extends AppCompatActivity {
         aToSave.put("name", lAlbumName);
         aToSave.put("privacy", lAlbumPrivacy);
         aToSave.put("owner", lCurrentUser);
+        aToSave.put("isShared",false);
 
         lTempAlbum.setAlbumName(lAlbumName);
         lTempAlbum.setPrivacy(lAlbumPrivacy);
         lTempAlbum.setOwnerName(lCurrentUser.getString("name"));
+        lTempAlbum.setOwnerEmail(lCurrentUser.getEmail());
 
-        if (fImageBitmap != null) {
-            ByteArrayOutputStream lStream = new ByteArrayOutputStream();
-            fImageBitmap.compress(Bitmap.CompressFormat.PNG, 100, lStream);
-            byte[] lImageToUpload = lStream.toByteArray();
-
-            final ParseFile lImageFile = new ParseFile("thumbnail.png", lImageToUpload);
-            lImageFile.saveInBackground();
-            aToSave.put("thumbnail", lImageFile);
-            lTempAlbum.setAlbumImage(fImageBitmap);
+        if (fPhotoImage != null) {
+            aToSave.put("thumbnail", fPhotoImage);
+            lTempAlbum.setAlbumImage(fPhotoImage);
         }
 
         lSetPreference.putAlbumPreferences("myAlbum", lTempAlbum);
@@ -269,11 +255,16 @@ public class CreateAlbumActivity extends AppCompatActivity {
                     Uri lSelectedImgUri;
                     lSelectedImgUri = data.getData();
                     try {
-                        fImageBitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(),lSelectedImgUri);
+                        InputStream lStream =   getContentResolver().openInputStream(lSelectedImgUri);
+                        byte[] imageBytes = getBytes(lStream);
+
+                        fPhotoImage = new ParseFile("thumbnail.png", imageBytes);
+                        fPhotoImage.saveInBackground();
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
                     fAlbumThumb.setImageURI(lSelectedImgUri);
+                    fAlbumThumb.setScaleType(ParseImageView.ScaleType.FIT_XY);
 
                     break;
 
@@ -281,5 +272,17 @@ public class CreateAlbumActivity extends AppCompatActivity {
 
             }
         }
+    }
+
+    private byte[] getBytes(InputStream lStream) throws IOException {
+        ByteArrayOutputStream byteBuffer = new ByteArrayOutputStream();
+        int bufferSize = 1024;
+        byte[] buffer = new byte[bufferSize];
+
+        int len = 0;
+        while ((len = lStream.read(buffer)) != -1) {
+            byteBuffer.write(buffer, 0, len);
+        }
+        return byteBuffer.toByteArray();
     }
 }

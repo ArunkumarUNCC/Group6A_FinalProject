@@ -114,6 +114,7 @@ public class InviteUsers extends AppCompatActivity {
         lIntent.putExtra("fromCompose", 2);
         lIntent.putExtra("fromShared", true);
         lIntent.putExtra("albumName",fAlbumName);
+        lIntent.putExtra("showShared",false);
         startActivityForResult(lIntent, aCode);
     }
 

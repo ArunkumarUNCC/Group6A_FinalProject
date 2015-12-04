@@ -5,6 +5,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
+import android.util.Log;
 
 import com.parse.FindCallback;
 import com.parse.GetDataCallback;
@@ -28,7 +29,7 @@ public class GetUsersAsync extends AsyncTask<Void,Void,ArrayList<User>>{
     String fPROGRESS_MESSAGE = "Loading Users";
 
     ArrayList<User> fUsers;
-    boolean fIsShared;
+    boolean fShowShared = false,fIsShared = false;
     String fAlbumName = null;
     List<ParseUser> fSharedUsers;
 
@@ -37,10 +38,11 @@ public class GetUsersAsync extends AsyncTask<Void,Void,ArrayList<User>>{
         fUsers = new ArrayList<>();
     }
 
-    public GetUsersAsync(IGetUsers fActivity,String aAlbumName) {
-        this.fActivity = fActivity;
+    public GetUsersAsync(IGetUsers fActivity,String aAlbumName,boolean aShowShared,boolean aIsShared) {
+        this(fActivity);
         this.fAlbumName = aAlbumName;
-        fUsers = new ArrayList<>();
+        this.fShowShared = aShowShared;
+        this.fIsShared = aIsShared;
     }
 
     @Override
@@ -60,16 +62,7 @@ public class GetUsersAsync extends AsyncTask<Void,Void,ArrayList<User>>{
         ParseFile lUserImage = object.getParseFile("thumbnail");
 
         if (lUserImage != null) {
-            lUserImage.getDataInBackground(new GetDataCallback() {
-                @Override
-                public void done(byte[] data, ParseException e) {
-                    Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
-                    ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
-                    lUser.setUserImage(bitmap);
-
-                }
-            });
+            lUser.setUserImage(lUserImage);
         } else lUser.setUserImage(null);
         fUsers.add(lUser);
     }
@@ -86,9 +79,20 @@ public class GetUsersAsync extends AsyncTask<Void,Void,ArrayList<User>>{
                 fSharedUsers = getSharedUsers();
             }
 
-            for (ParseUser user:lUsers){
-                if (!fSharedUsers.contains(user))
-                    addToList(user);
+            if(fShowShared){
+                for (ParseUser user : fSharedUsers) {
+                    if (fAlbumName != null)
+                        addToList(user);
+                    else addToList(user);
+                }
+            }
+            else {
+                for (ParseUser user : lUsers) {
+                    if (!fIsShared)
+                        addToList(user);
+                    else if (fAlbumName != null && !fSharedUsers.contains(user))
+                        addToList(user);
+                }
             }
 
         } catch (ParseException e) {

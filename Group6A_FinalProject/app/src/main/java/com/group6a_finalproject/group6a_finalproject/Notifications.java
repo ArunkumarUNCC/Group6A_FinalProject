@@ -9,13 +9,15 @@ import android.view.MenuItem;
 
 import java.util.ArrayList;
 
-public class Notifications extends AppCompatActivity implements GetAlbumNotificationsAsync.IGetAlbumNotifications {
+public class Notifications extends AppCompatActivity implements GetAlbumNotificationsAsync.IGetAlbumNotifications,
+        GetPhotoNotificationsAsync.IGetPhotoNotifications {
 
     RecyclerAdapter fAdapter;
-    LinearLayoutManager fNotificationManager;
+    LinearLayoutManager fAlbumNotificationManager,fPhotoNotificationManager;
     RecyclerView fAlbumView,fPhotoView;
 
     ArrayList<Album> fAlbums;
+    ArrayList<String> fPhotos;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,6 +27,7 @@ public class Notifications extends AppCompatActivity implements GetAlbumNotifica
         getItems();
 
         new GetAlbumNotificationsAsync(this).execute();
+        new GetPhotoNotificationsAsync(this).execute();
     }
 
     @Override
@@ -63,12 +66,24 @@ public class Notifications extends AppCompatActivity implements GetAlbumNotifica
     }
 
     public void setAlbumRecyclerView(ArrayList<Album> aAlbums){
-        fNotificationManager = new LinearLayoutManager(this);
-        fAlbumView.setLayoutManager(fNotificationManager);
+        fAlbumNotificationManager = new LinearLayoutManager(this);
+        fAlbumView.setLayoutManager(fAlbumNotificationManager);
         fAlbums = aAlbums;
 
         fAdapter = new RecyclerAdapter(Notifications.this,4);
         fAdapter.setAlbumsList(fAlbums);
         fAlbumView.setAdapter(fAdapter);
+    }
+
+    @Override
+    public void putPhotoNotifications(ArrayList<String> aPhotos) {
+        if (aPhotos != null) {
+            fPhotoNotificationManager = new LinearLayoutManager(this);
+            fPhotoView.setLayoutManager(fPhotoNotificationManager);
+            fPhotos = aPhotos;
+
+            fAdapter = new RecyclerAdapter(Notifications.this,5,aPhotos);
+            fPhotoView.setAdapter(fAdapter);
+        }
     }
 }

@@ -55,16 +55,7 @@ public class GetPhotosAsync extends AsyncTask<String,Void,ArrayList<Photo>> {
         ParseFile lPhotoImage = object.getParseFile("thumbnail");
 
         if (lPhotoImage != null) {
-            lPhotoImage.getDataInBackground(new GetDataCallback() {
-                @Override
-                public void done(byte[] data, ParseException e) {
-                    Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
-                    ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
-                    lCurrentAlbum.setPhotoBitmap(bitmap);
-
-                }
-            });
+            lCurrentAlbum.setPhotoBitmap(lPhotoImage);
         } else{
             lCurrentAlbum.setPhotoBitmap(null);
         }

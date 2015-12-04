@@ -23,6 +23,12 @@ import java.util.List;
  */
 public class GetAlbumNotificationsAsync extends AsyncTask<Void,Void,ArrayList<Album>> {
 
+    final String fNAME_COULUMN = "name";
+    final String fALBUM_COULUMN = "album";
+    final String fTHUMBNAIL_COULUMN = "thumbnail";
+    final String fFROM_USER = "fromUser";
+    final String fTO_USER = "toUser";
+
     IGetAlbumNotifications fActivity;
     ProgressDialog fProgress;
     String fPROGRESSMESSAGE = "Loading Notifications";
@@ -49,34 +55,26 @@ public class GetAlbumNotificationsAsync extends AsyncTask<Void,Void,ArrayList<Al
     protected ArrayList<Album> doInBackground(Void... params) {
 
         ParseQuery<ParseObject> lQueryAlbumNotifications = ParseQuery.getQuery("Notifications");
-        lQueryAlbumNotifications.include("toUser");
-        lQueryAlbumNotifications.include("fromUser");
-        lQueryAlbumNotifications.include("album");
-        lQueryAlbumNotifications.whereEqualTo("toUser", fCurrentUser);
+        lQueryAlbumNotifications.include(fTO_USER);
+        lQueryAlbumNotifications.include(fFROM_USER);
+        lQueryAlbumNotifications.include(fALBUM_COULUMN);
+        lQueryAlbumNotifications.whereEqualTo(fTO_USER, fCurrentUser);
+        lQueryAlbumNotifications.whereDoesNotExist(fTHUMBNAIL_COULUMN);
         lQueryAlbumNotifications.findInBackground(new FindCallback<ParseObject>() {
             @Override
             public void done(List<ParseObject> objects, ParseException e) {
                 if(e == null){
                     for(ParseObject object:objects){
                         final Album album = new Album();
-                        ParseObject lAlbum = object.getParseObject("album");
-                        ParseObject lAlbumOwner = object.getParseObject("fromUser");
+                        ParseObject lAlbum = object.getParseObject(fALBUM_COULUMN);
+                        ParseObject lAlbumOwner = object.getParseObject(fFROM_USER);
 
-                        album.setAlbumName(lAlbum.getString("name"));
-                        album.setOwnerName(lAlbumOwner.getString("name"));
+                        album.setAlbumName(lAlbum.getString(fNAME_COULUMN));
+                        album.setOwnerName(lAlbumOwner.getString(fNAME_COULUMN));
 
-                        ParseFile lPhotoImage = lAlbum.getParseFile("thumbnail");
+                        ParseFile lPhotoImage = lAlbum.getParseFile(fTHUMBNAIL_COULUMN);
                         if (lPhotoImage != null) {
-                            lPhotoImage.getDataInBackground(new GetDataCallback() {
-                                @Override
-                                public void done(byte[] data, ParseException e) {
-                                    Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
-                                    ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
-                                    album.setAlbumImage(bitmap);
-
-                                }
-                            });
+                            album.setAlbumImage(lPhotoImage);
                         } else{
                             album.setAlbumImage(null);
                         }

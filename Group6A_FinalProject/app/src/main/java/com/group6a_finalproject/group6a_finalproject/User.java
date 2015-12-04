@@ -2,12 +2,14 @@ package com.group6a_finalproject.group6a_finalproject;
 
 import android.graphics.Bitmap;
 
+import com.parse.ParseFile;
+
 /**
  * Created by Arunkumar's on 11/24/2015.
  */
 public class User {
     String userName,userMail;
-    Bitmap userImage;
+    ParseFile userImage;
 
     public String getUserName() {
         return userName;
@@ -25,11 +27,11 @@ public class User {
         this.userMail = userMail;
     }
 
-    public Bitmap getUserImage() {
+    public ParseFile getUserImage() {
         return userImage;
     }
 
-    public void setUserImage(Bitmap userImage) {
+    public void setUserImage(ParseFile userImage) {
         this.userImage = userImage;
     }
 }

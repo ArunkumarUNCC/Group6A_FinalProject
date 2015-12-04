@@ -18,6 +18,7 @@ import com.parse.GetDataCallback;
 import com.parse.LogOutCallback;
 import com.parse.ParseException;
 import com.parse.ParseFile;
+import com.parse.ParseImageView;
 import com.parse.ParseInstallation;
 import com.parse.ParsePush;
 import com.parse.ParseQuery;
@@ -35,10 +36,10 @@ public class MainProfileActivity extends AppCompatActivity {
     final String fGOTO_NOTIFICATIONS = "android.intent.action.NOTIFICATIONS";
     final int fEDIT_PROFILE_REQCODE = 1001;
 
-    ImageView fProfilePic;
+//    ImageView fProfilePic;
     TextView fName, fEmail, fGender,fPrivacy,fNotify;
-
-
+    ParseImageView fProfilePic;
+    ParseUser fCurrentUser = ParseUser.getCurrentUser();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,34 +80,27 @@ public class MainProfileActivity extends AppCompatActivity {
         fNotify = (TextView) findViewById(R.id.textViewProfileNotification);
         fPrivacy = (TextView) findViewById(R.id.textViewProfilePrivacy);
 
-        fProfilePic = (ImageView) findViewById(R.id.imageViewProfilePicture);
+        fProfilePic = (ParseImageView) findViewById(R.id.imageViewProfilePicture);
     }
 
     public void setItems(){
-        ParseUser user = ParseUser.getCurrentUser();
-        fName.setText("Name:  "+user.getString("name"));
-        fEmail.setText("Email: "+user.getEmail());
-        fGender.setText("Gender: "+user.getString("gender"));
-        if (user.getBoolean("getNotification"))
+
+        fName.setText("Name:  "+fCurrentUser.getString("name"));
+        fEmail.setText("Email: "+fCurrentUser.getEmail());
+        fGender.setText("Gender: "+fCurrentUser.getString("gender"));
+        if (fCurrentUser.getBoolean("getNotification"))
             fNotify.setText("Get Notifications : Yes");
         else fNotify.setText("Get Notifications : No");
 
-        if(user.getBoolean("isVisible"))
+        if(fCurrentUser.getBoolean("isVisible"))
             fPrivacy.setText("Profile : Public");
         else fPrivacy.setText("Profile : Private");
 
 
-        ParseFile file = user.getParseFile("thumbnail");
+        ParseFile file = fCurrentUser.getParseFile("thumbnail");
         if (file!=null) {
-            file.getDataInBackground(new GetDataCallback() {
-                @Override
-                public void done(byte[] data, ParseException e) {
-                    Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
-                    ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
-                    fProfilePic.setImageBitmap(bitmap);
-                }
-            });
+            fProfilePic.setParseFile(file);
+            fProfilePic.loadInBackground();
         }
     }
 
@@ -122,10 +116,19 @@ public class MainProfileActivity extends AppCompatActivity {
         startActivityForResult(lIntent, fEDIT_PROFILE_REQCODE);
     }
 
+    //To start View Albums
     public void toActivity(String aIntent, int aExtra){
         Intent lIntent = new Intent(aIntent);
-        lIntent.putExtra("user_dir_flag", aExtra);
-        lIntent.putExtra("fromShared",false);
+        lIntent.putExtra("album_flag", aExtra);
+        lIntent.putExtra("current_user",fCurrentUser.getEmail());
+        startActivity(lIntent);
+    }
+
+    //To start User Directory
+    public void toActivity(String aIntent, int aExtra1, boolean aExtra2){
+        Intent lIntent = new Intent(aIntent);
+        lIntent.putExtra("fromCompose", aExtra1);
+        lIntent.putExtra("fromShared",aExtra2);
         startActivity(lIntent);
     }
 
@@ -154,27 +157,26 @@ public class MainProfileActivity extends AppCompatActivity {
     }
 
     public void viewAlbumOnClick (MenuItem aItem){
-        toActivity(fGOTO_ALBUM_LIST);
+        toActivity(fGOTO_ALBUM_LIST, 1);
 //        finish();
     }
 
     public void viewUserDirectoryOnClick (MenuItem aItem){
-        toActivity(fGOTO_USER_DIRECTORY, 1);
+        toActivity(fGOTO_USER_DIRECTORY, 1, false);
 //        finish();
     }
 
     public void logoutOnClick (MenuItem aItem){
-        ParseUser lCurrentUser = ParseUser.getCurrentUser();
 
         ParseQuery lUnsetChannel = ParseInstallation.getQuery();
         lUnsetChannel.include("user");
-        lUnsetChannel.whereEqualTo("user", lCurrentUser);
+        lUnsetChannel.whereEqualTo("user", fCurrentUser);
 
         ParsePush lUnsubscribeChannel= new ParsePush();
         lUnsubscribeChannel.setQuery(lUnsetChannel);
         lUnsubscribeChannel.unsubscribeInBackground("NewUser");
 
-        lCurrentUser.logOutInBackground(new LogOutCallback() {
+        fCurrentUser.logOutInBackground(new LogOutCallback() {
             @Override
             public void done(ParseException e) {
                 if (e == null) {

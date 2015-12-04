@@ -18,9 +18,11 @@ public class UserDirectory extends AppCompatActivity implements GetUsersAsync.IG
     LinearLayoutManager fRecyclerLayout;
 
     ArrayList<User> fUsers;
-    boolean fIsShared;
+    boolean fIsShared,fShowShared;
     int fWhich;
     String fAlbumName;
+
+    Bundle fIntentBundle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,8 +33,9 @@ public class UserDirectory extends AppCompatActivity implements GetUsersAsync.IG
         getItems();
 
         if (fIsShared){
-            fAlbumName = getIntent().getExtras().getString("albumName");
-            new GetUsersAsync(this,fAlbumName).execute();
+            fAlbumName = fIntentBundle.getString("albumName");
+            fShowShared = fIntentBundle.getBoolean("showShared");
+            new GetUsersAsync(this,fAlbumName,fShowShared,fIsShared).execute();
         }
         else
             new GetUsersAsync(this).execute();
@@ -61,10 +64,14 @@ public class UserDirectory extends AppCompatActivity implements GetUsersAsync.IG
     }
 
     private void getItems() {
-        Bundle lIntentBundle = getIntent().getExtras();
-        fWhich = lIntentBundle.getInt("fromCompose");
-        fIsShared = lIntentBundle.getBoolean("fromShared");
+        fIntentBundle = getIntent().getExtras();
+
+        fWhich = fIntentBundle.getInt("fromCompose");
+        fIsShared = fIntentBundle.getBoolean("fromShared");
         fUserRecycler = (RecyclerView) findViewById(R.id.RecyclerViewUserDirectory);
+
+        fAlbumName = null;
+        fShowShared = false;
     }
 
     @Override
