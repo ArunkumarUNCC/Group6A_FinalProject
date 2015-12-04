@@ -2,6 +2,6 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.group6a_finalproject.group6a_finalproject.ComposeMessage">
-    <item android:id="@+id/action_settings" android:title="@string/action_settings"
+    <item android:id="@+id/attach_image" android:title="Attach Image" android:onClick="attachImageOnClick"
         android:orderInCategory="100" app:showAsAction="never" />
 </menu>

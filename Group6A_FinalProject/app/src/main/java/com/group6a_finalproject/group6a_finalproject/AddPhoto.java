@@ -154,8 +154,6 @@ public class AddPhoto extends AppCompatActivity {
                         e.printStackTrace();
                     }
                     fPhotoThumb.setImageURI(lSelectedImgUri);
-
-
             }
         }
     }
