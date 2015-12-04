@@ -1,6 +1,9 @@
 package com.group6a_finalproject.group6a_finalproject;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.net.Uri;
+import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -8,16 +11,20 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.parse.FindCallback;
 import com.parse.ParseException;
+import com.parse.ParseFile;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.List;
 
 public class ComposeMessage extends AppCompatActivity {
@@ -26,11 +33,16 @@ public class ComposeMessage extends AppCompatActivity {
     final String fMESSAGE = "Message";
     final String fUSER_TO = "userTo";
     final String fREAD = "Read";
+    final String fATTACHMENT = "Attachment";
     final int fTO_USER_DIRECTORY = 1002;
+    final int fSELECT_PICTURE = 1;
     String fTo_User_Email = "";
 
     EditText fMessageBody;
     TextView fToField;
+    ImageView fMessageAttachment;
+
+    Bitmap fImageBitmap = null;
 
     Boolean fFromMessageView;
     Messages fMessage;
@@ -77,6 +89,7 @@ public class ComposeMessage extends AppCompatActivity {
     public void getItems (){
         fMessageBody = (EditText) findViewById(R.id.editTextComposeMessageBody);
         fToField = (TextView) findViewById(R.id.textViewToMessageField);
+        fMessageAttachment = (ImageView) findViewById(R.id.imageViewMessageAttachment);
         fCurrentUser = ParseUser.getCurrentUser();
 
         fFromMessageView = getIntent().getBooleanExtra("FromView", false);
@@ -129,6 +142,17 @@ public class ComposeMessage extends AppCompatActivity {
                         fParseObj.put(fUSER_TO, user);//to user objectID
                     fParseObj.put(fMESSAGE, fMessageBody.getText().toString());
                     fParseObj.put(fREAD, false);
+
+                    //saving image attachment
+                    if (!fImageBitmap.equals(null)) {
+                        ByteArrayOutputStream lStream = new ByteArrayOutputStream();
+                        fImageBitmap.compress(Bitmap.CompressFormat.PNG, 100, lStream);
+                        byte[] lImageToUpload = lStream.toByteArray();
+                        final ParseFile lImageFile = new ParseFile("Attachment", lImageToUpload);
+                        lImageFile.saveInBackground();
+
+                        fParseObj.put(fATTACHMENT, lImageFile);
+                    }
                 }
 
                 fParseObj.saveInBackground(new SaveCallback() {
@@ -152,6 +176,12 @@ public class ComposeMessage extends AppCompatActivity {
         }else makeToast("Cannot send empty message.");
     }
 
+    public  void attachImageOnClick (MenuItem aMenuItem){
+        Intent lPictureIntent = new Intent(Intent.ACTION_PICK);
+        lPictureIntent.setType("image/");
+        startActivityForResult(lPictureIntent, fSELECT_PICTURE);
+    }
+
     public void toFieldOnClick(View aView){
         toActivity(fTO_USER_DIRECTORY);
     }
@@ -168,8 +198,23 @@ public class ComposeMessage extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if(resultCode == RESULT_OK){
-            fTo_User_Email = data.getStringExtra("toField");
-            fToField.setText("TO: " + fTo_User_Email);
+            switch (requestCode){
+                case fSELECT_PICTURE://message attachment
+                    Uri lSelectedImgUri;
+                    lSelectedImgUri = data.getData();
+                    try {
+                        fImageBitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(),lSelectedImgUri);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    fMessageAttachment.setImageURI(lSelectedImgUri);
+                    break;
+                case fTO_USER_DIRECTORY://replying to message
+                    fTo_User_Email = data.getStringExtra("toField");
+                    fToField.setText("TO: " + fTo_User_Email);
+                    break;
+            }
+
         }
     }
 }
