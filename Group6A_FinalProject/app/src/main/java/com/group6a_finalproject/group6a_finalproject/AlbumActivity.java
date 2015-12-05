@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -16,6 +17,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.parse.CountCallback;
@@ -23,6 +25,7 @@ import com.parse.FindCallback;
 import com.parse.GetDataCallback;
 import com.parse.ParseException;
 import com.parse.ParseFile;
+import com.parse.ParseImageView;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
@@ -42,18 +45,22 @@ public class AlbumActivity extends AppCompatActivity implements GetPhotosAsync.I
     final int fNEW_PHOTO_REQCODE = 1002;
     final int fEDIT_ALBUM_REQCODE = 1003;
 
-    RecyclerView fPhotoRecycler;
+    static RecyclerView fPhotoRecycler;
     RecyclerAdapter fAdapter;
+    ViewPagerAdapter fPagerAdapter;
     LinearLayoutManager fRecyclerLayout;
-    Button fAddPhotoButton;
-    TextView fAlbumNameText;
+    static Button fAddPhotoButton;
+    static TextView fAlbumNameText;
     MenuItem fShareMenu,fEditMenu,fSharedMembers;
+//    public static ParseImageView fsliderImages;
+    static ViewPager fPager;
 
     static String fAlbumName;
     boolean fIsSharedUser;
+    static boolean fIsSliderOn = false;
     ParseUser fAlbumOwner;
 
-    ArrayList<Photo> fAlbumPhotos;
+    static ArrayList<Photo> fAlbumPhotos;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -110,6 +117,11 @@ public class AlbumActivity extends AppCompatActivity implements GetPhotosAsync.I
         fAddPhotoButton = (Button) findViewById(R.id.buttonAddPhoto);
         fAlbumNameText = (TextView) findViewById(R.id.textViewPhotoAlbumName);
         fAlbumNameText.setText(fAlbumName);
+//        fsliderImages = (ParseImageView) findViewById(R.id.imageViewSlider);
+//        fsliderImages.setVisibility(View.INVISIBLE);
+        fPager = (ViewPager) findViewById(R.id.viewPager);
+        fPager.setVisibility(View.INVISIBLE);
+
 
         fAddPhotoButton.setVisibility(View.INVISIBLE);
 
@@ -205,7 +217,9 @@ public class AlbumActivity extends AppCompatActivity implements GetPhotosAsync.I
             fAlbumPhotos = photos;
 
         fAdapter = new RecyclerAdapter(fAlbumPhotos,AlbumActivity.this,2,fAlbumOwner,fAlbumName);
+        fPagerAdapter = new ViewPagerAdapter(this,fAlbumPhotos);
         fPhotoRecycler.setAdapter(fAdapter);
+        fPager.setAdapter(fPagerAdapter);
     }
 
     public void checkPrivacy(){
@@ -266,8 +280,12 @@ public class AlbumActivity extends AppCompatActivity implements GetPhotosAsync.I
 
     @Override
     public void onBackPressed() {
-        setResult(RESULT_OK);
-        super.onBackPressed();
+        if(fIsSliderOn){
+            swapSlider();
+        }else {
+            setResult(RESULT_OK);
+            super.onBackPressed();
+        }
     }
 
     public void editAlbumOnClick(MenuItem aItem){
@@ -309,5 +327,25 @@ public class AlbumActivity extends AppCompatActivity implements GetPhotosAsync.I
         fShareMenu.setVisible(false);
         fEditMenu.setVisible(false);
         fSharedMembers.setVisible(false);
+    }
+
+    public static void manageSlider(int position){
+        swapSlider();
+        fPager.setCurrentItem(position);
+//        fsliderImages.setParseFile(fAlbumPhotos.get(position).getPhotoBitmap());
+//        fsliderImages.loadInBackground();
+//        fsliderImages.setScaleType(ParseImageView.ScaleType.FIT_XY);
+    }
+
+    public static void swapSlider(){
+        fIsSliderOn = !fIsSliderOn;
+        int lSliderVisibility = fIsSliderOn == true ? View.VISIBLE : View.INVISIBLE;
+        int lGridVisibility = fIsSliderOn == false ? View.VISIBLE : View.INVISIBLE;
+
+//        fsliderImages.setVisibility(lSliderVisibility);
+        fPager.setVisibility(lSliderVisibility);
+        fPhotoRecycler.setVisibility(lGridVisibility);
+        fAlbumNameText.setVisibility(lGridVisibility);
+        fAddPhotoButton.setVisibility(lGridVisibility);
     }
 }

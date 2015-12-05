@@ -18,6 +18,7 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.google.gson.Gson;
 import com.parse.FindCallback;
 import com.parse.GetDataCallback;
 import com.parse.ParseException;
@@ -43,6 +44,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     final String fGOTO_ALBUM_VIEW = "android.intent.action.ALBUM_VIEW";
     final String fGOTO_ALBUM_LIST = "android.intent.action.ALBUM_LIST";
     final String fGOTO_EDIT_SHARED_PHOTO = "android.intent.action.EDIT_SHARED_PHOTO";
+    final String fGOTOPHOTO_SLIDER = "android.intent.action.PHOTO_SLIDER";
     final String fNOTIFICATIONS = "Notifications";
     final String fTOUSER = "toUser";
     final String fFROMUSER = "fromUser";
@@ -385,6 +387,18 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             }
         }).run();
 
+        lPhotos.lPhotoGridLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AlbumActivity.manageSlider(position);
+//                Intent lIntent = new Intent(fGOTOPHOTO_SLIDER);
+//                Gson gson = new Gson();
+//                String PhotosString = gson.toJson(fPhotosForDisplay);
+////                Log.d("Say",PhotosString);
+//                lIntent.putExtra("Photos",PhotosString);
+//                fContext.startActivity(lIntent);
+            }
+        });
 
         if(fAlbumOwner.equals(fCURRENT_USER)){
             lPhotos.lPhotoGridLayout.setOnLongClickListener(new View.OnLongClickListener() {
@@ -427,20 +441,6 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             });
         }
 
-//        lPhotos.lPhoto.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                if (fCanExpand){
-//                    fCanExpand=false;
-//                    lPhotos.lPhoto.setLayoutParams(new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT));
-//                    lPhotos.lPhoto.setAdjustViewBounds(true);
-//                }else{
-//                    fCanExpand=true;
-//                    lPhotos.lPhoto.setLayoutParams(new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
-//                    lPhotos.lPhoto.setScaleType(ImageView.ScaleType.FIT_XY);
-//                }
-//            }
-//        });
     }
 
     //Display User list
