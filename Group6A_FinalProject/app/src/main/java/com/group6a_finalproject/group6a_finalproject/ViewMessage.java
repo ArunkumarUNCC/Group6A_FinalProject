@@ -29,7 +29,7 @@ public class ViewMessage extends AppCompatActivity {
 
         fFromField.setText("FROM: " + fMessage.getFromField());
         fMessageBody.setText(fMessage.getMessageBody());
-//        fMessageAttachment.setParseFile(fMessage.getAttachment());
+        fMessageAttachment.setParseFile(fMessage.getAttachment());
 
     }
 
