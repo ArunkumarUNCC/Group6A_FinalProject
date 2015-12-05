@@ -18,6 +18,7 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.google.gson.Gson;
 import com.parse.FindCallback;
 import com.parse.GetDataCallback;
 import com.parse.ParseException;
@@ -43,6 +44,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     final String fGOTO_ALBUM_VIEW = "android.intent.action.ALBUM_VIEW";
     final String fGOTO_ALBUM_LIST = "android.intent.action.ALBUM_LIST";
     final String fGOTO_EDIT_SHARED_PHOTO = "android.intent.action.EDIT_SHARED_PHOTO";
+    final String fGOTOPHOTO_SLIDER = "android.intent.action.PHOTO_SLIDER";
     final String fNOTIFICATIONS = "Notifications";
     final String fTOUSER = "toUser";
     final String fFROMUSER = "fromUser";
@@ -374,6 +376,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     private void configurePhotoViewHolder(final PhotosGridViewHolder lPhotos, final int position) {
         final ParseFile lPhotoBitmap = fPhotosForDisplay.get(position).getPhotoBitmap();
         final String lPhotoString = fPhotosForDisplay.get(position).getPhotoName();
+        final String lPhotoId = fPhotosForDisplay.get(position).getObjectId();
 
         lPhotos.lPhotoName.setText(lPhotoString);
         new Thread(new Runnable() {
@@ -384,6 +387,18 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             }
         }).run();
 
+        lPhotos.lPhotoGridLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AlbumActivity.manageSlider(position);
+//                Intent lIntent = new Intent(fGOTOPHOTO_SLIDER);
+//                Gson gson = new Gson();
+//                String PhotosString = gson.toJson(fPhotosForDisplay);
+////                Log.d("Say",PhotosString);
+//                lIntent.putExtra("Photos",PhotosString);
+//                fContext.startActivity(lIntent);
+            }
+        });
 
         if(fAlbumOwner.equals(fCURRENT_USER)){
             lPhotos.lPhotoGridLayout.setOnLongClickListener(new View.OnLongClickListener() {
@@ -397,7 +412,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                         public void onClick(DialogInterface dialog, int which) {
                             ParseQuery<ParseObject> lFindRows = ParseQuery.getQuery("Photos");
                             lFindRows.include(fALBUM_COLUMN);
-                            lFindRows.whereEqualTo(fNAME, lPhotoString);
+                            lFindRows.whereEqualTo("objectId", lPhotoId);
 
                             lFindRows.findInBackground(new FindCallback<ParseObject>() {
                                 @Override
@@ -426,20 +441,6 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             });
         }
 
-//        lPhotos.lPhoto.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                if (fCanExpand){
-//                    fCanExpand=false;
-//                    lPhotos.lPhoto.setLayoutParams(new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT));
-//                    lPhotos.lPhoto.setAdjustViewBounds(true);
-//                }else{
-//                    fCanExpand=true;
-//                    lPhotos.lPhoto.setLayoutParams(new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
-//                    lPhotos.lPhoto.setScaleType(ImageView.ScaleType.FIT_XY);
-//                }
-//            }
-//        });
     }
 
     //Display User list
@@ -455,6 +456,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             lUsers.lUserPhoto.setImageResource(R.drawable.no_mage);
         else{
             lUsers.lUserPhoto.setParseFile(lPhotoBitmap);
+            lUsers.lUserPhoto.loadInBackground();
         }
 
         lUsers.lUserRelativeLayout.setOnClickListener(new View.OnClickListener() {
@@ -579,7 +581,8 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                                 public void onClick(View v) {
                                     Intent lIntent = new Intent(fGOTO_EDIT_SHARED_PHOTO);
                                     lIntent.putExtra("photoId", lObject.getObjectId());
-                                    fContext.startActivity(lIntent);
+                                    lIntent.putExtra("photoPosition",position);
+                                    ((Notifications)fContext).startActivityForResult(lIntent, Notifications.fEDIT_PHOTO);
                                 }
                             });
                         }

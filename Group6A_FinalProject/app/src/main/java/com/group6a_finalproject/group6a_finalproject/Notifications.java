@@ -1,5 +1,6 @@
 package com.group6a_finalproject.group6a_finalproject;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -12,7 +13,9 @@ import java.util.ArrayList;
 public class Notifications extends AppCompatActivity implements GetAlbumNotificationsAsync.IGetAlbumNotifications,
         GetPhotoNotificationsAsync.IGetPhotoNotifications {
 
-    RecyclerAdapter fAdapter;
+    public static final int fEDIT_PHOTO = 1000;
+
+    RecyclerAdapter fAlbumAdapter,fPhotoAdapter;
     LinearLayoutManager fAlbumNotificationManager,fPhotoNotificationManager;
     RecyclerView fAlbumView,fPhotoView;
 
@@ -70,9 +73,9 @@ public class Notifications extends AppCompatActivity implements GetAlbumNotifica
         fAlbumView.setLayoutManager(fAlbumNotificationManager);
         fAlbums = aAlbums;
 
-        fAdapter = new RecyclerAdapter(Notifications.this,4);
-        fAdapter.setAlbumsList(fAlbums);
-        fAlbumView.setAdapter(fAdapter);
+        fAlbumAdapter = new RecyclerAdapter(Notifications.this,4);
+        fAlbumAdapter.setAlbumsList(fAlbums);
+        fAlbumView.setAdapter(fAlbumAdapter);
     }
 
     @Override
@@ -82,8 +85,25 @@ public class Notifications extends AppCompatActivity implements GetAlbumNotifica
             fPhotoView.setLayoutManager(fPhotoNotificationManager);
             fPhotos = aPhotos;
 
-            fAdapter = new RecyclerAdapter(Notifications.this,5,aPhotos);
-            fPhotoView.setAdapter(fAdapter);
+            fPhotoAdapter = new RecyclerAdapter(Notifications.this,5,aPhotos);
+            fPhotoView.setAdapter(fPhotoAdapter);
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        Bundle lIntentBundle = data.getExtras();
+
+        switch (requestCode){
+            case fEDIT_PHOTO:
+                if(resultCode == RESULT_OK){
+                    int position = lIntentBundle.getInt("photoPosition");
+                    fPhotos.remove(position);
+                    fPhotoAdapter.notifyDataSetChanged();
+                }
+                break;
         }
     }
 }
