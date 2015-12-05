@@ -7,11 +7,15 @@ import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.parse.ParseImageView;
 
 public class ViewMessage extends AppCompatActivity {
 
     TextView fFromField, fMessageBody;
+    ParseImageView fMessageAttachment;
     Messages fMessage;
 
     final String fGOTO_COMPOSE_MESSAGE = "android.intent.action.COMPOSE_MESSAGE";
@@ -25,6 +29,8 @@ public class ViewMessage extends AppCompatActivity {
 
         fFromField.setText("FROM: " + fMessage.getFromField());
         fMessageBody.setText(fMessage.getMessageBody());
+//        fMessageAttachment.setParseFile(fMessage.getAttachment());
+
     }
 
     @Override
@@ -52,6 +58,7 @@ public class ViewMessage extends AppCompatActivity {
     public void getItems(){
         fFromField = (TextView) findViewById(R.id.textViewViewMessageFromField);
         fMessageBody = (TextView) findViewById(R.id.editTextViewMessageBody);
+        fMessageAttachment = (ParseImageView) findViewById(R.id.imageViewMessageAttachmentView);
         fMessage = (Messages) getIntent().getSerializableExtra("Message");
     }
 

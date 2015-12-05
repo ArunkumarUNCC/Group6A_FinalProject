@@ -2,6 +2,8 @@ package com.group6a_finalproject.group6a_finalproject;
 
 import android.graphics.Bitmap;
 
+import com.parse.ParseFile;
+
 import java.io.Serializable;
 import java.util.Date;
 
@@ -11,6 +13,7 @@ import java.util.Date;
 public class Messages implements Serializable{
     String messageBody, toField, fromField, objectID;
     Date timeStamp;
+    ParseFile attachment;
     Bitmap userIcon;
 
     public String getMessageBody() {
@@ -43,6 +46,14 @@ public class Messages implements Serializable{
 
     public void setUserIcon(Bitmap userIcon) {
         this.userIcon = userIcon;
+    }
+
+    public ParseFile getAttachment() {
+        return attachment;
+    }
+
+    public void setAttachment(ParseFile attachment) {
+        this.attachment = attachment;
     }
 
     public String getObjectID() {

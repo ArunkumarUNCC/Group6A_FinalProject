@@ -204,6 +204,7 @@ public class ComposeMessage extends AppCompatActivity {
                     lSelectedImgUri = data.getData();
                     try {
                         fImageBitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(),lSelectedImgUri);
+
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
