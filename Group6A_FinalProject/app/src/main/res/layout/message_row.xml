@@ -1,20 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:padding="5dp">
 
-    <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+    <com.parse.ParseImageView
+        android:layout_width="75dp"
+        android:layout_height="75dp"
         android:id="@+id/imageViewInboxThumb"
         android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:src="@android:drawable/ic_menu_myplaces"
-        android:maxWidth="150px"
-        android:maxHeight="150px"
-        android:minWidth="150px"
-        android:minHeight="150px"/>
+        android:scaleType="centerCrop"
+        android:paddingRight="2dp" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -33,8 +32,7 @@
         android:maxLines="1"
         android:maxLength="10"
         android:id="@+id/textViewInboxTimeStamp"
-        android:layout_alignParentRight="true"
-        android:layout_marginTop="2dp"/>
+        android:layout_alignParentRight="true"/>
 
     <TextView
         android:layout_width="wrap_content"

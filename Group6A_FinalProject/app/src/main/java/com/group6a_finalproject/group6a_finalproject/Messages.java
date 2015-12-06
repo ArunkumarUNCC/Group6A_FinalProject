@@ -1,6 +1,7 @@
 package com.group6a_finalproject.group6a_finalproject;
 
 import android.graphics.Bitmap;
+import android.util.Log;
 
 import com.parse.ParseException;
 import com.parse.ParseFile;
@@ -17,8 +18,7 @@ import java.util.List;
 public class Messages implements Serializable{
     String messageBody, toField, fromField, objectID;
     Date timeStamp;
-    ParseFile attachment;
-    Bitmap userIcon;
+    ParseFile attachment, userIcon;
 
     public String getMessageBody() {
         return messageBody;
@@ -44,11 +44,16 @@ public class Messages implements Serializable{
         this.fromField = fromField;
     }
 
-    public Bitmap getUserIcon() {
-        return userIcon;
+    public ParseFile getUserIcon() throws ParseException {
+//        Log.d("Something", getFromField());
+        ParseQuery<ParseObject> lQuery = ParseQuery.getQuery("MessageTable")
+                .whereEqualTo("objectId", getObjectID());
+        List<ParseObject> lMessage = lQuery.find();
+        return lMessage.get(0).getParseUser("userFrom").fetchIfNeeded().getParseFile("thumbnail");
     }
 
-    public void setUserIcon(Bitmap userIcon) {
+    public void setUserIcon(ParseFile userIcon) {
+
         this.userIcon = userIcon;
     }
 

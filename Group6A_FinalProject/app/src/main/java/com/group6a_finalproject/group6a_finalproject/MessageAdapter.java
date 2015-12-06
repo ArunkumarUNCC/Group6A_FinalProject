@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.ColorFilter;
@@ -18,6 +19,8 @@ import android.widget.Toast;
 
 import com.parse.FindCallback;
 import com.parse.ParseException;
+import com.parse.ParseFile;
+import com.parse.ParseImageView;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 
@@ -40,12 +43,12 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageL
 
     public static class MessageLinearHolder extends RecyclerView.ViewHolder {
 
-        ImageView lUserIcon;
+        ParseImageView lUserIcon;
         TextView lFromField, lMessageBody, lTimeStamp;
 
         public MessageLinearHolder(View itemView) {
             super(itemView);
-            lUserIcon = (ImageView) itemView.findViewById(R.id.imageViewInboxThumb);
+            lUserIcon = (ParseImageView) itemView.findViewById(R.id.imageViewInboxThumb);
             lFromField = (TextView) itemView.findViewById(R.id.textViewInboxName);
             lMessageBody = (TextView) itemView.findViewById(R.id.textViewDirectoryInboxMessagePreview);
             lTimeStamp = (TextView) itemView.findViewById(R.id.textViewInboxTimeStamp);
@@ -61,11 +64,20 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageL
 
     @Override
     public void onBindViewHolder(MessageLinearHolder holder, final int position) {
-//        Bitmap lUserIcon = fUserMessages.get(position).getUserIcon();
+        ParseFile lIcon = null;
+        try {
+            lIcon = fUserMessages.get(position).getUserIcon();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
         String lFromField = fUserMessages.get(position).getFromField();
         String lMessagePreview = fUserMessages.get(position).getMessageBody();
 
-//        holder.lUserIcon.setImageBitmap(lUserIcon);
+        if(lIcon != null){
+            holder.lUserIcon.setParseFile(lIcon);
+            holder.lUserIcon.loadInBackground();
+            holder.lUserIcon.setScaleType(ParseImageView.ScaleType.CENTER_CROP);
+        }
         holder.lFromField.setText("From: " + lFromField);
         holder.lMessageBody.setText(lMessagePreview);
         holder.lTimeStamp.setText(fUserMessages.get(position).getTimeStamp().toString());
