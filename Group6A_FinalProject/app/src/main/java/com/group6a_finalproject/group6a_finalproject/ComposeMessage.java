@@ -58,7 +58,11 @@ public class ComposeMessage extends AppCompatActivity {
         getItems();
 
         if(fFromMessageView){
-            fReturnUser = getReturnAddress(fMessage);
+            try {
+                fReturnUser = getReturnAddress(fMessage);
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
             fToField.setText("TO: " + fReturnUser.getString("name"));
             fToField.setClickable(false);
         }
@@ -100,7 +104,7 @@ public class ComposeMessage extends AppCompatActivity {
         Toast.makeText(getApplicationContext(), aString, Toast.LENGTH_SHORT).show();
     }
 
-    public ParseUser getReturnAddress(Messages aMessage){
+    public ParseUser getReturnAddress(Messages aMessage) throws ParseException {
 
         ParseUser lUser = null;
 
@@ -116,7 +120,11 @@ public class ComposeMessage extends AppCompatActivity {
             e.printStackTrace();
         }
 
-        fTo_User_Email = lUser.getEmail();
+//        Log.d("Error", lUser.getObjectId());
+        if (lUser != null) {
+            fTo_User_Email = lUser.fetchIfNeeded().getEmail();
+        }
+
         return lUser;
     }
 
@@ -143,7 +151,7 @@ public class ComposeMessage extends AppCompatActivity {
                     fParseObj.put(fREAD, false);
 
                     //saving image attachment
-                    if (!fImageBitmap.equals(null)) {
+                    if (fImageBitmap != null) {
                         ByteArrayOutputStream lStream = new ByteArrayOutputStream();
                         fImageBitmap.compress(Bitmap.CompressFormat.PNG, 100, lStream);
                         byte[] lImageToUpload = lStream.toByteArray();
