@@ -52,7 +52,7 @@ public class GetMessagesAsync extends AsyncTask<Void, Void, ArrayList<Messages>>
             lMessage.setToField(ParseUser.getCurrentUser().getString("name"));
             lMessage.setMessageBody(aMessage.getString("Message"));
             lMessage.setObjectID(aMessage.getObjectId());
-            lMessage.setAttachment(aMessage.getParseFile("Attachment"));
+//            lMessage.setAttachment(aMessage.getParseFile("Attachment"));
             lMessage.setTimeStamp(aMessage.getCreatedAt());//Todo update so it displays correctly
 
         }catch (ParseException e){

@@ -66,7 +66,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageL
         String lMessagePreview = fUserMessages.get(position).getMessageBody();
 
 //        holder.lUserIcon.setImageBitmap(lUserIcon);
-        holder.lFromField.setText(lFromField);
+        holder.lFromField.setText("From: " + lFromField);
         holder.lMessageBody.setText(lMessagePreview);
         holder.lTimeStamp.setText(fUserMessages.get(position).getTimeStamp().toString());
 

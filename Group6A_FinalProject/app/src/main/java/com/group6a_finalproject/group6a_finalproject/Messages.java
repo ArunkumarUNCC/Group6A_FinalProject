@@ -2,10 +2,14 @@ package com.group6a_finalproject.group6a_finalproject;
 
 import android.graphics.Bitmap;
 
+import com.parse.ParseException;
 import com.parse.ParseFile;
+import com.parse.ParseObject;
+import com.parse.ParseQuery;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Created by Michael.
@@ -48,8 +52,12 @@ public class Messages implements Serializable{
         this.userIcon = userIcon;
     }
 
-    public ParseFile getAttachment() {
-        return attachment;
+    public ParseFile getAttachment() throws ParseException {
+        //query
+        ParseQuery<ParseObject> lQuery = ParseQuery.getQuery("MessageTable")
+                .whereEqualTo("objectId", getObjectID());
+        List<ParseObject> lMessage = lQuery.find();
+        return lMessage.get(0).getParseFile("Attachment");
     }
 
     public void setAttachment(ParseFile attachment) {

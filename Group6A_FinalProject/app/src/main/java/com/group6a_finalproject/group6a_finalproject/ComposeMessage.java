@@ -117,7 +117,6 @@ public class ComposeMessage extends AppCompatActivity {
         }
 
         fTo_User_Email = lUser.getEmail();
-
         return lUser;
     }
 

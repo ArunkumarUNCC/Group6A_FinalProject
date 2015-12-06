@@ -10,6 +10,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.parse.ParseException;
 import com.parse.ParseImageView;
 
 public class ViewMessage extends AppCompatActivity {
@@ -27,9 +28,14 @@ public class ViewMessage extends AppCompatActivity {
 
         getItems();
 
-        fFromField.setText("FROM: " + fMessage.getFromField());
+        fFromField.setText("From: " + fMessage.getFromField());
         fMessageBody.setText(fMessage.getMessageBody());
-        fMessageAttachment.setParseFile(fMessage.getAttachment());
+        try {
+            fMessageAttachment.setParseFile(fMessage.getAttachment());
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        fMessageAttachment.loadInBackground();
 
     }
 

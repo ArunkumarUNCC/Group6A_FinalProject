@@ -24,6 +24,8 @@
         android:label="@string/app_name"
         android:largeHeap="true"
         android:theme="@style/AppTheme" >
+        <meta-data android:name="com.facebook.sdk.ApplicationId" android:value="@string/facebook_app_id"/>
+        ...
 
         <!-- For push notofications -->
         <!-- <meta-data android:name="com.parse.push.gcm_sender_id" android:value="id:"></meta-data> -->
