@@ -3,6 +3,7 @@ package com.group6a_finalproject.group6a_finalproject;
 import android.app.Application;
 import android.util.Log;
 
+import com.facebook.FacebookSdk;
 import com.parse.Parse;
 import com.parse.ParseException;
 import com.parse.ParseInstallation;
@@ -29,5 +30,7 @@ public class ParseStart extends Application {
                 }else e.printStackTrace();
             }
         });
+
+        FacebookSdk.sdkInitialize(getApplicationContext());
     }
 }

@@ -43,5 +43,20 @@
             android:id="@+id/buttonLoginRegister"
             android:layout_marginTop="25dp"
             android:onClick="@string/registerOnClick" />
+
+        <com.facebook.login.widget.LoginButton
+            android:id="@+id/facebookLogin_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="25dp"
+            android:onClick="@string/facebookLoginOnClick" />
+
+        <!--<com.twitter.sdk.android.core.identity.TwitterLoginButton-->
+            <!--android:id="@+id/twitterLogin_button"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content" />-->
+
+
     </LinearLayout>
 </RelativeLayout>
