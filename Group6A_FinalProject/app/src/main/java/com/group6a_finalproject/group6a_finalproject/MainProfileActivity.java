@@ -14,6 +14,7 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.facebook.login.LoginManager;
 import com.parse.GetDataCallback;
 import com.parse.LogOutCallback;
 import com.parse.ParseException;
@@ -106,6 +107,8 @@ public class MainProfileActivity extends AppCompatActivity {
 
 
     public void logout(){
+        if(LoginManager.getInstance() != null)
+            LoginManager.getInstance().logOut();
         Intent lIntent = new Intent(MainProfileActivity.this, MainActivity.class);
         startActivity(lIntent);
     }
