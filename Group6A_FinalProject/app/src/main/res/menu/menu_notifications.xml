@@ -2,6 +2,20 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.group6a_finalproject.group6a_finalproject.Notifications">
-    <item android:id="@+id/action_settings" android:title="@string/action_settings"
+
+    <item android:id="@+id/viewProfile" android:icon="@android:drawable/ic_menu_gallery" android:orderInCategory="50"
+        android:visible="true" app:showAsAction="never|withText"  android:onClick="viewProfileOnClick"
+        android:title="My Profile" />
+    <item android:id="@+id/viewInbox" android:icon="@android:drawable/ic_dialog_email" android:orderInCategory="60"
+        android:visible="true" app:showAsAction="never|withText" android:onClick="viewInboxOnClick"
+        android:title="Inbox" />
+    <item android:id="@+id/AlbumIcon" android:icon="@android:drawable/ic_dialog_alert" android:orderInCategory="70"
+        android:visible="true" app:showAsAction="never|withText" android:onClick="viewAlbumsOnClick"
+        android:title="View Albums" />
+    <item android:id="@+id/userDirectoryIcon" android:icon="@drawable/user_directory" android:orderInCategory="80"
+        android:visible="true" app:showAsAction="never|withText" android:onClick="viewUserDirectoryOnClick"
+        android:title="User Directory" />
+    <item android:id="@+id/logout" android:title="Logout" android:onClick="logoutOnClick"
         android:orderInCategory="100" app:showAsAction="never" />
+
 </menu>
