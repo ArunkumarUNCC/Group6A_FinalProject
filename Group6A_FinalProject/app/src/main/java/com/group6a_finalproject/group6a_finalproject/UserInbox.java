@@ -22,6 +22,10 @@ import java.util.List;
 public class UserInbox extends AppCompatActivity implements GetMessagesAsync.IGetMessages {
 
     final String fGOTO_COMPOSE_MESSAGE = "android.intent.action.COMPOSE_MESSAGE";
+    final String fGOTO_ALBUM_LIST = "android.intent.action.ALBUM_LIST";
+    final String fGOTO_USER_DIRECTORY ="android.intent.action.USER_DIRECTORY";
+    final String fGOTO_NOTIFICATIONS = "android.intent.action.NOTIFICATIONS";
+    final String fGOTO_MY_PROFILE = "android.intent.action.MAIN_PROFILE";
     static List<ParseObject> fUserMessages = new ArrayList<>();
     static MessageAdapter fAdapter;
 
@@ -65,6 +69,29 @@ public class UserInbox extends AppCompatActivity implements GetMessagesAsync.IGe
         startActivity(lIntent);
     }
 
+    public void toActivityWithFinish(String aIntent){
+        toActivity(aIntent);
+        finish();
+    }
+
+    //To start View Albums
+    public void toActivity(String aIntent, int aExtra){
+        Intent lIntent = new Intent(aIntent);
+        lIntent.putExtra("album_flag", aExtra);
+        lIntent.putExtra("current_user", ParseUser.getCurrentUser().getEmail());
+        startActivity(lIntent);
+        finish();
+    }
+
+    //To start User Directory
+    public void toActivity(String aIntent, int aExtra1, boolean aExtra2){
+        Intent lIntent = new Intent(aIntent);
+        lIntent.putExtra("fromCompose", aExtra1);
+        lIntent.putExtra("fromShared", aExtra2);
+        startActivity(lIntent);
+        finish();
+    }
+
     public void composeMessageOnClick (View aView){
         toActivity(fGOTO_COMPOSE_MESSAGE);
     }
@@ -85,5 +112,25 @@ public class UserInbox extends AppCompatActivity implements GetMessagesAsync.IGe
     @Override
     public void putMessages(ArrayList<Messages> messages) {
         setRecyclerView(messages);
+    }
+
+    public void logoutOnClick (MenuItem aItem){
+
+    }
+
+    public void viewAlbumOnClick(MenuItem aItem){
+        toActivity(fGOTO_ALBUM_LIST, 1);
+    }
+
+    public void viewProfileOnClick(MenuItem aItem){
+        toActivityWithFinish(fGOTO_MY_PROFILE);
+    }
+
+    public void viewNotificationsOnClick (MenuItem aItem){
+        toActivityWithFinish(fGOTO_NOTIFICATIONS);
+    }
+
+    public void viewUserDirectoryOnClick (MenuItem aItem){
+        toActivity(fGOTO_USER_DIRECTORY, 1, false);
     }
 }

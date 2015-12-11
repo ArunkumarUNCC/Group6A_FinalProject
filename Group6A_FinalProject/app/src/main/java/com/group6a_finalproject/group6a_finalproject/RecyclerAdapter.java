@@ -391,12 +391,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             @Override
             public void onClick(View v) {
                 AlbumActivity.manageSlider(position);
-//                Intent lIntent = new Intent(fGOTOPHOTO_SLIDER);
-//                Gson gson = new Gson();
-//                String PhotosString = gson.toJson(fPhotosForDisplay);
-////                Log.d("Say",PhotosString);
-//                lIntent.putExtra("Photos",PhotosString);
-//                fContext.startActivity(lIntent);
+
             }
         });
 
@@ -457,6 +452,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         else{
             lUsers.lUserPhoto.setParseFile(lPhotoBitmap);
             lUsers.lUserPhoto.loadInBackground();
+            lUsers.lUserPhoto.setScaleType(ParseImageView.ScaleType.FIT_XY);
         }
 
         lUsers.lUserRelativeLayout.setOnClickListener(new View.OnClickListener() {

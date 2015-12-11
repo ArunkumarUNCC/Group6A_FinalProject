@@ -8,16 +8,23 @@ import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.parse.ParseUser;
+
 import java.util.ArrayList;
 
 public class Notifications extends AppCompatActivity implements GetAlbumNotificationsAsync.IGetAlbumNotifications,
         GetPhotoNotificationsAsync.IGetPhotoNotifications {
 
+    final String fGOTO_ALBUM_LIST = "android.intent.action.ALBUM_LIST";
+    final String fGOTO_USER_DIRECTORY ="android.intent.action.USER_DIRECTORY";
+    final String fGOTO_USER_INBOX = "android.intent.action.USER_INBOX";
+    final String fGOTO_MY_PROFILE = "android.intent.action.MAIN_PROFILE";
     public static final int fEDIT_PHOTO = 1000;
 
     RecyclerAdapter fAlbumAdapter,fPhotoAdapter;
     LinearLayoutManager fAlbumNotificationManager,fPhotoNotificationManager;
     RecyclerView fAlbumView,fPhotoView;
+    ParseUser fCurrentUser;
 
     ArrayList<Album> fAlbums;
     ArrayList<String> fPhotos;
@@ -28,6 +35,8 @@ public class Notifications extends AppCompatActivity implements GetAlbumNotifica
         setContentView(R.layout.activity_notifications);
 
         getItems();
+
+        fCurrentUser = ParseUser.getCurrentUser();
 
         new GetAlbumNotificationsAsync(this).execute();
         new GetPhotoNotificationsAsync(this).execute();
@@ -105,5 +114,50 @@ public class Notifications extends AppCompatActivity implements GetAlbumNotifica
                 }
                 break;
         }
+    }
+
+    public void logoutOnClick (MenuItem aItem){
+
+    }
+
+    public void viewAlbumsOnClick(MenuItem aItem){
+        toActivity(fGOTO_ALBUM_LIST, 1);
+    }
+
+    public void viewProfileOnClick(MenuItem aItem){
+        toActivity(fGOTO_MY_PROFILE);
+    }
+
+    public void viewInboxOnClick (MenuItem aItem){
+        toActivity(fGOTO_USER_INBOX);
+    }
+
+    public void viewUserDirectoryOnClick (MenuItem aItem){
+        toActivity(fGOTO_USER_DIRECTORY, 1, false);
+    }
+
+    //Starting activity
+    public void toActivity(String aIntent){
+        Intent lIntent = new Intent(aIntent);
+        startActivity(lIntent);
+        finish();
+    }
+
+    //To start User Directory
+    public void toActivity(String aIntent, int aExtra1, boolean aExtra2){
+        Intent lIntent = new Intent(aIntent);
+        lIntent.putExtra("fromCompose", aExtra1);
+        lIntent.putExtra("fromShared", aExtra2);
+        startActivity(lIntent);
+        finish();
+    }
+
+    //To start View Albums
+    public void toActivity(String aIntent, int aExtra){
+        Intent lIntent = new Intent(aIntent);
+        lIntent.putExtra("album_flag", aExtra);
+        lIntent.putExtra("current_user", fCurrentUser.getEmail());
+        startActivity(lIntent);
+        finish();
     }
 }

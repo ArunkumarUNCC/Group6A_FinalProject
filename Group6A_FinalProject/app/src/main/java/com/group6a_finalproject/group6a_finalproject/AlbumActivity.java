@@ -40,6 +40,9 @@ public class AlbumActivity extends AppCompatActivity implements GetPhotosAsync.I
     final String fGOTO_INVITE = "android.intent.action.INVITE_USERS";
     final String fGOTO_CRTEATE_ALBUM = "android.intent.action.CREATE_ALBUM";
     final String fGOTO_USER_DIRECTORY ="android.intent.action.USER_DIRECTORY";
+    final String fGOTO_MY_PROFILE = "android.intent.action.MAIN_PROFILE";
+    final String fGOTO_USER_INBOX = "android.intent.action.USER_INBOX";
+    final String fGOTO_NOTIFICATIONS = "android.intent.action.NOTIFICATIONS";
     final  String fALBUM_NAME_EXTRA = "ALBUM_NAME";
     final  String fALBUM_USER = "IS_SHARED_USER";
     final int fNEW_PHOTO_REQCODE = 1002;
@@ -134,7 +137,7 @@ public class AlbumActivity extends AppCompatActivity implements GetPhotosAsync.I
 
     public void toActivity(String aIntent,String aExtra){
         Intent lIntent = new Intent(aIntent);
-        lIntent.putExtra(fALBUM_NAME_EXTRA,aExtra);
+        lIntent.putExtra(fALBUM_NAME_EXTRA, aExtra);
         startActivity(lIntent);
     }
 
@@ -152,13 +155,13 @@ public class AlbumActivity extends AppCompatActivity implements GetPhotosAsync.I
         startActivityForResult(lIntent, fEDIT_ALBUM_REQCODE);
     }
 
-    //To start User Directory
+    //To start User Directory for selecting a user
     public void toActivity(String aIntent, int aExtra1, boolean aExtra2,boolean aExtra3){
         Intent lIntent = new Intent(aIntent);
         lIntent.putExtra("fromCompose", aExtra1);
         lIntent.putExtra("fromShared",aExtra2);
         lIntent.putExtra("albumName",fAlbumName);
-        lIntent.putExtra("showShared",aExtra3);
+        lIntent.putExtra("showShared", aExtra3);
         startActivity(lIntent);
     }
 
@@ -224,7 +227,7 @@ public class AlbumActivity extends AppCompatActivity implements GetPhotosAsync.I
 
     public void checkPrivacy(){
         ParseQuery<ParseObject> lGetAlbumId = ParseQuery.getQuery("Album");
-        lGetAlbumId.whereEqualTo("name",fAlbumName);
+        lGetAlbumId.whereEqualTo("name", fAlbumName);
         lGetAlbumId.findInBackground(new FindCallback<ParseObject>() {
             @Override
             public void done(List<ParseObject> objects, ParseException e) {
@@ -298,6 +301,10 @@ public class AlbumActivity extends AppCompatActivity implements GetPhotosAsync.I
 
     public void sharedMembersOnClick(MenuItem aItem){
         toActivity(fGOTO_USER_DIRECTORY, 1, true, true);
+    }
+
+    public void logoutOnClick (MenuItem aItem){
+
     }
 
     private void getAlbumOwner() {

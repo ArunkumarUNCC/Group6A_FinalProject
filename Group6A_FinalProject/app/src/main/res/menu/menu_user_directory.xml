@@ -2,6 +2,27 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.group6a_finalproject.group6a_finalproject.UserDirectory">
-    <item android:id="@+id/action_settings" android:title="@string/action_settings"
+
+    <item android:id="@+id/search" android:icon="@android:drawable/ic_menu_search" android:orderInCategory="40"
+        android:visible="true" app:showAsAction="always" android:title="Search">
+        <menu>
+
+        </menu>
+    </item>
+
+    <item android:id="@+id/viewProfile" android:icon="@android:drawable/ic_menu_gallery" android:orderInCategory="50"
+        android:visible="true" app:showAsAction="never|withText"  android:onClick="viewProfileOnClick"
+        android:title="My Profile" />
+    <item android:id="@+id/viewInbox" android:icon="@android:drawable/ic_dialog_email" android:orderInCategory="60"
+        android:visible="true" app:showAsAction="never|withText" android:onClick="viewInboxOnClick"
+        android:title="Inbox" />
+    <item android:id="@+id/userAlbumsIcon" android:icon="@drawable/user_directory" android:orderInCategory="70"
+        android:visible="true" app:showAsAction="never|withText" android:onClick="viewUserAlbumsOnClick"
+        android:title="View Albums" />
+    <item android:id="@+id/notificationIcon" android:icon="@android:drawable/ic_dialog_alert" android:orderInCategory="80"
+        android:visible="true" app:showAsAction="never|withText" android:onClick="viewNotificationsOnClick"
+        android:title="Notifications" />
+    <item android:id="@+id/logout" android:title="Logout" android:onClick="logoutOnClick"
         android:orderInCategory="100" app:showAsAction="never" />
+
 </menu>

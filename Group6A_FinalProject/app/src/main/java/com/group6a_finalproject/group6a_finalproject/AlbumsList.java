@@ -30,6 +30,11 @@ import java.util.List;
 public class AlbumsList extends AppCompatActivity implements GetAlbumsAsync.IGetAlbums{
 
     final String fGOTO_CRTEATE_ALBUM = "android.intent.action.CREATE_ALBUM";
+    final String fGOTO_MY_PROFILE = "android.intent.action.MAIN_PROFILE";
+    final String fGOTO_ALBUM_LIST = "android.intent.action.ALBUM_LIST";
+    final String fGOTO_USER_DIRECTORY ="android.intent.action.USER_DIRECTORY";
+    final String fGOTO_USER_INBOX = "android.intent.action.USER_INBOX";
+    final String fGOTO_NOTIFICATIONS = "android.intent.action.NOTIFICATIONS";
     final int fCHECK_CREATE_ALBUM = 1003;
     static final int fCHECK_EDIT_ALBUM = 1004;
 
@@ -91,6 +96,10 @@ public class AlbumsList extends AppCompatActivity implements GetAlbumsAsync.IGet
             List<ParseUser> lUsers = lGetUser.find();
             if(lUsers!=null){
                 fCurrentUser = lUsers.get(0);
+
+                if (fCurrentUser == ParseUser.getCurrentUser())
+                    fAlbumListTitle.setText("My Albums");
+                else fAlbumListTitle.setText(fCurrentUser.getString("name")+"'s Albums");
             }
         } catch (ParseException e) {
             e.printStackTrace();
@@ -243,6 +252,42 @@ public class AlbumsList extends AppCompatActivity implements GetAlbumsAsync.IGet
         }
 
         return lCanAdd;
+    }
+
+    public void logoutOnClick (MenuItem aItem){
+
+    }
+
+    public void viewNotificationsOnClick(MenuItem aItem){
+        toActivity(fGOTO_NOTIFICATIONS);
+    }
+
+    public void viewProfileOnClick(MenuItem aItem){
+        toActivity(fGOTO_MY_PROFILE);
+    }
+
+    public void viewInboxOnClick (MenuItem aItem){
+        toActivity(fGOTO_USER_INBOX);
+    }
+
+    public void viewUserDirectoryOnClick (MenuItem aItem){
+        toActivity(fGOTO_USER_DIRECTORY, 1, false);
+    }
+
+    //Starting activity
+    public void toActivity(String aIntent){
+        Intent lIntent = new Intent(aIntent);
+        startActivity(lIntent);
+        finish();
+    }
+
+    //To start User Directory
+    public void toActivity(String aIntent, int aExtra1, boolean aExtra2){
+        Intent lIntent = new Intent(aIntent);
+        lIntent.putExtra("fromCompose", aExtra1);
+        lIntent.putExtra("fromShared", aExtra2);
+        startActivity(lIntent);
+        finish();
     }
 
 }

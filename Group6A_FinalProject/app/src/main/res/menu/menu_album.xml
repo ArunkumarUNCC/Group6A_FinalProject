@@ -3,10 +3,18 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.group6a_finalproject.group6a_finalproject.AlbumActivity">
 
-    <item android:id="@+id/editAlbum" android:title="Edit this Album" android:onClick="editAlbumOnClick"
-        android:orderInCategory="100" app:showAsAction="never" />
-    <item android:id="@+id/shareAlbum" android:title="Share this Album" android:onClick="shareAlbumOnClick"
-        android:orderInCategory="100" app:showAsAction="never" />
-    <item android:id="@+id/showSharedMembers" android:title="Shared Users" android:onClick="sharedMembersOnClick"
+    <item android:id="@+id/search" android:icon="@android:drawable/ic_menu_search" android:orderInCategory="40"
+        android:visible="true" app:showAsAction="always" android:title="Search">
+        <menu>
+            <item android:id="@+id/editAlbum" android:title="Edit this Album" android:onClick="editAlbumOnClick"
+                android:orderInCategory="100" app:showAsAction="never" />
+            <item android:id="@+id/shareAlbum" android:title="Share this Album" android:onClick="shareAlbumOnClick"
+                android:orderInCategory="100" app:showAsAction="never" />
+            <item android:id="@+id/showSharedMembers" android:title="Shared Users" android:onClick="sharedMembersOnClick"
+                android:orderInCategory="100" app:showAsAction="never" />
+        </menu>
+    </item>
+
+    <item android:id="@+id/logout" android:title="Logout" android:onClick="logoutOnClick"
         android:orderInCategory="100" app:showAsAction="never" />
 </menu>

@@ -21,6 +21,7 @@ import android.widget.Toast;
 import com.parse.GetDataCallback;
 import com.parse.ParseException;
 import com.parse.ParseFile;
+import com.parse.ParseImageView;
 import com.parse.ParseObject;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
@@ -36,7 +37,7 @@ public class EditProfileActivity extends AppCompatActivity {
     final String fGOTO_MAIN_PROFILE = "android.intent.action.MAIN_PROFILE";
     final int fSELECT_PICTURE = 1;
 
-    ImageView fProfilePic;
+    ParseImageView fProfilePic;
     EditText fName, fEmail;
     Switch fGender,fPrivacy,fNotify;
 
@@ -82,7 +83,7 @@ public class EditProfileActivity extends AppCompatActivity {
         fPrivacy = (Switch) findViewById(R.id.switchEditProfilePrivacy);
         fNotify = (Switch) findViewById(R.id.switchEditProfileNotifications);
 
-        fProfilePic = (ImageView) findViewById(R.id.imageViewEditProfilePicture);
+        fProfilePic = (ParseImageView) findViewById(R.id.imageViewEditProfilePicture);
     }
 
     public void setItems(){
@@ -97,15 +98,18 @@ public class EditProfileActivity extends AppCompatActivity {
 
         ParseFile file = user.getParseFile("thumbnail");
         if (file!=null) {
-            file.getDataInBackground(new GetDataCallback() {
-                @Override
-                public void done(byte[] data, ParseException e) {
-                    Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
-                    ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
-                    fProfilePic.setImageBitmap(bitmap);
-                }
-            });
+//            file.getDataInBackground(new GetDataCallback() {
+//                @Override
+//                public void done(byte[] data, ParseException e) {
+//                    Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
+//                    ByteArrayOutputStream stream = new ByteArrayOutputStream();
+//                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+//                    fProfilePic.setImageBitmap(bitmap);
+//                }
+//            });
+            fProfilePic.setParseFile(file);
+            fProfilePic.loadInBackground();
+            fProfilePic.setScaleType(ParseImageView.ScaleType.FIT_XY);
         }
     }
 
