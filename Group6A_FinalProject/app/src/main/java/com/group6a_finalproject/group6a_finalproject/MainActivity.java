@@ -297,7 +297,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void twitterLoginOnClick(View aView){
-
+        //update
     }
 
     public void toActivity(String aIntent){
