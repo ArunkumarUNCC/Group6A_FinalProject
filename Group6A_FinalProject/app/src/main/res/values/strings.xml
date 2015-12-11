@@ -54,4 +54,5 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="title_activity_photo_slider">Title</string>
     <string name="facebookLoginOnClick">facebookLoginOnClick</string>
+    <string name="twitterLoginOnClick">twitterLoginOnClick</string>
 </resources>

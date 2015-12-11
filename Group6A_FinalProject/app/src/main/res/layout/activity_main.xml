@@ -46,16 +46,19 @@
 
         <com.facebook.login.widget.LoginButton
             android:id="@+id/facebookLogin_button"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:layout_marginTop="25dp"
             android:onClick="@string/facebookLoginOnClick" />
 
-        <!--<com.twitter.sdk.android.core.identity.TwitterLoginButton-->
-            <!--android:id="@+id/twitterLogin_button"-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content" />-->
+        <com.twitter.sdk.android.core.identity.TwitterLoginButton
+            android:id="@+id/twitterLogin_button"
+            android:layout_marginTop="25dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:onClick="@string/twitterLoginOnClick" />
 
 
     </LinearLayout>
