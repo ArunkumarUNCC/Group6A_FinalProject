@@ -5,7 +5,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.text.LoginFilter;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -19,8 +18,6 @@ import com.facebook.FacebookException;
 import com.facebook.FacebookSdk;
 import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
-//import com.facebook.login.LoginClient;
-//import com.facebook.login.LoginClient;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 import com.parse.FindCallback;
@@ -32,35 +29,46 @@ import com.parse.ParseFile;
 import com.parse.ParseInstallation;
 import com.parse.ParsePush;
 import com.parse.ParseQuery;
+import com.parse.ParseTwitterUtils;
 import com.parse.ParseUser;
 import com.parse.PushService;
 import com.parse.SaveCallback;
 import com.parse.SendCallback;
 import com.parse.SignUpCallback;
+import com.twitter.sdk.android.Twitter;
+import com.twitter.sdk.android.core.Callback;
+import com.twitter.sdk.android.core.Result;
+import com.twitter.sdk.android.core.TwitterAuthConfig;
+import com.twitter.sdk.android.core.TwitterCore;
+import com.twitter.sdk.android.core.TwitterException;
+import com.twitter.sdk.android.core.TwitterSession;
+import com.twitter.sdk.android.core.identity.TwitterLoginButton;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedInputStream;
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import io.fabric.sdk.android.Fabric;
+
 public class MainActivity extends AppCompatActivity {
 
     final String fGOTO_REGISTER_NEW_USER = "android.intent.action.REGISTER_NEW_USER";
     final String fGOTO_MAIN_PROFILE = "android.intent.action.MAIN_PROFILE";
+    final String fCONSUMER_KEY = "m0tzHoXVBegpvbzY23yE89SFY";
+    final String fSECRET = "uwAXIjcn6oTpCRXJKvG5mMkBvPop2ABvUtj98bMMCOFuM7hOeY";
     EditText fEmail, fPassword;
     LoginButton fFacebookLogin;
+    TwitterLoginButton fTwitterButton;
     CallbackManager fCallBack;
     Bitmap fBitmap = null;
 
@@ -76,6 +84,7 @@ public class MainActivity extends AppCompatActivity {
             toActivity(fGOTO_MAIN_PROFILE);
             finish();
         }
+        //region FacebookLogin
         //sets permissions to let FB know the info I want
         fFacebookLogin.setReadPermissions("email");
         fFacebookLogin.registerCallback(fCallBack, new FacebookCallback<LoginResult>() {
@@ -126,7 +135,33 @@ public class MainActivity extends AppCompatActivity {
                 makeToast("Login attempt failed.");
             }
         });
-        
+        //endregion
+
+        fTwitterButton.setCallback(new Callback<TwitterSession>() {
+            @Override
+            public void success(Result<TwitterSession> result) {
+                Log.d("Twitter", result.data.toString());
+                ParseTwitterUtils.logIn(MainActivity.this, new LogInCallback() {
+                    @Override
+                    public void done(ParseUser user, ParseException e) {
+                        if (user == null) {
+                            return;
+                        } else if (user.isNew()) {
+
+                        } else {
+
+                        }
+                    }
+                });
+            }
+
+            @Override
+            public void failure(TwitterException e) {
+                Log.d("Twitter", e.toString());
+                makeToast("Twitter login failed.");
+            }
+        });
+
     }
 
     public void loginFBUser(String aUser, String aPW) {
@@ -259,13 +294,25 @@ public class MainActivity extends AppCompatActivity {
     public void getItems (){
         fEmail = (EditText) findViewById(R.id.editTextLoginEmail);
         fPassword = (EditText) findViewById(R.id.editTextLoginPassword);
+
         fFacebookLogin = (LoginButton) findViewById(R.id.facebookLogin_button);
+
         FacebookSdk.sdkInitialize(getApplicationContext());
         fCallBack = CallbackManager.Factory.create();
+
+        ParseTwitterUtils.initialize(fCONSUMER_KEY, fSECRET);
+        TwitterAuthConfig twitAuth = new TwitterAuthConfig(fCONSUMER_KEY, fSECRET);
+        Fabric.with(this, new TwitterCore(twitAuth));
+
+        fTwitterButton = (TwitterLoginButton) findViewById(R.id.twitterLogin_button);
     }
 
     public void facebookLoginOnClick (View aView){
 
+    }
+
+    public void twitterLoginOnClick(View aView){
+        //update
     }
 
     public void toActivity(String aIntent){
@@ -311,7 +358,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        fCallBack.onActivityResult(requestCode, resultCode,  data);
+        fCallBack.onActivityResult(requestCode, resultCode, data);
+        fTwitterButton.onActivityResult(requestCode,  resultCode,  data);
 
     }
 
