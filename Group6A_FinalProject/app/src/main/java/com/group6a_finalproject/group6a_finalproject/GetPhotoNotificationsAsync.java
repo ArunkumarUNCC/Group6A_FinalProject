@@ -53,16 +53,24 @@ public class GetPhotoNotificationsAsync extends AsyncTask<Void,Void,ArrayList<St
         lQueryAlbumNotifications.whereEqualTo(fTO_USER, fCurrentUser);
         lQueryAlbumNotifications.whereExists(fTHUMBNAIL_COULUMN);
 
-        lQueryAlbumNotifications.findInBackground(new FindCallback<ParseObject>() {
-            @Override
-            public void done(List<ParseObject> objects, ParseException e) {
-                if (e == null) {
+        List<ParseObject> objects = null;
+
+        try {
+            objects = lQueryAlbumNotifications.find();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+//        lQueryAlbumNotifications.findInBackground(new FindCallback<ParseObject>() {
+//            @Override
+//            public void done(List<ParseObject> objects, ParseException e) {
+//                if (e == null) {
                     for (ParseObject object : objects) {
                         fPhotos.add(object.getObjectId());
                     }
-                }
-            }
-        });
+//                }
+//            }
+//        });
         return fPhotos;
     }
 

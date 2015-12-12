@@ -16,6 +16,8 @@ import android.widget.Switch;
 import android.widget.Toast;
 
 import com.parse.FindCallback;
+import com.parse.FunctionCallback;
+import com.parse.ParseCloud;
 import com.parse.ParseException;
 import com.parse.ParseFile;
 import com.parse.ParseImageView;
@@ -28,7 +30,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class AddPhoto extends AppCompatActivity {
 
@@ -42,6 +46,7 @@ public class AddPhoto extends AppCompatActivity {
     EditText fPhotoName;
 
     ParseFile fImageFile;
+    ParseUser fCurrentUser = ParseUser.getCurrentUser();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -187,13 +192,31 @@ public class AddPhoto extends AppCompatActivity {
         final ParseObject lNewPhoto = new ParseObject("Notifications");
         lNewPhoto.put("album", object);
         lNewPhoto.put("name", aPhotoName);
-        lNewPhoto.put("fromUser", ParseUser.getCurrentUser());
+        lNewPhoto.put("fromUser", fCurrentUser);
         lNewPhoto.put("toUser",lUserObject);
         lNewPhoto.put("thumbnail", fImageFile);
+        final ParseUser finalLUserObject = lUserObject;
         lNewPhoto.saveInBackground(new SaveCallback() {
             @Override
             public void done(ParseException e) {
                 if (e == null) {
+
+                    if(finalLUserObject.getBoolean("getNotification")){
+                        Map<String, String> lNotificationMap = new HashMap<String, String>();
+                        lNotificationMap.put("toUser", finalLUserObject.getObjectId());
+                        lNotificationMap.put("fromUser",fCurrentUser.getString("name"));
+                        lNotificationMap.put("message"," created a new photo in your album.");
+                        lNotificationMap.put("photoId",lNewPhoto.getObjectId());
+                        lNotificationMap.put("type","New Photo");
+                        ParseCloud.callFunctionInBackground("notifyPushForPhoto", lNotificationMap, new FunctionCallback<Object>() {
+                            @Override
+                            public void done(Object object, ParseException e) {
+                                if (e == null) {
+
+                                } else e.printStackTrace();
+                            }
+                        });
+                    }
                     makeToast("New photo sent to the owner for verification");
                     sendActivityResult(lNewPhoto.getObjectId());
                     finish();
@@ -206,7 +229,7 @@ public class AddPhoto extends AppCompatActivity {
         final ParseObject lNewPhoto = new ParseObject("Photos");
         lNewPhoto.put("name", aPhotoName);
         lNewPhoto.put("album", object);
-        lNewPhoto.put("uploadedBy", ParseUser.getCurrentUser());
+        lNewPhoto.put("uploadedBy", fCurrentUser);
         lNewPhoto.put("thumbnail", fImageFile);
         lNewPhoto.saveInBackground(new SaveCallback() {
             @Override

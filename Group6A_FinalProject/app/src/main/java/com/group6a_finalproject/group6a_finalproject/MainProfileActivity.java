@@ -15,6 +15,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.facebook.login.LoginManager;
+import com.parse.FindCallback;
 import com.parse.GetDataCallback;
 import com.parse.LogOutCallback;
 import com.parse.ParseException;
@@ -26,6 +27,7 @@ import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
 import java.io.ByteArrayOutputStream;
+import java.util.List;
 
 public class MainProfileActivity extends AppCompatActivity {
 
@@ -170,13 +172,17 @@ public class MainProfileActivity extends AppCompatActivity {
 
     public void logoutOnClick (MenuItem aItem){
 
-        ParseQuery lUnsetChannel = ParseInstallation.getQuery();
-        lUnsetChannel.include("user");
-        lUnsetChannel.whereEqualTo("user", fCurrentUser);
+//        ParseQuery lUnsetChannel = ParseInstallation.getQuery();
+//        lUnsetChannel.include("user");
+//        lUnsetChannel.whereEqualTo("user", fCurrentUser);
 
-        ParsePush lUnsubscribeChannel= new ParsePush();
-        lUnsubscribeChannel.setQuery(lUnsetChannel);
-        lUnsubscribeChannel.unsubscribeInBackground("NewUser");
+        ParseInstallation installation = ParseInstallation.getCurrentInstallation();
+        installation.remove("user");
+        installation.saveInBackground();
+
+//        ParsePush lUnsubscribeChannel= new ParsePush();
+//        lUnsubscribeChannel.setQuery(lUnsetChannel);
+//        lUnsubscribeChannel.unsubscribeInBackground("NewUser");
 
         fCurrentUser.logOutInBackground(new LogOutCallback() {
             @Override

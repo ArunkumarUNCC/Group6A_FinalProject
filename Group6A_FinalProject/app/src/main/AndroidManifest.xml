@@ -157,7 +157,7 @@
         <service android:name="com.parse.PushService" />
 
         <receiver
-            android:name="com.parse.ParsePushBroadcastReceiver"
+            android:name="com.group6a_finalproject.group6a_finalproject.PushReceiver"
             android:exported="false" >
             <intent-filter>
                 <action android:name="com.parse.push.intent.RECEIVE" />

@@ -14,14 +14,18 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.parse.FindCallback;
+import com.parse.FunctionCallback;
 import com.parse.Parse;
+import com.parse.ParseCloud;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class InviteUsers extends AppCompatActivity {
 
@@ -41,6 +45,7 @@ public class InviteUsers extends AppCompatActivity {
     String fAlbumName;
     ParseUser fShareWithUser;
     ParseObject fShareObject;
+    ParseUser fCurrentUser = ParseUser.getCurrentUser();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -146,7 +151,7 @@ public class InviteUsers extends AppCompatActivity {
     public void shareButtonOnClick(View aView){
         if(fShareWithUser!=null){
             ParseObject lSaveNotification = new ParseObject(fALBUMSNOTIFICATIONS);
-            lSaveNotification.put(fFROMUSER,ParseUser.getCurrentUser());
+            lSaveNotification.put(fFROMUSER,fCurrentUser);
             lSaveNotification.put(fTOUSER,fShareWithUser);
             lSaveNotification.put(fALBUM,fShareObject);
 
@@ -154,9 +159,27 @@ public class InviteUsers extends AppCompatActivity {
                 @Override
                 public void done(ParseException e) {
                     if (e==null) {
-                        makeToast("Notification sent to " + fShareWithUser.getString("name"));
+
+                        if (fShareWithUser.getBoolean("getNotification")){
+                            Map<String, String> lNotificationMap = new HashMap<String, String>();
+                            lNotificationMap.put("toUser", fShareWithUser.getObjectId());
+                            lNotificationMap.put("fromUser",fCurrentUser.getString("name"));
+                            lNotificationMap.put("message"," shared an album with you.");
+                            lNotificationMap.put("type","Album Invite");
+                            ParseCloud.callFunctionInBackground("notifyPush", lNotificationMap, new FunctionCallback<Object>() {
+                                @Override
+                                public void done(Object object, ParseException e) {
+                                    if (e == null) {
+
+                                    } else e.printStackTrace();
+                                }
+                            });
+                        }
+
+                        makeToast("Notification sent to "+ fShareWithUser.getString("name"));
                         finish();
                     }
+                    else e.printStackTrace();
                 }
             });
         }

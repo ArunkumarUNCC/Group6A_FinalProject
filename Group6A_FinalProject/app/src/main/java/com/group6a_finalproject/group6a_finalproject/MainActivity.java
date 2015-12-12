@@ -23,13 +23,17 @@ import com.facebook.GraphResponse;
 //import com.facebook.login.LoginClient;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
+import com.parse.FindCallback;
+import com.parse.FunctionCallback;
 import com.parse.LogInCallback;
+import com.parse.ParseCloud;
 import com.parse.ParseException;
 import com.parse.ParseFile;
 import com.parse.ParseInstallation;
 import com.parse.ParsePush;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
+import com.parse.PushService;
 import com.parse.SaveCallback;
 import com.parse.SendCallback;
 import com.parse.SignUpCallback;
@@ -46,7 +50,10 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -128,15 +135,6 @@ public class MainActivity extends AppCompatActivity {
             public void done(ParseUser user, ParseException e) {
                 if (user != null) {
                     toActivity(fGOTO_MAIN_PROFILE);
-
-                    ParseQuery lSetChannel = ParseInstallation.getQuery();
-                    lSetChannel.include("user");
-                    lSetChannel.whereEqualTo("user", user);
-
-                    ParsePush lSubscribe = new ParsePush();
-                    lSubscribe.setQuery(lSetChannel);
-                    lSubscribe.subscribeInBackground("NewUser");
-
                     finish();
                 }
             }
@@ -184,33 +182,50 @@ public class MainActivity extends AppCompatActivity {
             public void done(ParseException e) {
                 if (e == null) {
 
-                    final ParsePush push = new ParsePush();
-                    push.setChannel("NewUser");
-                    try {
-                        push.setMessage("New user " + aFBUser.getString("name") + " Signed up!!!");
-                    } catch (JSONException e1) {
-                        e1.printStackTrace();
-                    }
-                    push.sendInBackground(new SendCallback() {
+                    ParseQuery<ParseUser> user = ParseQuery.getQuery("_User");
+                    user.whereNotEqualTo("objectId", ParseUser.getCurrentUser().getObjectId());
+                    user.findInBackground(new FindCallback<ParseUser>() {
                         @Override
-                        public void done(ParseException e) {
+                        public void done(List<ParseUser> objects, ParseException e) {
                             if (e == null) {
+                                for (ParseUser object : objects) {
+                                    if (object.getBoolean("getNotification")) {
+                                        Map<String, String> lNotifyUsers = new HashMap<>();
+                                        lNotifyUsers.put("toUser", object.getObjectId());
+                                        lNotifyUsers.put("fromUser", ParseUser.getCurrentUser().getString("name"));
+                                        lNotifyUsers.put("type", "New User");
+                                        lNotifyUsers.put("message", " has newly signed up to the system");
+
+                                        ParseCloud.callFunctionInBackground("notifyPushUsers", lNotifyUsers, new FunctionCallback<Object>() {
+                                            @Override
+                                            public void done(Object object, ParseException e) {
+
+                                                if (e == null) {
+
+                                                } else {
+                                                    Log.d("see","error");
+                                                    e.printStackTrace();
+
+                                                }
+                                            }
+                                        });
+                                    }
+                                }
+
                                 ParseInstallation lNewUser = ParseInstallation.getCurrentInstallation();
-                                lNewUser.put("user", lUser);
+                                lNewUser.put("user", ParseUser.getCurrentUser().getObjectId());
                                 lNewUser.saveInBackground(new SaveCallback() {
                                     @Override
                                     public void done(ParseException e) {
                                         if (e == null) {
                                             makeToast("Registration Successful");
                                             loginFBUser(lUser.getUsername(), "pass");
-//                                            finish();
                                         } else e.printStackTrace();
                                     }
                                 });
                             } else e.printStackTrace();
                         }
                     });
-
 
                 } else {
                     fEmail.setError("Email already exists");
@@ -281,17 +296,9 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void done(ParseUser user, ParseException e) {
                     if (user != null) {
-//                        makeToast("Login Successful");
                         toActivity(fGOTO_MAIN_PROFILE);
 
-                        ParseQuery lSetChannel = ParseInstallation.getQuery();
-                        lSetChannel.include("user");
-                        lSetChannel.whereEqualTo("user",user);
-
-                        ParsePush lSubscribe = new ParsePush();
-                        lSubscribe.setQuery(lSetChannel);
-                        lSubscribe.subscribeInBackground("NewUser");
-
+                        setupInstallation(user);
 
                         finish();
                     } else
@@ -310,5 +317,18 @@ public class MainActivity extends AppCompatActivity {
 
     public void registerOnClick (View aView){
         toActivity(fGOTO_REGISTER_NEW_USER);
+    }
+
+    public void setupInstallation(ParseUser user){
+        ParseInstallation installation = ParseInstallation.getCurrentInstallation();
+        installation.put("user", user.getObjectId());
+
+        installation.saveInBackground(new SaveCallback() {
+            @Override
+            public void done(ParseException e) {
+                if (e!=null)
+                    e.printStackTrace();
+            }
+        });
     }
 }

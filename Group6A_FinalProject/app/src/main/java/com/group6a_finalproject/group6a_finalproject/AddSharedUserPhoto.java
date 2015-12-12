@@ -14,7 +14,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.parse.FindCallback;
+import com.parse.FunctionCallback;
 import com.parse.GetDataCallback;
+import com.parse.ParseCloud;
 import com.parse.ParseException;
 import com.parse.ParseFile;
 import com.parse.ParseImageView;
@@ -25,7 +27,9 @@ import com.parse.ParseUser;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class AddSharedUserPhoto extends AppCompatActivity {
 
@@ -131,7 +135,7 @@ public class AddSharedUserPhoto extends AppCompatActivity {
         ParseObject.createWithoutData("Notifications",fPhotoId).deleteEventually();
 
         Intent lIntent = new Intent();
-        lIntent.putExtra("photoPosition",fPosition);
+        lIntent.putExtra("photoPosition", fPosition);
         setResult(RESULT_OK, lIntent);
 
         makeToast("Photo Edited Succesffully");
@@ -147,6 +151,24 @@ public class AddSharedUserPhoto extends AppCompatActivity {
         lInsertPhoto.saveInBackground();
 
         deleteSharedOnClick(aView);
+
+        if (fPhotoOwner.getBoolean("getNotification")){
+            Map<String, String> lNotificationMap = new HashMap<String, String>();
+            lNotificationMap.put("toUser", fPhotoOwner.getObjectId());
+            lNotificationMap.put("fromUser", ParseUser.getCurrentUser().getString("name"));
+            lNotificationMap.put("message"," accepted your photo.");
+            lNotificationMap.put("type","Photo Accept");
+            lNotificationMap.put("albumObjectId",fAlbumObject.getObjectId());
+
+            ParseCloud.callFunctionInBackground("notifyPushForPhotoAccept", lNotificationMap, new FunctionCallback<Object>() {
+                @Override
+                public void done(Object object, ParseException e) {
+                    if (e == null){
+
+                    }else e.printStackTrace();
+                }
+            });
+        }
     }
 
     public void cancelSharedOnClick(View aView){
@@ -203,5 +225,11 @@ public class AddSharedUserPhoto extends AppCompatActivity {
 
     private void makeToast(String s) {
         Toast.makeText(this,s,Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        finish();
     }
 }

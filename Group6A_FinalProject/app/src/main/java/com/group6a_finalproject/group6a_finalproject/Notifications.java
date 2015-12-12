@@ -5,6 +5,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -78,6 +79,7 @@ public class Notifications extends AppCompatActivity implements GetAlbumNotifica
     }
 
     public void setAlbumRecyclerView(ArrayList<Album> aAlbums){
+
         fAlbumNotificationManager = new LinearLayoutManager(this);
         fAlbumView.setLayoutManager(fAlbumNotificationManager);
         fAlbums = aAlbums;
@@ -103,16 +105,18 @@ public class Notifications extends AppCompatActivity implements GetAlbumNotifica
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        Bundle lIntentBundle = data.getExtras();
+        if(data!=null) {
+            Bundle lIntentBundle = data.getExtras();
 
-        switch (requestCode){
-            case fEDIT_PHOTO:
-                if(resultCode == RESULT_OK){
-                    int position = lIntentBundle.getInt("photoPosition");
-                    fPhotos.remove(position);
-                    fPhotoAdapter.notifyDataSetChanged();
-                }
-                break;
+            switch (requestCode) {
+                case fEDIT_PHOTO:
+                    if (resultCode == RESULT_OK) {
+                        int position = lIntentBundle.getInt("photoPosition");
+                        fPhotos.remove(position);
+                        fPhotoAdapter.notifyDataSetChanged();
+                    }
+                    break;
+            }
         }
     }
 

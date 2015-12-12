@@ -8,6 +8,7 @@ import android.os.AsyncTask;
 
 import com.parse.FindCallback;
 import com.parse.GetDataCallback;
+import com.parse.Parse;
 import com.parse.ParseException;
 import com.parse.ParseFile;
 import com.parse.ParseObject;
@@ -60,10 +61,17 @@ public class GetAlbumNotificationsAsync extends AsyncTask<Void,Void,ArrayList<Al
         lQueryAlbumNotifications.include(fALBUM_COULUMN);
         lQueryAlbumNotifications.whereEqualTo(fTO_USER, fCurrentUser);
         lQueryAlbumNotifications.whereDoesNotExist(fTHUMBNAIL_COULUMN);
-        lQueryAlbumNotifications.findInBackground(new FindCallback<ParseObject>() {
-            @Override
-            public void done(List<ParseObject> objects, ParseException e) {
-                if(e == null){
+
+        List<ParseObject> objects = null;
+        try {
+           objects = lQueryAlbumNotifications.find();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+//        lQueryAlbumNotifications.findInBackground(new FindCallback<ParseObject>() {
+//            @Override
+//            public void done(List<ParseObject> objects, ParseException e) {
+//                if(e == null){
                     for(ParseObject object:objects){
                         final Album album = new Album();
                         ParseObject lAlbum = object.getParseObject(fALBUM_COULUMN);
@@ -81,9 +89,9 @@ public class GetAlbumNotificationsAsync extends AsyncTask<Void,Void,ArrayList<Al
 
                         fAlbums.add(album);
                     }
-                }
-            }
-        });
+//                }
+//            }
+//        });
 
         return fAlbums;
     }

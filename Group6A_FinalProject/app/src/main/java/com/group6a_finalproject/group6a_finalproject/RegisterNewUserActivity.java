@@ -3,6 +3,7 @@ package com.group6a_finalproject.group6a_finalproject;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -10,8 +11,13 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.parse.FindCallback;
+import com.parse.FunctionCallback;
+import com.parse.Parse;
+import com.parse.ParseCloud;
 import com.parse.ParseException;
 import com.parse.ParseInstallation;
+import com.parse.ParseObject;
 import com.parse.ParsePush;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
@@ -19,6 +25,9 @@ import com.parse.SaveCallback;
 import com.parse.SendCallback;
 import com.parse.SignUpCallback;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -121,36 +130,54 @@ public class RegisterNewUserActivity extends AppCompatActivity {
             @Override
             public void done(ParseException e) {
                 if(e==null){
-//                    ParsePush.subscribeInBackground("NewUser")
-                    final ParsePush push = new ParsePush();
-                    push.setChannel("NewUser");
-                    push.setMessage("New user " + lName + " Signed up!!!");
-                    push.sendInBackground(new SendCallback() {
+                    ParseQuery<ParseUser> user = ParseQuery.getQuery("_User");
+                    user.whereNotEqualTo("objectId", ParseUser.getCurrentUser().getObjectId());
+                    user.findInBackground(new FindCallback<ParseUser>() {
                         @Override
-                        public void done(ParseException e) {
+                        public void done(List<ParseUser> objects, ParseException e) {
                             if (e == null) {
+                                for (ParseUser object : objects) {
+                                    if(object.getBoolean("getNotification")) {
+                                        Map<String, String> lNotifyUsers = new HashMap<>();
+                                        lNotifyUsers.put("toUser", object.getObjectId());
+                                        lNotifyUsers.put("fromUser", ParseUser.getCurrentUser().getString("name"));
+                                        lNotifyUsers.put("type", "New User");
+                                        lNotifyUsers.put("message", " has newly signed up to the system");
+
+                                        ParseCloud.callFunctionInBackground("notifyPushUsers", lNotifyUsers, new FunctionCallback<Object>() {
+                                            @Override
+                                            public void done(Object object, ParseException e) {
+
+                                                if (e == null) {
+
+                                                } else
+                                                    e.printStackTrace();
+
+                                            }
+                                        });
+                                    }
+                                }
                                 ParseInstallation lNewUser = ParseInstallation.getCurrentInstallation();
-                                lNewUser.put("user", lSignupUser);
-//                                lNewUser.addUnique("channels", "NewUser");
+                                lNewUser.put("user", ParseUser.getCurrentUser().getObjectId());
                                 lNewUser.saveInBackground(new SaveCallback() {
                                     @Override
                                     public void done(ParseException e) {
                                         if (e == null) {
-//                                            push.subscribeInBackground("NewUser");
                                             makeToast("Registration Successful");
-                                            finish();
-                                        }else e.printStackTrace();
+                                        } else e.printStackTrace();
                                     }
                                 });
                             } else e.printStackTrace();
                         }
                     });
 
-
                 }
                 else{
                     fEmail.setError("Email already exists");
+                    e.printStackTrace();
                 }
+
+                finish();
             }
         });
     }

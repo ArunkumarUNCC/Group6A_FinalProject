@@ -419,6 +419,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                                                 ParseObject.createWithoutData("Photos",object.getObjectId()).deleteEventually();
                                                 fPhotosForDisplay.remove(position);
                                                 notifyDataSetChanged();
+                                                AlbumActivity.fPagerAdapter.notifyDataSetChanged();
                                             }
                                         }
                                     }

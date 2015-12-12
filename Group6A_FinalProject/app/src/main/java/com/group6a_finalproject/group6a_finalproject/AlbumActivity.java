@@ -40,9 +40,6 @@ public class AlbumActivity extends AppCompatActivity implements GetPhotosAsync.I
     final String fGOTO_INVITE = "android.intent.action.INVITE_USERS";
     final String fGOTO_CRTEATE_ALBUM = "android.intent.action.CREATE_ALBUM";
     final String fGOTO_USER_DIRECTORY ="android.intent.action.USER_DIRECTORY";
-    final String fGOTO_MY_PROFILE = "android.intent.action.MAIN_PROFILE";
-    final String fGOTO_USER_INBOX = "android.intent.action.USER_INBOX";
-    final String fGOTO_NOTIFICATIONS = "android.intent.action.NOTIFICATIONS";
     final  String fALBUM_NAME_EXTRA = "ALBUM_NAME";
     final  String fALBUM_USER = "IS_SHARED_USER";
     final int fNEW_PHOTO_REQCODE = 1002;
@@ -50,7 +47,7 @@ public class AlbumActivity extends AppCompatActivity implements GetPhotosAsync.I
 
     static RecyclerView fPhotoRecycler;
     RecyclerAdapter fAdapter;
-    ViewPagerAdapter fPagerAdapter;
+    public static ViewPagerAdapter fPagerAdapter;
     LinearLayoutManager fRecyclerLayout;
     static Button fAddPhotoButton;
     static TextView fAlbumNameText;
@@ -63,7 +60,7 @@ public class AlbumActivity extends AppCompatActivity implements GetPhotosAsync.I
     static boolean fIsSliderOn = false;
     ParseUser fAlbumOwner;
 
-    static ArrayList<Photo> fAlbumPhotos;
+    public static ArrayList<Photo> fAlbumPhotos;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -188,6 +185,7 @@ public class AlbumActivity extends AppCompatActivity implements GetPhotosAsync.I
 
                                     fAlbumPhotos.add(lNewPhoto);
                                     fAdapter.notifyDataSetChanged();
+                                    fPagerAdapter.notifyDataSetChanged();
                                 }
                             }
                         });
@@ -220,6 +218,7 @@ public class AlbumActivity extends AppCompatActivity implements GetPhotosAsync.I
             fAlbumPhotos = photos;
 
         fAdapter = new RecyclerAdapter(fAlbumPhotos,AlbumActivity.this,2,fAlbumOwner,fAlbumName);
+
         fPagerAdapter = new ViewPagerAdapter(this,fAlbumPhotos);
         fPhotoRecycler.setAdapter(fAdapter);
         fPager.setAdapter(fPagerAdapter);
