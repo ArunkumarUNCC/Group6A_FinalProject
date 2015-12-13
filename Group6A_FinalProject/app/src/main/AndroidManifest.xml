@@ -27,10 +27,13 @@
         <meta-data
             android:name="com.facebook.sdk.ApplicationId"
             android:value="@string/facebook_app_id"/>
+
+
         ...
         <activity android:name="com.facebook.FacebookActivity"
             android:theme="@android:style/Theme.Translucent.NoTitleBar"
             android:label="@string/app_name" />
+
 
         <!-- For push notofications -->
         <!-- <meta-data android:name="com.parse.push.gcm_sender_id" android:value="id:"></meta-data> -->
@@ -204,6 +207,10 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+        <meta-data android:name="com.crashlytics.ApiKey" android:value="d3901e049890c0501134c4fd6018e87286e8f76c"/>
+        <meta-data
+            android:name="io.fabric.ApiKey"
+            android:value="d3901e049890c0501134c4fd6018e87286e8f76c" />
     </application>
 
 </manifest>

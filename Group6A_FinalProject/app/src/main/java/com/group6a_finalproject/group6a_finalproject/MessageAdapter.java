@@ -10,6 +10,7 @@ import android.graphics.Color;
 import android.graphics.ColorFilter;
 import android.graphics.drawable.Drawable;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -80,6 +81,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageL
         }
         holder.lFromField.setText("From: " + lFromField);
         holder.lMessageBody.setText(lMessagePreview);
+
         holder.lTimeStamp.setText(fUserMessages.get(position).getTimeStamp().toString());
 
        ParseQuery<ParseObject> lReadQuery = ParseQuery.getQuery("MessageTable")

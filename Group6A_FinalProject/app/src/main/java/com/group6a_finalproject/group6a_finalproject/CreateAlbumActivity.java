@@ -90,6 +90,9 @@ public class CreateAlbumActivity extends AppCompatActivity {
         fOldAlbumName = getIntent().getExtras().getString("albumName");
         switch (fWhichTask){
             case 2:
+
+                getSupportActionBar().setTitle("Edit Album");
+//                getActionBar().setHomeButtonEnabled(true);
                 setItems();
                 break;
             default:
@@ -156,14 +159,15 @@ public class CreateAlbumActivity extends AppCompatActivity {
         final String lAlbumName;
 
 
-            if(fWhichTask == 2){
-                lAlbumName = fOldAlbumName;
-            } else{lAlbumName = fAlbumName.getText().toString();}
+//            if(fWhichTask == 2){
+                lAlbumName = fAlbumName.getText().toString();
+//        fOldAlbumName;
+//            } else{lAlbumName = fAlbumName.getText().toString();}
 
 
         if(!lAlbumName.isEmpty()) {
             ParseQuery<ParseObject> checkAlbumName = ParseQuery.getQuery("Album");
-            checkAlbumName.whereEqualTo("name", lAlbumName);
+            checkAlbumName.whereEqualTo("name", fOldAlbumName);
             checkAlbumName.findInBackground(new FindCallback<ParseObject>() {
                 @Override
                 public void done(List<ParseObject> objects, ParseException e) {

@@ -27,6 +27,7 @@ import com.parse.ParseImageView;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -277,6 +278,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         if (!ParseUser.getCurrentUser().getString(fNAME).equals(lAlbumOwner))
             lAlbums.lAlbumDelete.setImageBitmap(null);
         else{
+            Picasso.with(fContext).load(android.R.drawable.ic_delete).into(lAlbums.lAlbumDelete);
             lAlbums.lAlbumDelete.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -353,7 +355,8 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             @Override
             public void run() {
                 if (lAlbumBitmap==null) {
-                    lAlbums.lAlbumImage.setImageResource(R.drawable.no_mage);
+                    Picasso.with(fContext).load(R.drawable.no_mage).into(lAlbums.lAlbumImage);
+//                    lAlbums.lAlbumImage.setImageResource(R.drawable.no_mage);
                 }
                 else{
                     lAlbums.lAlbumImage.setParseFile(lAlbumBitmap);

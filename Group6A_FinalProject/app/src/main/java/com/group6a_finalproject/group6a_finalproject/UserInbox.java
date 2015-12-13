@@ -1,6 +1,7 @@
 package com.group6a_finalproject.group6a_finalproject;
 
 import android.content.Intent;
+import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
@@ -17,6 +18,8 @@ import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class UserInbox extends AppCompatActivity implements GetMessagesAsync.IGetMessages {
@@ -100,12 +103,27 @@ public class UserInbox extends AppCompatActivity implements GetMessagesAsync.IGe
         fMessageRecycler = (RecyclerView) findViewById(R.id.RecyclerViewInbox);
     }
 
+    public ArrayList<Messages> sortList(ArrayList<Messages> nonSorted){
+
+        Collections.sort(nonSorted, new Comparator<Messages>() {
+            @Override
+            public int compare(Messages lhs, Messages rhs) {
+                return rhs.getTimeStamp().compareTo(lhs.getTimeStamp());
+            }
+        });
+
+        return nonSorted;
+    }
+
     public void setRecyclerView(ArrayList<Messages> aMessageList){
         fRecyclerLayout = new LinearLayoutManager(UserInbox.this);
         fMessageRecycler.setLayoutManager(fRecyclerLayout);
 
-        if (aMessageList != null)
+        if (aMessageList != null){
+            aMessageList = sortList(aMessageList);
             fAdapter = new MessageAdapter(aMessageList, UserInbox.this);
+        }
+
         fMessageRecycler.setAdapter(fAdapter);
     }
 

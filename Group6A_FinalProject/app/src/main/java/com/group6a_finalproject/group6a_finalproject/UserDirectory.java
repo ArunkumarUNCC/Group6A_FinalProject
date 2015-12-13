@@ -13,6 +13,8 @@ import com.parse.ParseObject;
 import com.parse.ParseUser;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 public class UserDirectory extends AppCompatActivity implements GetUsersAsync.IGetUsers{
 
@@ -45,7 +47,9 @@ public class UserDirectory extends AppCompatActivity implements GetUsersAsync.IG
         if (fIsShared){
             fAlbumName = fIntentBundle.getString("albumName");
             fShowShared = fIntentBundle.getBoolean("showShared");
-            new GetUsersAsync(this,fAlbumName,fShowShared,fIsShared).execute();
+            new GetUsersAsync(this,fAlbumName, fShowShared,fIsShared).execute();
+
+
         }
         else
             new GetUsersAsync(this).execute();
@@ -55,6 +59,7 @@ public class UserDirectory extends AppCompatActivity implements GetUsersAsync.IG
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_user_directory, menu);
+
         return true;
     }
 
@@ -89,12 +94,26 @@ public class UserDirectory extends AppCompatActivity implements GetUsersAsync.IG
         setRecyclerView(users);
     }
 
+    public ArrayList<User> sortList(ArrayList<User> nonSorted){
+
+        Collections.sort(nonSorted, new Comparator<User>() {
+            @Override
+            public int compare(User lhs, User rhs) {
+                return lhs.getUserName().compareToIgnoreCase(rhs.getUserName());
+            }
+        });
+
+        return nonSorted;
+    }
+
     private void setRecyclerView(ArrayList<User> photos) {
         fRecyclerLayout = new LinearLayoutManager(UserDirectory.this);
         fUserRecycler.setLayoutManager(fRecyclerLayout);
 
-        if (photos!=null)
+        if (photos!=null) {
             fUsers = photos;
+            fUsers = sortList(fUsers);
+        }
 
         fAdapter = new RecyclerAdapter(fUsers,UserDirectory.this,3,fWhich);
         fUserRecycler.setAdapter(fAdapter);

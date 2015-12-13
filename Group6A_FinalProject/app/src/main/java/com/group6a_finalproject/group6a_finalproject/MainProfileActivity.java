@@ -151,7 +151,7 @@ public class MainProfileActivity extends AppCompatActivity {
         Toast.makeText(getApplicationContext(), aString, Toast.LENGTH_SHORT).show();
     }
 
-    public void editProfileOnClick (View aView){
+    public void editProfileOnClick (MenuItem aItem){
         toActivity(fGOTO_EDIT_PROFILE);
     }
 

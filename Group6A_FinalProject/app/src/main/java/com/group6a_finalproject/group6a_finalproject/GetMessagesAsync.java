@@ -3,6 +3,7 @@ package com.group6a_finalproject.group6a_finalproject;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
+import android.util.Log;
 
 import com.parse.FindCallback;
 import com.parse.Parse;
@@ -53,7 +54,8 @@ public class GetMessagesAsync extends AsyncTask<Void, Void, ArrayList<Messages>>
             lMessage.setMessageBody(aMessage.getString("Message"));
             lMessage.setObjectID(aMessage.getObjectId());
 //            lMessage.setAttachment(aMessage.getParseFile("Attachment"));
-            lMessage.setTimeStamp(aMessage.getCreatedAt());//Todo update so it displays correctly
+            lMessage.setTimeStamp(aMessage.getCreatedAt());
+            Log.d("Time", String.valueOf(aMessage.getCreatedAt().getTime()));
 
         }catch (ParseException e){
             e.printStackTrace();

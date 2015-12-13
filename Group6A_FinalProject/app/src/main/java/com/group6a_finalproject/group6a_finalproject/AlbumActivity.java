@@ -73,17 +73,10 @@ public class AlbumActivity extends AppCompatActivity implements GetPhotosAsync.I
         checkPrivacy();
         getAlbumOwner();
 
-        setActionBarTitle(fAlbumName);
-
         new GetPhotosAsync(this,2).execute(fAlbumName);
     }
 
-    private void setActionBarTitle(String aAlbumName) {
-        //Display Album name
-        ActionBar actionBar = getSupportActionBar();
-        actionBar.setDisplayShowHomeEnabled(true);
-        actionBar.setTitle(aAlbumName);
-    }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -197,8 +190,7 @@ public class AlbumActivity extends AppCompatActivity implements GetPhotosAsync.I
                     SharedPreferenceSetup lTempAlbum = new SharedPreferenceSetup(sp);
                     if (lTempAlbum.checkKey("oldAlbumName")){
                         Album toPutIntoList = lTempAlbum.getAlbumPreference("myAlbum");
-                        setActionBarTitle(toPutIntoList.getAlbumName());
-
+                        fAlbumNameText.setText(toPutIntoList.getAlbumName());
                     }
             }
         }

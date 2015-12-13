@@ -98,15 +98,6 @@ public class EditProfileActivity extends AppCompatActivity {
 
         ParseFile file = user.getParseFile("thumbnail");
         if (file!=null) {
-//            file.getDataInBackground(new GetDataCallback() {
-//                @Override
-//                public void done(byte[] data, ParseException e) {
-//                    Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
-//                    ByteArrayOutputStream stream = new ByteArrayOutputStream();
-//                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
-//                    fProfilePic.setImageBitmap(bitmap);
-//                }
-//            });
             fProfilePic.setParseFile(file);
             fProfilePic.loadInBackground();
             fProfilePic.setScaleType(ParseImageView.ScaleType.FIT_XY);
@@ -147,6 +138,7 @@ public class EditProfileActivity extends AppCompatActivity {
                 fName.setError("Invalid name");
             if (lEmail.isEmpty())
                 fEmail.setError("Email is empty");
+
         }
         else{
             ParseUser lSaveUser = ParseUser.getCurrentUser();
@@ -174,7 +166,10 @@ public class EditProfileActivity extends AppCompatActivity {
                         makeToast("Profile updated!");
                         sendActivityResult();
                     }
-                    else e.printStackTrace();
+                    else{
+                        fEmail.setError("Invalid Email");
+                        e.printStackTrace();
+                    }
                 }
             });
         }

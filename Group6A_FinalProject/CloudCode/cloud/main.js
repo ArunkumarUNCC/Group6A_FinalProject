@@ -46,7 +46,8 @@ Parse.Cloud.define("notifyPushForPhoto",function(request,response){
     });
 });
 
-Parse.Cloud.define("notifyPushForPhotoAccept",function(request,response){
+
+ Parse.Cloud.define("notifyPushForPhotoAccept",function(request,response){
 	getCommonValues(request);
 
 	var albumId = request.params.albumObjectId;
@@ -65,27 +66,6 @@ Parse.Cloud.define("notifyPushForPhotoAccept",function(request,response){
     	error: function(){
     		response.error("Push notification not sent");
     	}
-    });
-});
-
-Parse.Cloud.define("notifyPushUsers",function(request,response){
-
-	getCommonValues(request);
-	query.equalTo("user",toUser);
-
-	Parse.Push.send({
-		where : query,
-		data :{
-			alert : fromUser+ message,
-            type : activityType
-		}
-	},{
-         success: function(){
-         	response.success("Push notification sent");
-         },
-         error: function(){
-         	response.error("Push notification not sent");
-         }
     });
 });
 

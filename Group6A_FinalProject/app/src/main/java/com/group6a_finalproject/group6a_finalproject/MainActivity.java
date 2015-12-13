@@ -27,6 +27,7 @@ import com.parse.ParseCloud;
 import com.parse.ParseException;
 import com.parse.ParseFile;
 import com.parse.ParseInstallation;
+import com.parse.ParseObject;
 import com.parse.ParsePush;
 import com.parse.ParseQuery;
 import com.parse.ParseTwitterUtils;
@@ -68,7 +69,7 @@ public class MainActivity extends AppCompatActivity {
     final String fSECRET = "uwAXIjcn6oTpCRXJKvG5mMkBvPop2ABvUtj98bMMCOFuM7hOeY";
     EditText fEmail, fPassword;
     LoginButton fFacebookLogin;
-    TwitterLoginButton fTwitterButton;
+//    TwitterLoginButton fTwitterButton;
     CallbackManager fCallBack;
     Bitmap fBitmap = null;
 
@@ -137,7 +138,7 @@ public class MainActivity extends AppCompatActivity {
         });
         //endregion
 
-        fTwitterButton.setCallback(new Callback<TwitterSession>() {
+       /* fTwitterButton.setCallback(new Callback<TwitterSession>() {
             @Override
             public void success(Result<TwitterSession> result) {
                 Log.d("Twitter", result.data.toString());
@@ -160,7 +161,7 @@ public class MainActivity extends AppCompatActivity {
                 Log.d("Twitter", e.toString());
                 makeToast("Twitter login failed.");
             }
-        });
+        });*/
 
     }
 
@@ -225,39 +226,11 @@ public class MainActivity extends AppCompatActivity {
                             if (e == null) {
                                 for (ParseUser object : objects) {
                                     if (object.getBoolean("getNotification")) {
-                                        Map<String, String> lNotifyUsers = new HashMap<>();
-                                        lNotifyUsers.put("toUser", object.getObjectId());
-                                        lNotifyUsers.put("fromUser", ParseUser.getCurrentUser().getString("name"));
-                                        lNotifyUsers.put("type", "New User");
-                                        lNotifyUsers.put("message", " has newly signed up to the system");
-
-                                        ParseCloud.callFunctionInBackground("notifyPushUsers", lNotifyUsers, new FunctionCallback<Object>() {
-                                            @Override
-                                            public void done(Object object, ParseException e) {
-
-                                                if (e == null) {
-
-                                                } else {
-                                                    Log.d("see","error");
-                                                    e.printStackTrace();
-
-                                                }
-                                            }
-                                        });
+                                        sendNotiication(object);
                                     }
                                 }
 
-                                ParseInstallation lNewUser = ParseInstallation.getCurrentInstallation();
-                                lNewUser.put("user", ParseUser.getCurrentUser().getObjectId());
-                                lNewUser.saveInBackground(new SaveCallback() {
-                                    @Override
-                                    public void done(ParseException e) {
-                                        if (e == null) {
-                                            makeToast("Registration Successful");
-                                            loginFBUser(lUser.getUsername(), "pass");
-                                        } else e.printStackTrace();
-                                    }
-                                });
+                                createInstallation(lUser);
                             } else e.printStackTrace();
                         }
                     });
@@ -302,9 +275,10 @@ public class MainActivity extends AppCompatActivity {
 
         ParseTwitterUtils.initialize(fCONSUMER_KEY, fSECRET);
         TwitterAuthConfig twitAuth = new TwitterAuthConfig(fCONSUMER_KEY, fSECRET);
+
         Fabric.with(this, new TwitterCore(twitAuth));
 
-        fTwitterButton = (TwitterLoginButton) findViewById(R.id.twitterLogin_button);
+//        fTwitterButton = (TwitterLoginButton) findViewById(R.id.twitterLogin_button);
     }
 
     public void facebookLoginOnClick (View aView){
@@ -312,7 +286,18 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void twitterLoginOnClick(View aView){
-        //update
+        ParseTwitterUtils.logIn(this, new LogInCallback() {
+            @Override
+            public void done(ParseUser user, ParseException err) {
+                if (user == null) {
+                    Log.d("MyApp", "Uh oh. The user cancelled the Twitter login.");
+                } else if (user.isNew()) {
+
+                } else {
+
+                }
+            }
+        });
     }
 
     public void toActivity(String aIntent){
@@ -359,7 +344,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         fCallBack.onActivityResult(requestCode, resultCode, data);
-        fTwitterButton.onActivityResult(requestCode,  resultCode,  data);
+//        fTwitterButton.onActivityResult(requestCode,  resultCode,  data);
 
     }
 
@@ -374,8 +359,44 @@ public class MainActivity extends AppCompatActivity {
         installation.saveInBackground(new SaveCallback() {
             @Override
             public void done(ParseException e) {
-                if (e!=null)
+                if (e != null)
                     e.printStackTrace();
+            }
+        });
+    }
+
+    private void sendNotiication(ParseUser object){
+        Map<String, String> lNotifyUsers = new HashMap<>();
+        lNotifyUsers.put("toUser", object.getObjectId());
+        lNotifyUsers.put("fromUser", ParseUser.getCurrentUser().getString("name"));
+        lNotifyUsers.put("type", "New User");
+        lNotifyUsers.put("message", " has newly signed up to the system");
+
+        ParseCloud.callFunctionInBackground("notifyPush", lNotifyUsers, new FunctionCallback<Object>() {
+            @Override
+            public void done(Object object, ParseException e) {
+
+                if (e == null) {
+
+                } else {
+                    Log.d("see", "error");
+                    e.printStackTrace();
+
+                }
+            }
+        });
+    }
+
+    private void createInstallation(final ParseUser aUser){
+        ParseInstallation lNewUser = ParseInstallation.getCurrentInstallation();
+        lNewUser.put("user", ParseUser.getCurrentUser().getObjectId());
+        lNewUser.saveInBackground(new SaveCallback() {
+            @Override
+            public void done(ParseException e) {
+                if (e == null) {
+                    makeToast("Registration Successful");
+                    loginFBUser(aUser.getUsername(), "pass");
+                } else e.printStackTrace();
             }
         });
     }

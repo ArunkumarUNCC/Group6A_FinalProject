@@ -24,6 +24,8 @@ import com.parse.ParseUser;
 import java.io.ByteArrayOutputStream;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
@@ -106,12 +108,26 @@ public class AlbumsList extends AppCompatActivity implements GetAlbumsAsync.IGet
         }
     }
 
+    public ArrayList<Album> sortList(ArrayList<Album> nonSorted){
+
+        Collections.sort(nonSorted, new Comparator<Album>() {
+            @Override
+            public int compare(Album lhs, Album rhs) {
+                return lhs.getAlbumName().compareToIgnoreCase(rhs.getAlbumName());
+            }
+        });
+
+        return nonSorted;
+    }
+
     private void setRecyclerView(ArrayList<Album> albums) {
         fAlbumsLayoutManager=  new LinearLayoutManager(this);
         fAlbumsListRecycler.setLayoutManager(fAlbumsLayoutManager);
 
-        if (albums!=null)
+        if (albums!=null) {
             fAlbumsList = albums;
+            fAlbumsList = sortList(fAlbumsList);
+        }
 
         fAlbumsAdapter = new RecyclerAdapter(AlbumsList.this,1);
         fAlbumsAdapter.setAlbumsList(fAlbumsList);
@@ -119,6 +135,7 @@ public class AlbumsList extends AppCompatActivity implements GetAlbumsAsync.IGet
     }
 
     private void resetRecyclerView(ArrayList<Album> albums){
+        albums = sortList(albums);
 
         RecyclerAdapter lAlbumsAdapter = new RecyclerAdapter(AlbumsList.this,1);
         lAlbumsAdapter.setAlbumsList(albums);
@@ -167,6 +184,7 @@ public class AlbumsList extends AppCompatActivity implements GetAlbumsAsync.IGet
                         for(int i=0;i<fAlbumsList.size();i++){
                             if(fAlbumsList.get(i).getAlbumName().equals(aOldAlbumName)){
                                 fAlbumsList.set(i, lTempAlbum.getAlbumPreference("myAlbum"));
+                                fAlbumsList = sortList(fAlbumsList);
                                 fAlbumsAdapter.notifyDataSetChanged();
                                 break;
                             }

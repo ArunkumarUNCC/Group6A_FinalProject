@@ -92,94 +92,99 @@ public class RegisterNewUserActivity extends AppCompatActivity {
         Pattern lCheckSpace = Pattern.compile("\\s");
         Matcher lSpaceMatcher = lCheckSpace.matcher(lName);
         boolean lIsSpace = lSpaceMatcher.find();
+        boolean lIsGood = true;
 
         if(lName.isEmpty()){
             fName.setError("Enter Name");
+            lIsGood = false;
         }
         else if(!lIsSpace){
             fName.setText("");
             fName.setError("Invalid Name");
+            lIsGood = false;
         }
         if(lEmail.isEmpty()){
             fEmail.setError("Enter Email");
+            lIsGood = false;
         }
         if (lPassword.isEmpty()){
             fPassword.setError("Empty Password");
+            lIsGood = false;
         }
         if (lConfirmPassword.isEmpty()){
             fConfirmPassword.setError("Re Enter Password");
+            lIsGood = false;
         }
         if(!lPassword.equals(lConfirmPassword)){
             fPassword.setText("");
             fConfirmPassword.setText("");
             makeToast("Passwords Mismatch");
 
-            return;
+            lIsGood = false;
         }
 
-        //Signing up in Parse
-        final ParseUser lSignupUser = new ParseUser();
-        lSignupUser.setEmail(lEmail);
-        lSignupUser.setPassword(lPassword);
-        lSignupUser.setUsername(lEmail);
-        lSignupUser.put("name", lName);
-        lSignupUser.put("gender", lGender);
-        lSignupUser.put("getNotification",true);
-        lSignupUser.put("isVisible",true);
-        lSignupUser.signUpInBackground(new SignUpCallback() {
-            @Override
-            public void done(ParseException e) {
-                if(e==null){
-                    ParseQuery<ParseUser> user = ParseQuery.getQuery("_User");
-                    user.whereNotEqualTo("objectId", ParseUser.getCurrentUser().getObjectId());
-                    user.findInBackground(new FindCallback<ParseUser>() {
-                        @Override
-                        public void done(List<ParseUser> objects, ParseException e) {
-                            if (e == null) {
-                                for (ParseUser object : objects) {
-                                    if(object.getBoolean("getNotification")) {
-                                        Map<String, String> lNotifyUsers = new HashMap<>();
-                                        lNotifyUsers.put("toUser", object.getObjectId());
-                                        lNotifyUsers.put("fromUser", ParseUser.getCurrentUser().getString("name"));
-                                        lNotifyUsers.put("type", "New User");
-                                        lNotifyUsers.put("message", " has newly signed up to the system");
+        if (lIsGood) {
+            //Signing up in Parse
+            final ParseUser lSignupUser = new ParseUser();
+            lSignupUser.setEmail(lEmail);
+            lSignupUser.setPassword(lPassword);
+            lSignupUser.setUsername(lEmail);
+            lSignupUser.put("name", lName);
+            lSignupUser.put("gender", lGender);
+            lSignupUser.put("getNotification", true);
+            lSignupUser.put("isVisible", true);
+            lSignupUser.signUpInBackground(new SignUpCallback() {
+                @Override
+                public void done(ParseException e) {
+                    if (e == null) {
+                        ParseQuery<ParseUser> user = ParseQuery.getQuery("_User");
+                        user.whereNotEqualTo("objectId", ParseUser.getCurrentUser().getObjectId());
+                        user.findInBackground(new FindCallback<ParseUser>() {
+                            @Override
+                            public void done(List<ParseUser> objects, ParseException e) {
+                                if (e == null) {
+                                    for (ParseUser object : objects) {
+                                        if (object.getBoolean("getNotification")) {
+                                            Map<String, String> lNotifyUsers = new HashMap<>();
+                                            lNotifyUsers.put("toUser", object.getObjectId());
+                                            lNotifyUsers.put("fromUser", ParseUser.getCurrentUser().getString("name"));
+                                            lNotifyUsers.put("type", "New User");
+                                            lNotifyUsers.put("message", " has newly signed up to the system");
 
-                                        ParseCloud.callFunctionInBackground("notifyPushUsers", lNotifyUsers, new FunctionCallback<Object>() {
-                                            @Override
-                                            public void done(Object object, ParseException e) {
+                                            ParseCloud.callFunctionInBackground("notifyPush", lNotifyUsers, new FunctionCallback<Object>() {
+                                                @Override
+                                                public void done(Object object, ParseException e) {
 
-                                                if (e == null) {
+                                                    if (e == null) {
 
-                                                } else
-                                                    e.printStackTrace();
+                                                    } else
+                                                        e.printStackTrace();
 
-                                            }
-                                        });
+                                                }
+                                            });
+                                        }
                                     }
-                                }
-                                ParseInstallation lNewUser = ParseInstallation.getCurrentInstallation();
-                                lNewUser.put("user", ParseUser.getCurrentUser().getObjectId());
-                                lNewUser.saveInBackground(new SaveCallback() {
-                                    @Override
-                                    public void done(ParseException e) {
-                                        if (e == null) {
-                                            makeToast("Registration Successful");
-                                        } else e.printStackTrace();
-                                    }
-                                });
-                            } else e.printStackTrace();
-                        }
-                    });
-
+                                    ParseInstallation lNewUser = ParseInstallation.getCurrentInstallation();
+                                    lNewUser.put("user", ParseUser.getCurrentUser().getObjectId());
+                                    lNewUser.saveInBackground(new SaveCallback() {
+                                        @Override
+                                        public void done(ParseException e) {
+                                            if (e == null) {
+                                                makeToast("Registration Successful");
+                                            } else e.printStackTrace();
+                                        }
+                                    });
+                                } else e.printStackTrace();
+                            }
+                        });
+                        finish();
+                    } else {
+                        fEmail.setError("Invalid/Already existing email");
+                        e.printStackTrace();
+                    }
                 }
-                else{
-                    fEmail.setError("Email already exists");
-                    e.printStackTrace();
-                }
-
-                finish();
-            }
-        });
+            });
+        }else return;
     }
 
     public void cancelOnClick (View aView){

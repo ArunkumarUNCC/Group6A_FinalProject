@@ -10,6 +10,7 @@ android {
         targetSdkVersion 23
         versionCode 1
         versionName "1.0"
+        multiDexEnabled true
     }
     buildTypes {
         release {
@@ -33,8 +34,15 @@ dependencies {
     compile 'com.facebook.android:facebook-android-sdk:4.2+'
     compile files('libs/gson-2.2.4.jar')
     compile 'com.parse:parsetwitterutils-android:1.10.3'
+    compile('com.crashlytics.sdk.android:crashlytics:2.0.1@aar') {
+        transitive = true
+    }
     compile('com.twitter.sdk.android:twitter:1.0.1@aar') {
         transitive = true
     }
+    compile('com.mopub.sdk.android:mopub:3.2.2@aar') {
+        transitive = true
+    }
+
 
 }

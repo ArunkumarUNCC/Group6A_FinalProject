@@ -32,5 +32,7 @@ public class ParseStart extends Application {
         });
 
         FacebookSdk.sdkInitialize(getApplicationContext());
+
+
     }
 }

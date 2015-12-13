@@ -28,6 +28,7 @@ public class PushReceiver extends ParsePushBroadcastReceiver{
     final String fGOTO_EDIT_SHARED_PHOTO = "android.intent.action.EDIT_SHARED_PHOTO";
     final String fGOTO_ALBUM_VIEW = "android.intent.action.ALBUM_VIEW";
     final String fGOTO_USER_DIRECTORY ="android.intent.action.USER_DIRECTORY";
+    final String fGOTO_USER_INBOX = "android.intent.action.USER_INBOX";
 
     JSONObject fData;
     public static final String fPARSE_DATA_KEY = "com.parse.Data";
@@ -99,6 +100,12 @@ public class PushReceiver extends ParsePushBroadcastReceiver{
                     lIntent = new Intent(fGOTO_USER_DIRECTORY);
                     lIntent.putExtra("fromCompose", 1);
                     lIntent.putExtra("fromShared",false);
+                    lIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    context.startActivity(lIntent);
+                    break;
+
+                case "New Message":
+                    lIntent = new Intent(fGOTO_USER_INBOX);
                     lIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     context.startActivity(lIntent);
                     break;

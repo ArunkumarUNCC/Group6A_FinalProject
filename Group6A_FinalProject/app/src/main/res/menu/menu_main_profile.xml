@@ -6,7 +6,8 @@
         android:visible="true" app:showAsAction="always" android:title="Search">
         <menu>
             <item android:id="@+id/editProfile" android:orderInCategory="10"
-                android:visible="true" app:showAsAction="never|withText" android:title="Edit Profile" />
+                android:visible="true" app:showAsAction="never|withText" android:onClick="editProfileOnClick"
+                android:title="Edit Profile" />
         </menu>
     </item>
     <item android:id="@+id/viewInbox" android:icon="@android:drawable/ic_dialog_email" android:orderInCategory="50"

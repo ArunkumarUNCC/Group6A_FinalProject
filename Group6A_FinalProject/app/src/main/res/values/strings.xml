@@ -3,10 +3,10 @@
 
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
-    <string name="title_activity_register_new_user">Register New User</string>
+    <string name="title_activity_register_new_user">Register</string>
     <string name="loginOnClick">loginOnClick</string>
     <string name="registerOnClick">registerOnClick</string>
-    <string name="title_activity_main_profile">Profile</string>
+    <string name="title_activity_main_profile">My Profile</string>
     <string name="title_activity_edit_profile">Edit Profile</string>
     <string name="editProfileOnClick">editProfileOnClick</string>
     <string name="saveProfileOnClick">saveProfileOnClick</string>
@@ -14,7 +14,7 @@
     <string name="cancelOnClick">cancelOnClick</string>
     <string name="editAvatarOnClick">editAvatarOnClick</string>
     <string name="title_activity_create_album">Create Album</string>
-    <string name="title_activity_album">Album</string>
+    <string name="title_activity_album">Album Photos</string>
     <string name="addAlbumThumbOnClick">addAlbumThumbOnClick</string>
     <string name="createAlbumOnClick">createAlbumOnClick</string>
     <string name="addPhotoOnClick">addPhotoOnClick</string>
@@ -30,7 +30,7 @@
     <string name="toFieldOnClick">toFieldOnClick</string>
     <string name="title_activity_albums_list">Albums</string>
     <string name="ownerTitle">Owner:</string>
-    <string name="title_activity_invite_users">Share</string>
+    <string name="title_activity_invite_users">Share Album</string>
     <string name="shareButtonLabel">Share</string>
     <string name="shareFieldOnClick">shareFieldOnClick </string>
     <string name="shareCancelOnClick">shareCancelOnClick</string>
@@ -55,4 +55,5 @@
     <string name="title_activity_photo_slider">Title</string>
     <string name="facebookLoginOnClick">facebookLoginOnClick</string>
     <string name="twitterLoginOnClick">twitterLoginOnClick</string>
+    <string name="attachImageOnClick">attachImageOnClick</string>
 </resources>

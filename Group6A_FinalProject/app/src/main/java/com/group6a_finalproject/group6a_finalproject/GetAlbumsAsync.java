@@ -72,29 +72,22 @@ public class GetAlbumsAsync extends AsyncTask<Integer,Void,ArrayList<Album>> {
             e.printStackTrace();
         }
 
-        fAlbums.add(lCurrentAlbum);
+        int i;
+        boolean isExist = false;
+        for (i = 0;i<fAlbums.size();i++){
+            if (fAlbums.get(0).getAlbumName().equals(lCurrentAlbum.getAlbumName())) {
+                isExist = true;
+                break;
+            }
+        }
+        if(!isExist)
+            fAlbums.add(lCurrentAlbum);
     }
 
     @Override
     protected ArrayList<Album> doInBackground(Integer... params) {
         int lQueryFlag = params[0];
         if (lQueryFlag == 1) {
-            ParseQuery<ParseObject> lGetPublicAlbums = ParseQuery.getQuery("Album");
-            lGetPublicAlbums.include("owner");
-            lGetPublicAlbums.whereEqualTo("privacy", "Public");
-            lGetPublicAlbums.whereNotEqualTo("owner", fCurrentUser);
-            try {
-                List<ParseObject> lObjects = lGetPublicAlbums.find();
-
-                if (lObjects.size() > 0) {
-                    for (ParseObject album : lObjects) {
-                        addToList(album, 1);
-                    }
-                }
-
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }
 
             ParseQuery<ParseObject> lGetSharedAlbums = ParseQuery.getQuery("AlbumShare");
             lGetSharedAlbums.include("sharedWith");
@@ -109,6 +102,23 @@ public class GetAlbumsAsync extends AsyncTask<Integer,Void,ArrayList<Album>> {
                         addToList(lObject,2);
                     }
                 }
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+
+            ParseQuery<ParseObject> lGetPublicAlbums = ParseQuery.getQuery("Album");
+            lGetPublicAlbums.include("owner");
+            lGetPublicAlbums.whereEqualTo("privacy", "Public");
+            lGetPublicAlbums.whereNotEqualTo("owner", fCurrentUser);
+            try {
+                List<ParseObject> lObjects = lGetPublicAlbums.find();
+
+                if (lObjects.size() > 0) {
+                    for (ParseObject album : lObjects) {
+                        addToList(album, 1);
+                    }
+                }
+
             } catch (ParseException e) {
                 e.printStackTrace();
             }

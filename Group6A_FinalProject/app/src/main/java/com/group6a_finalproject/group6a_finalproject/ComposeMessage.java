@@ -16,6 +16,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.parse.FindCallback;
+import com.parse.FunctionCallback;
+import com.parse.ParseCloud;
 import com.parse.ParseException;
 import com.parse.ParseFile;
 import com.parse.ParseObject;
@@ -25,7 +27,9 @@ import com.parse.SaveCallback;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ComposeMessage extends AppCompatActivity {
 
@@ -162,6 +166,23 @@ public class ComposeMessage extends AppCompatActivity {
                     }
                 }
 
+                if (fReturnUser.getBoolean("getNotification")){
+                    Map<String, String> lNotificationMap = new HashMap<String, String>();
+                    lNotificationMap.put("toUser", fReturnUser.getObjectId());
+                    lNotificationMap.put("fromUser",fCurrentUser.getString("name"));
+                    lNotificationMap.put("message"," sent you a message");
+                    lNotificationMap.put("type","New Message");
+                    ParseCloud.callFunctionInBackground("notifyPush", lNotificationMap, new FunctionCallback<Object>() {
+                        @Override
+                        public void done(Object object, ParseException e) {
+                            if (e == null) {
+
+                            } else e.printStackTrace();
+                        }
+                    });
+                }
+
+
                 fParseObj.saveInBackground(new SaveCallback() {
                     @Override
                     public void done(ParseException e) {
@@ -183,7 +204,7 @@ public class ComposeMessage extends AppCompatActivity {
         }else makeToast("Cannot send empty message.");
     }
 
-    public  void attachImageOnClick (MenuItem aMenuItem){
+    public  void attachImageOnClick (View aView){
         Intent lPictureIntent = new Intent(Intent.ACTION_PICK);
         lPictureIntent.setType("image/");
         startActivityForResult(lPictureIntent, fSELECT_PICTURE);
@@ -216,6 +237,7 @@ public class ComposeMessage extends AppCompatActivity {
                         e.printStackTrace();
                     }
                     fMessageAttachment.setImageURI(lSelectedImgUri);
+                    fMessageAttachment.setScaleType(ImageView.ScaleType.FIT_XY);
                     break;
                 case fTO_USER_DIRECTORY://replying to message
                     fTo_User_Email = data.getStringExtra("toField");
