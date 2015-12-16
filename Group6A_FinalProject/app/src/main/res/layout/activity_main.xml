@@ -52,7 +52,7 @@
             android:layout_marginTop="25dp"
             android:onClick="@string/facebookLoginOnClick" />
 
-        <ImageButton
+        <ImageView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/imageButton"
@@ -61,7 +61,7 @@
             android:layout_marginTop="25dp"
             android:onClick="@string/twitterLoginOnClick"
             android:src="@drawable/twitter"
-            />
+            android:scaleType="fitXY" />
 
         <!--<com.twitter.sdk.android.core.identity.TwitterLoginButton-->
             <!--android:id="@+id/twitterLogin_button"-->

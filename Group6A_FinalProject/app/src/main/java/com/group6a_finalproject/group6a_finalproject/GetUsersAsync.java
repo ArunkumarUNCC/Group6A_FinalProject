@@ -59,6 +59,7 @@ public class GetUsersAsync extends AsyncTask<Void,Void,ArrayList<User>>{
         final User lUser = new User();
         lUser.setUserName(object.getString("name"));
         lUser.setUserMail(object.getEmail());
+        lUser.setUserGender(object.getString("gender"));
         ParseFile lUserImage = object.getParseFile("thumbnail");
 
         if (lUserImage != null) {

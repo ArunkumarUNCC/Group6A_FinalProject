@@ -73,6 +73,7 @@ public class PushReceiver extends ParsePushBroadcastReceiver{
                     String lAlbumId = null;
                     try {
                         lAlbumId = fData.getString("album");
+
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }

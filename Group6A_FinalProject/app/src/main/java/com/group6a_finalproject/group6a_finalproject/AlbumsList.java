@@ -13,10 +13,13 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
 
+import com.facebook.login.LoginManager;
 import com.parse.FindCallback;
 import com.parse.GetDataCallback;
+import com.parse.LogOutCallback;
 import com.parse.ParseException;
 import com.parse.ParseFile;
+import com.parse.ParseInstallation;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
@@ -78,9 +81,9 @@ public class AlbumsList extends AppCompatActivity implements GetAlbumsAsync.IGet
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
+//        if (id == R.id.action_settings) {
+//            return true;
+//        }
 
         return super.onOptionsItemSelected(item);
     }
@@ -93,7 +96,7 @@ public class AlbumsList extends AppCompatActivity implements GetAlbumsAsync.IGet
         fWhoseAlbum = lExtras.getInt("album_flag");
         String lUserEmail = lExtras.getString("current_user");
         ParseQuery<ParseUser> lGetUser = ParseUser.getQuery();
-        lGetUser.whereContains("email",lUserEmail);
+        lGetUser.whereContains("email", lUserEmail);
         try {
             List<ParseUser> lUsers = lGetUser.find();
             if(lUsers!=null){
@@ -150,7 +153,7 @@ public class AlbumsList extends AppCompatActivity implements GetAlbumsAsync.IGet
 
     public void toActivityForResult(String aIntent,int aExtra){
         Intent lIntent = new Intent(aIntent);
-        lIntent.putExtra("taskToPerform",aExtra);
+        lIntent.putExtra("taskToPerform", aExtra);
         startActivityForResult(lIntent, fCHECK_CREATE_ALBUM);
     }
 
@@ -169,6 +172,7 @@ public class AlbumsList extends AppCompatActivity implements GetAlbumsAsync.IGet
 
                     if(!fAlbumsList.contains(toPutIntoList)){
                         fAlbumsList.add(toPutIntoList);
+                        fAlbumsList = sortList(fAlbumsList);
                         fAlbumsAdapter.notifyDataSetChanged();
                     }
                     lTempAlbum.clearPreference();
@@ -272,10 +276,6 @@ public class AlbumsList extends AppCompatActivity implements GetAlbumsAsync.IGet
         return lCanAdd;
     }
 
-    public void logoutOnClick (MenuItem aItem){
-
-    }
-
     public void viewNotificationsOnClick(MenuItem aItem){
         toActivity(fGOTO_NOTIFICATIONS);
     }
@@ -308,4 +308,28 @@ public class AlbumsList extends AppCompatActivity implements GetAlbumsAsync.IGet
         finish();
     }
 
+    public void logoutOnClick (MenuItem aItem){
+
+
+        ParseInstallation installation = ParseInstallation.getCurrentInstallation();
+        installation.remove("user");
+        installation.saveInBackground();
+
+        fCurrentUser.logOutInBackground(new LogOutCallback() {
+            @Override
+            public void done(ParseException e) {
+                if (e == null) {
+                    logout();
+                    finish();
+                }
+            }
+        });
+    }
+
+    public void logout(){
+        if(LoginManager.getInstance() != null)
+            LoginManager.getInstance().logOut();
+        Intent lIntent = new Intent(AlbumsList.this, MainActivity.class);
+        startActivity(lIntent);
+    }
 }

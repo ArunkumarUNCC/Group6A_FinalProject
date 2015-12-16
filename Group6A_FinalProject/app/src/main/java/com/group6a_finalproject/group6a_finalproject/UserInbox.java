@@ -11,8 +11,11 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import com.facebook.login.LoginManager;
 import com.parse.FindCallback;
+import com.parse.LogOutCallback;
 import com.parse.ParseException;
+import com.parse.ParseInstallation;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
@@ -60,9 +63,9 @@ public class UserInbox extends AppCompatActivity implements GetMessagesAsync.IGe
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
+//        if (id == R.id.action_settings) {
+//            return true;
+//        }
 
         return super.onOptionsItemSelected(item);
     }
@@ -134,6 +137,29 @@ public class UserInbox extends AppCompatActivity implements GetMessagesAsync.IGe
 
     public void logoutOnClick (MenuItem aItem){
 
+
+        ParseInstallation installation = ParseInstallation.getCurrentInstallation();
+        installation.remove("user");
+        installation.saveInBackground();
+
+        ParseUser fCurrentUser = ParseUser.getCurrentUser();
+
+        fCurrentUser.logOutInBackground(new LogOutCallback() {
+            @Override
+            public void done(ParseException e) {
+                if (e == null) {
+                    logout();
+                    finish();
+                }
+            }
+        });
+    }
+
+    public void logout(){
+        if(LoginManager.getInstance() != null)
+            LoginManager.getInstance().logOut();
+        Intent lIntent = new Intent(UserInbox.this, MainActivity.class);
+        startActivity(lIntent);
     }
 
     public void viewAlbumOnClick(MenuItem aItem){

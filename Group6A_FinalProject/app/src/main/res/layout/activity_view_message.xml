@@ -49,14 +49,14 @@
             android:layout_marginTop="31dp" />
 
         <com.parse.ParseImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="@dimen/bigPictureWidth"
+            android:layout_height="@dimen/bigPicttureHeight"
             android:maxWidth="400px"
             android:maxHeight="400px"
             android:minWidth="400px"
             android:minHeight="400px"
             android:id="@+id/imageViewMessageAttachmentView"
-            android:layout_marginTop="31dp"
+            android:layout_marginTop="10dp"
             android:layout_below="@+id/editTextViewMessageBody"
             android:layout_centerHorizontal="true"
             android:src="@android:drawable/ic_menu_myplaces" />

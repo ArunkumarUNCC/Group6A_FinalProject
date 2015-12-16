@@ -1,8 +1,11 @@
 package com.group6a_finalproject.group6a_finalproject;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.AsyncTask;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -20,6 +23,7 @@ import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
+//import com.mopub.common.HttpClient;
 import com.parse.FindCallback;
 import com.parse.FunctionCallback;
 import com.parse.LogInCallback;
@@ -34,9 +38,10 @@ import com.parse.ParseTwitterUtils;
 import com.parse.ParseUser;
 import com.parse.PushService;
 import com.parse.SaveCallback;
+import com.parse.twitter.Twitter;
 import com.parse.SendCallback;
 import com.parse.SignUpCallback;
-import com.twitter.sdk.android.Twitter;
+//import com.twitter.sdk.android.Twitter;
 import com.twitter.sdk.android.core.Callback;
 import com.twitter.sdk.android.core.Result;
 import com.twitter.sdk.android.core.TwitterAuthConfig;
@@ -45,15 +50,26 @@ import com.twitter.sdk.android.core.TwitterException;
 import com.twitter.sdk.android.core.TwitterSession;
 import com.twitter.sdk.android.core.identity.TwitterLoginButton;
 
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -72,6 +88,10 @@ public class MainActivity extends AppCompatActivity {
 //    TwitterLoginButton fTwitterButton;
     CallbackManager fCallBack;
     Bitmap fBitmap = null;
+
+    ArrayList<Integer> privacy_settings;
+    public static final CharSequence[] TWITTER_PRIVACY_SETTINGS = {"MALE", "Listed User", "Receive Push Notifications"};
+    public static final String TWITTER_API_CALL_USER = "https://api.twitter.com/1.1/users/show.json?user_id=";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -217,24 +237,10 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void done(ParseException e) {
                 if (e == null) {
+                    sendNotiication(lUser);
 
-                    ParseQuery<ParseUser> user = ParseQuery.getQuery("_User");
-                    user.whereNotEqualTo("objectId", ParseUser.getCurrentUser().getObjectId());
-                    user.findInBackground(new FindCallback<ParseUser>() {
-                        @Override
-                        public void done(List<ParseUser> objects, ParseException e) {
-                            if (e == null) {
-                                for (ParseUser object : objects) {
-                                    if (object.getBoolean("getNotification")) {
-                                        sendNotiication(object);
-                                    }
-                                }
-
-                                createInstallation(lUser);
-                            } else e.printStackTrace();
-                        }
-                    });
-
+                    setupInstallation(lUser);
+                    finish();
                 } else {
                     fEmail.setError("Email already exists");
                 }
@@ -257,9 +263,9 @@ public class MainActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
+//        if (id == R.id.action_settings) {
+//            return true;
+//        }
 
         return super.onOptionsItemSelected(item);
     }
@@ -292,9 +298,12 @@ public class MainActivity extends AppCompatActivity {
                 if (user == null) {
                     Log.d("MyApp", "Uh oh. The user cancelled the Twitter login.");
                 } else if (user.isNew()) {
-
+                    new TwitterAuthentication().execute(TWITTER_API_CALL_USER + ParseTwitterUtils.getTwitter());
                 } else {
+                    setupInstallation(user);
 
+                    toActivity(fGOTO_MAIN_PROFILE);
+                    finish();
                 }
             }
         });
@@ -303,6 +312,7 @@ public class MainActivity extends AppCompatActivity {
     public void toActivity(String aIntent){
         Intent lIntent = new Intent(aIntent);
         startActivity(lIntent);
+
     }
 
     public void makeToast(String aString){
@@ -365,26 +375,44 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void sendNotiication(ParseUser object){
-        Map<String, String> lNotifyUsers = new HashMap<>();
-        lNotifyUsers.put("toUser", object.getObjectId());
-        lNotifyUsers.put("fromUser", ParseUser.getCurrentUser().getString("name"));
-        lNotifyUsers.put("type", "New User");
-        lNotifyUsers.put("message", " has newly signed up to the system");
+    private void sendNotiication(final ParseUser aUser){
 
-        ParseCloud.callFunctionInBackground("notifyPush", lNotifyUsers, new FunctionCallback<Object>() {
+        ParseQuery<ParseUser> user = ParseQuery.getQuery("_User");
+        user.whereNotEqualTo("objectId", ParseUser.getCurrentUser().getObjectId());
+        user.findInBackground(new FindCallback<ParseUser>() {
             @Override
-            public void done(Object object, ParseException e) {
-
+            public void done(List<ParseUser> objects, ParseException e) {
                 if (e == null) {
+                    for (ParseUser object : objects) {
+                        if (object.getBoolean("getNotification")) {
+                            Map<String, String> lNotifyUsers = new HashMap<>();
+                            lNotifyUsers.put("toUser", object.getObjectId());
+                            lNotifyUsers.put("fromUser", ParseUser.getCurrentUser().getString("name"));
+                            lNotifyUsers.put("type", "New User");
+                            lNotifyUsers.put("message", " has newly signed up to the system");
 
-                } else {
-                    Log.d("see", "error");
-                    e.printStackTrace();
+                            ParseCloud.callFunctionInBackground("notifyPush", lNotifyUsers, new FunctionCallback<Object>() {
+                                @Override
+                                public void done(Object object, ParseException e) {
 
-                }
+                                    if (e == null) {
+
+                                    } else {
+                                        Log.d("see", "error");
+                                        e.printStackTrace();
+
+                                    }
+                                }
+                            });
+                        }
+                    }
+
+                    createInstallation(aUser);
+                } else e.printStackTrace();
             }
         });
+
+
     }
 
     private void createInstallation(final ParseUser aUser){
@@ -399,5 +427,92 @@ public class MainActivity extends AppCompatActivity {
                 } else e.printStackTrace();
             }
         });
+    }
+
+    private class TwitterAuthentication extends AsyncTask<String, Void, ParseUser>{
+        @Override
+        protected ParseUser doInBackground(String... params) {
+            HttpUriRequest request = new HttpGet(params[0]);
+            Twitter twitter1 = ParseTwitterUtils.getTwitter();
+            twitter1.signRequest(request);
+            HttpClient client = new DefaultHttpClient();
+
+            //                HttpResponse response = client.execute(request);
+//                BufferedReader input = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
+//
+//                String result = input.readLine();
+//                JSONObject JsonResponse = new JSONObject(result);
+//
+//                Log.e("Response",JsonResponse.toString());
+
+            ParseUser user = ParseUser.getCurrentUser();
+
+//                user.setUsername(JsonResponse.getString("name"));
+//                String[] array = JsonResponse.getString("name").split(" ");
+//                user.put("name", array[0]);
+//                user.put("image", JsonResponse.getString("profile_image_url"));
+            user.put("name",twitter1.getScreenName());
+            return user;
+
+//            return null;
+        }
+
+        @Override
+        protected void onPostExecute(ParseUser parseUser) {
+            if (parseUser == null){
+                makeToast("EmptyUser");
+            }
+            displayUserSettingsForTwitterLogin(parseUser);
+        }
+    }
+
+    public void displayUserSettingsForTwitterLogin(final ParseUser user) {
+//        privacy_settings = new ArrayList<>();
+//        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+//        builder.setTitle("User Profile and Settings")
+//                .setCancelable(false)
+//                .setMultiChoiceItems(TWITTER_PRIVACY_SETTINGS, null, new DialogInterface.OnMultiChoiceClickListener() {
+//                    @Override
+//                    public void onClick(DialogInterface dialog, int which, boolean isChecked) {
+//                        if (isChecked) {
+//                            privacy_settings.add(which);
+//                        } else {
+//                            privacy_settings.remove(which);
+//                        }
+//                    }
+//                }).setPositiveButton("OK", new DialogInterface.OnClickListener() {
+//            @Override
+//            public void onClick(DialogInterface dialog, int which) {
+//                populatePrivacySettingsForTwitter(user);
+//            }
+//        });
+//        builder.create().show();
+
+        populatePrivacySettingsForTwitter(user);
+    }
+
+    public void populatePrivacySettingsForTwitter(final ParseUser user) {
+
+        user.put("gender", "Male");
+        user.put("isVisible", true);
+        user.put("getNotification", true);
+        user.saveInBackground(new SaveCallback() {
+            @Override
+            public void done(ParseException e) {
+                if (e == null) {
+
+                    user.setEmail(user.getObjectId()+"@xyz.com");
+                    user.saveInBackground();
+
+                    sendNotiication(user);
+                    setupInstallation(user);
+                    toActivity(fGOTO_MAIN_PROFILE);
+                    finish();
+                } else {
+                    e.printStackTrace();
+                }
+            }
+        });
+
     }
 }

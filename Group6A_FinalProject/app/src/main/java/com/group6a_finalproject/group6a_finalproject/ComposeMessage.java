@@ -17,6 +17,7 @@ import android.widget.Toast;
 
 import com.parse.FindCallback;
 import com.parse.FunctionCallback;
+import com.parse.Parse;
 import com.parse.ParseCloud;
 import com.parse.ParseException;
 import com.parse.ParseFile;
@@ -87,9 +88,9 @@ public class ComposeMessage extends AppCompatActivity {
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
+//        if (id == R.id.action_settings) {
+//            return true;
+//        }
 
         return super.onOptionsItemSelected(item);
     }
@@ -102,6 +103,7 @@ public class ComposeMessage extends AppCompatActivity {
 
         fFromMessageView = getIntent().getBooleanExtra("FromView", false);
         fMessage = (Messages) getIntent().getSerializableExtra("Message");
+
     }
 
     public void makeToast(String aString){
@@ -126,7 +128,7 @@ public class ComposeMessage extends AppCompatActivity {
 
 //        Log.d("Error", lUser.getObjectId());
         if (lUser != null) {
-            fTo_User_Email = lUser.fetchIfNeeded().getEmail();
+            fTo_User_Email = lUser.fetchIfNeeded().getObjectId();
         }
 
         return lUser;
@@ -140,7 +142,7 @@ public class ComposeMessage extends AppCompatActivity {
 
         if(fMessageBody.length() > 0){
             final ParseQuery<ParseUser> lQuery = ParseQuery.getQuery("_User");
-            lQuery.whereEqualTo("username", fTo_User_Email);
+            lQuery.whereEqualTo("objectId", fTo_User_Email);
 
             try {
                 List<ParseUser> objects = lQuery.find();
@@ -241,7 +243,19 @@ public class ComposeMessage extends AppCompatActivity {
                     break;
                 case fTO_USER_DIRECTORY://replying to message
                     fTo_User_Email = data.getStringExtra("toField");
-                    fToField.setText("TO: " + fTo_User_Email);
+                    ParseQuery<ParseUser> lGetName = ParseUser.getQuery();
+                    lGetName.whereEqualTo("email", fTo_User_Email);
+                    try {
+                        List<ParseUser> users = lGetName.find();
+
+                        for (ParseUser user : users){
+                            fReturnUser = user;
+                            fTo_User_Email = user.getObjectId();
+                        }
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
+                    fToField.setText("TO: " + fReturnUser.getString("name"));
                     break;
             }
 

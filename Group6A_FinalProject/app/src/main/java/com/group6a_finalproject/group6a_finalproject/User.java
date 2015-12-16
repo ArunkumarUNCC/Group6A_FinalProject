@@ -8,7 +8,7 @@ import com.parse.ParseFile;
  * Created by Arunkumar's on 11/24/2015.
  */
 public class User {
-    String userName,userMail;
+    String userName,userMail,userGender;
     ParseFile userImage;
 
     public String getUserName() {
@@ -33,5 +33,13 @@ public class User {
 
     public void setUserImage(ParseFile userImage) {
         this.userImage = userImage;
+    }
+
+    public String getUserGender() {
+        return userGender;
+    }
+
+    public void setUserGender(String userGender) {
+        this.userGender = userGender;
     }
 }

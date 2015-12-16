@@ -9,6 +9,10 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.facebook.login.LoginManager;
+import com.parse.LogOutCallback;
+import com.parse.ParseException;
+import com.parse.ParseInstallation;
 import com.parse.ParseUser;
 
 import java.util.ArrayList;
@@ -58,9 +62,9 @@ public class Notifications extends AppCompatActivity implements GetAlbumNotifica
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
+//        if (id == R.id.action_settings) {
+//            return true;
+//        }
 
         return super.onOptionsItemSelected(item);
     }
@@ -122,6 +126,27 @@ public class Notifications extends AppCompatActivity implements GetAlbumNotifica
 
     public void logoutOnClick (MenuItem aItem){
 
+
+        ParseInstallation installation = ParseInstallation.getCurrentInstallation();
+        installation.remove("user");
+        installation.saveInBackground();
+
+        fCurrentUser.logOutInBackground(new LogOutCallback() {
+            @Override
+            public void done(ParseException e) {
+                if (e == null) {
+                    logout();
+                    finish();
+                }
+            }
+        });
+    }
+
+    public void logout(){
+        if(LoginManager.getInstance() != null)
+            LoginManager.getInstance().logOut();
+        Intent lIntent = new Intent(Notifications.this, MainActivity.class);
+        startActivity(lIntent);
     }
 
     public void viewAlbumsOnClick(MenuItem aItem){

@@ -137,7 +137,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     public static class UsersLinearViewHolder extends RecyclerView.ViewHolder{
         RelativeLayout lUserRelativeLayout;
 
-        TextView lUserName,lUserEmail;
+        TextView lUserName,lUserEmail,lUserGender;
         ParseImageView lUserPhoto;
 
         public UsersLinearViewHolder(View itemView) {
@@ -147,6 +147,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             lUserName = (TextView) itemView.findViewById(R.id.textViewDirectoryUserName);
             lUserEmail = (TextView) itemView.findViewById(textViewDirectoryUserEmail);
             lUserPhoto = (ParseImageView) itemView.findViewById(R.id.imageViewDirectoryThumb);
+            lUserGender = (TextView) itemView.findViewById(R.id.textViewDirectoryUserGender);
         }
     }
 
@@ -447,9 +448,11 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         ParseFile lPhotoBitmap = fUsersForDisplay.get(position).getUserImage();
         String lUserName = fUsersForDisplay.get(position).getUserName();
         final String lUserEmail = fUsersForDisplay.get(position).getUserMail();
+        String lUserGender = fUsersForDisplay.get(position).getUserGender();
 
         lUsers.lUserName.setText(lUserName);
         lUsers.lUserEmail.setText(lUserEmail);
+        lUsers.lUserGender.setText(lUserGender);
 
         if (lPhotoBitmap==null)
             lUsers.lUserPhoto.setImageResource(R.drawable.no_mage);

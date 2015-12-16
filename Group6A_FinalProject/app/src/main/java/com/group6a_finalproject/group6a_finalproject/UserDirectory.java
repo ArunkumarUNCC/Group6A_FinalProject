@@ -8,7 +8,11 @@ import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.facebook.login.LoginManager;
+import com.parse.LogOutCallback;
 import com.parse.Parse;
+import com.parse.ParseException;
+import com.parse.ParseInstallation;
 import com.parse.ParseObject;
 import com.parse.ParseUser;
 
@@ -71,9 +75,9 @@ public class UserDirectory extends AppCompatActivity implements GetUsersAsync.IG
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
+//        if (id == R.id.action_settings) {
+//            return true;
+//        }
 
         return super.onOptionsItemSelected(item);
     }
@@ -121,6 +125,27 @@ public class UserDirectory extends AppCompatActivity implements GetUsersAsync.IG
 
     public void logoutOnClick (MenuItem aItem){
 
+
+        ParseInstallation installation = ParseInstallation.getCurrentInstallation();
+        installation.remove("user");
+        installation.saveInBackground();
+
+        fCurrentUser.logOutInBackground(new LogOutCallback() {
+            @Override
+            public void done(ParseException e) {
+                if (e == null) {
+                    logout();
+                    finish();
+                }
+            }
+        });
+    }
+
+    public void logout(){
+        if(LoginManager.getInstance() != null)
+            LoginManager.getInstance().logOut();
+        Intent lIntent = new Intent(UserDirectory.this, MainActivity.class);
+        startActivity(lIntent);
     }
 
     public void viewNotificationsOnClick(MenuItem aItem){

@@ -20,12 +20,15 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.facebook.login.LoginManager;
 import com.parse.CountCallback;
 import com.parse.FindCallback;
 import com.parse.GetDataCallback;
+import com.parse.LogOutCallback;
 import com.parse.ParseException;
 import com.parse.ParseFile;
 import com.parse.ParseImageView;
+import com.parse.ParseInstallation;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
@@ -62,12 +65,15 @@ public class AlbumActivity extends AppCompatActivity implements GetPhotosAsync.I
 
     public static ArrayList<Photo> fAlbumPhotos;
 
+    static ParseUser fCurrentUser;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_album);
 
         fAlbumPhotos = new ArrayList<Photo>();
+        fCurrentUser = ParseUser.getCurrentUser();
 
         getItems();
         checkPrivacy();
@@ -97,9 +103,9 @@ public class AlbumActivity extends AppCompatActivity implements GetPhotosAsync.I
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
+//        if (id == R.id.action_settings) {
+//            return true;
+//        }
 
         return super.onOptionsItemSelected(item);
     }
@@ -216,7 +222,7 @@ public class AlbumActivity extends AppCompatActivity implements GetPhotosAsync.I
         fPager.setAdapter(fPagerAdapter);
     }
 
-    public void checkPrivacy(){
+    public static void checkPrivacy(){
         ParseQuery<ParseObject> lGetAlbumId = ParseQuery.getQuery("Album");
         lGetAlbumId.whereEqualTo("name", fAlbumName);
         lGetAlbumId.findInBackground(new FindCallback<ParseObject>() {
@@ -229,7 +235,7 @@ public class AlbumActivity extends AppCompatActivity implements GetPhotosAsync.I
                     lGetShared.include("album");
                     lGetShared.include("sharedWith");
                     lGetShared.whereEqualTo("album", lCorrectAlbum);
-                    lGetShared.whereEqualTo("sharedWith", ParseUser.getCurrentUser());
+                    lGetShared.whereEqualTo("sharedWith", fCurrentUser);
                     lGetShared.countInBackground(new CountCallback() {
                         @Override
                         public void done(int count, ParseException e) {
@@ -240,7 +246,7 @@ public class AlbumActivity extends AppCompatActivity implements GetPhotosAsync.I
                                 } else {
                                     ParseQuery<ParseObject> lGetMyPrivate = ParseQuery.getQuery("Album");
                                     lGetMyPrivate.include("owner");
-                                    lGetMyPrivate.whereEqualTo("owner", ParseUser.getCurrentUser());
+                                    lGetMyPrivate.whereEqualTo("owner", fCurrentUser);
                                     lGetMyPrivate.whereEqualTo("name", fAlbumName);
                                     lGetMyPrivate.countInBackground(new CountCallback() {
                                         @Override
@@ -294,10 +300,6 @@ public class AlbumActivity extends AppCompatActivity implements GetPhotosAsync.I
         toActivity(fGOTO_USER_DIRECTORY, 1, true, true);
     }
 
-    public void logoutOnClick (MenuItem aItem){
-
-    }
-
     private void getAlbumOwner() {
         ParseQuery<ParseObject> lGetOwner = ParseQuery.getQuery("Album");
         lGetOwner.whereEqualTo("name", fAlbumName);
@@ -308,7 +310,7 @@ public class AlbumActivity extends AppCompatActivity implements GetPhotosAsync.I
                     fAlbumOwner = objects.get(0).getParseUser("owner");
 
                     try {
-                        if (!ParseUser.getCurrentUser().fetchIfNeeded().getUsername().equals(fAlbumOwner.fetchIfNeeded().getUsername())) {
+                        if (!fCurrentUser.fetchIfNeeded().getUsername().equals(fAlbumOwner.fetchIfNeeded().getUsername())) {
                             deleteMenuItems();
                             fIsSharedUser = true;
                         }
@@ -344,6 +346,32 @@ public class AlbumActivity extends AppCompatActivity implements GetPhotosAsync.I
         fPager.setVisibility(lSliderVisibility);
         fPhotoRecycler.setVisibility(lGridVisibility);
         fAlbumNameText.setVisibility(lGridVisibility);
-        fAddPhotoButton.setVisibility(lGridVisibility);
+//        fAddPhotoButton.setVisibility(lGridVisibility);
+        checkPrivacy();
+    }
+
+    public void logoutOnClick (MenuItem aItem){
+
+
+        ParseInstallation installation = ParseInstallation.getCurrentInstallation();
+        installation.remove("user");
+        installation.saveInBackground();
+
+        fCurrentUser.logOutInBackground(new LogOutCallback() {
+            @Override
+            public void done(ParseException e) {
+                if (e == null) {
+                    logout();
+                    finish();
+                }
+            }
+        });
+    }
+
+    public void logout(){
+        if(LoginManager.getInstance() != null)
+            LoginManager.getInstance().logOut();
+        Intent lIntent = new Intent(AlbumActivity.this, MainActivity.class);
+        startActivity(lIntent);
     }
 }

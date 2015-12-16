@@ -68,9 +68,9 @@ public class MainProfileActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
+//        if (id == R.id.action_settings) {
+//            return true;
+//        }
 
         return super.onOptionsItemSelected(item);
     }
@@ -88,7 +88,11 @@ public class MainProfileActivity extends AppCompatActivity {
     public void setItems(){
 
         fName.setText("Name:  "+fCurrentUser.getString("name"));
-        fEmail.setText("Email: "+fCurrentUser.getEmail());
+
+        if (fCurrentUser.getEmail() == null){
+            fEmail.setText("No Email");
+        }else
+            fEmail.setText("Email: "+fCurrentUser.getEmail());
         fGender.setText("Gender: "+fCurrentUser.getString("gender"));
         if (fCurrentUser.getBoolean("getNotification"))
             fNotify.setText("Get Notifications : Yes");
@@ -103,6 +107,7 @@ public class MainProfileActivity extends AppCompatActivity {
         if (file!=null) {
             fProfilePic.setParseFile(file);
             fProfilePic.loadInBackground();
+            fProfilePic.setScaleType(ParseImageView.ScaleType.FIT_XY);
         }
     }
 
@@ -172,17 +177,9 @@ public class MainProfileActivity extends AppCompatActivity {
 
     public void logoutOnClick (MenuItem aItem){
 
-//        ParseQuery lUnsetChannel = ParseInstallation.getQuery();
-//        lUnsetChannel.include("user");
-//        lUnsetChannel.whereEqualTo("user", fCurrentUser);
-
         ParseInstallation installation = ParseInstallation.getCurrentInstallation();
         installation.remove("user");
         installation.saveInBackground();
-
-//        ParsePush lUnsubscribeChannel= new ParsePush();
-//        lUnsubscribeChannel.setQuery(lUnsetChannel);
-//        lUnsubscribeChannel.unsubscribeInBackground("NewUser");
 
         fCurrentUser.logOutInBackground(new LogOutCallback() {
             @Override
